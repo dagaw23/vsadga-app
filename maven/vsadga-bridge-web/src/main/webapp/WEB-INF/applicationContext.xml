@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd         
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd        
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd        
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd         
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+		http://www.springframework.org/schema/task  http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+	<task:annotation-driven/>
+	<context:annotation-config/>
+	<context:component-scan base-package="pl.com.frxdream.batch"/>
+
+	<!-- polaczenie DB -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" value="jdbc:postgresql://localhost/fxdb" />
+		<property name="username" value="fxuser" />
+		<property name="password" value="fxuser1." />
+	</bean>
+	
+	<!-- DAOs -->
+	<bean id="barDataDao" class="pl.com.frxdream.dao.impl.BarDataDaoImpl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="configDataDao" class="pl.com.frxdream.dao.impl.ConfigDataDaoImpl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="currencyWritedDao" class="pl.com.frxdream.dao.impl.CurrencyWritedDaoImpl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="symbolListDao" class="pl.com.frxdream.dao.impl.SymbolListDaoImpl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="timeFrameListDao" class="pl.com.frxdream.dao.impl.TimeFrameListDaoImpl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	
+	<!-- Services -->
+	<bean id="configDataService" class="pl.com.frxdream.service.config.ConfigDataServiceImpl">
+		<property name="configDataDao" ref="configDataDao" />
+	</bean>
+	<bean id="currencyDbWriterService" class="pl.com.frxdream.service.writer.CurrencyDbWriterServiceImpl">
+		<property name="barDataDao" ref="barDataDao" />
+	</bean>
+	<bean id="currencyWritedService" class="pl.com.frxdream.service.symbol.CurrencyWritedServiceImpl">
+		<property name="currencyWritedDao" ref="currencyWritedDao" />
+	</bean>
+	<bean id="symbolService" class="pl.com.frxdream.service.symbol.SymbolServiceImpl">
+		<property name="symbolListDao" ref="symbolListDao" />
+	</bean>
+	<bean id="timeFrameService" class="pl.com.frxdream.service.timeframe.TimeFrameServiceImpl">
+		<property name="timeFrameListDao" ref="timeFrameListDao" />
+	</bean>
+	
+	<!-- Writer -->
+	<bean id="barDataFileReader" class="pl.com.frxdream.io.impl.Mt4DataFileReaderImpl">
+		<constructor-arg value="utf-8"/>
+	</bean>
+	
+</beans>
