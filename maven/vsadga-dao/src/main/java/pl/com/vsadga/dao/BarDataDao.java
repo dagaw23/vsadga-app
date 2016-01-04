@@ -1,10 +1,10 @@
-package pl.com.frxdream.dao;
+package pl.com.vsadga.dao;
 
 import java.util.List;
 
-import pl.com.frxdream.data.BarData;
-import pl.com.frxdream.data.CurrencySymbol;
-import pl.com.frxdream.data.TimeFrame;
+import pl.com.vsadga.data.BarData;
+import pl.com.vsadga.data.CurrencySymbol;
+import pl.com.vsadga.data.TimeFrame;
 
 public interface BarDataDao {
 

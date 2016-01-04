@@ -1,8 +1,8 @@
-package pl.com.frxdream.service.symbol;
+package pl.com.vsadga.service.symbol;
 
 import java.sql.Timestamp;
 
-import pl.com.frxdream.dao.CurrencyWritedDao;
+import pl.com.vsadga.dao.CurrencyWritedDao;
 
 public class CurrencyWritedServiceImpl implements CurrencyWritedService {
 	

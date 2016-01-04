@@ -1,8 +1,8 @@
-package pl.com.frxdream.service.symbol;
+package pl.com.vsadga.service.symbol;
 
 import java.util.List;
 
-import pl.com.frxdream.data.CurrencySymbol;
+import pl.com.vsadga.data.CurrencySymbol;
 
 public interface SymbolService {
 

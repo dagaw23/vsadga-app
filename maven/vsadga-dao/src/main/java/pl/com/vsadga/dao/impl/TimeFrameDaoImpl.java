@@ -1,4 +1,4 @@
-package pl.com.frxdream.dao.impl;
+package pl.com.vsadga.dao.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,9 +8,9 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import pl.com.frxdream.dao.JdbcDaoBase;
-import pl.com.frxdream.dao.TimeFrameDao;
-import pl.com.frxdream.data.TimeFrame;
+import pl.com.vsadga.dao.JdbcDaoBase;
+import pl.com.vsadga.dao.TimeFrameDao;
+import pl.com.vsadga.data.TimeFrame;
 
 public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 

@@ -1,4 +1,4 @@
-package pl.com.frxdream.data;
+package pl.com.vsadga.data;
 
 import java.io.Serializable;
 
@@ -91,12 +91,9 @@ public class TimeFrame implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result
-				+ ((isActive == null) ? 0 : isActive.hashCode());
-		result = prime * result
-				+ ((timeFrame == null) ? 0 : timeFrame.hashCode());
-		result = prime * result
-				+ ((timeFrameDesc == null) ? 0 : timeFrameDesc.hashCode());
+		result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
+		result = prime * result + ((timeFrame == null) ? 0 : timeFrame.hashCode());
+		result = prime * result + ((timeFrameDesc == null) ? 0 : timeFrameDesc.hashCode());
 		return result;
 	}
 
@@ -139,9 +136,8 @@ public class TimeFrame implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "TimeFrameList [id=" + id + ", timeFrame=" + timeFrame
-				+ ", timeFrameDesc=" + timeFrameDesc + ", isActive=" + isActive
-				+ "]";
+		return "TimeFrameList [id=" + id + ", timeFrame=" + timeFrame + ", timeFrameDesc=" + timeFrameDesc
+				+ ", isActive=" + isActive + "]";
 	}
 
 }

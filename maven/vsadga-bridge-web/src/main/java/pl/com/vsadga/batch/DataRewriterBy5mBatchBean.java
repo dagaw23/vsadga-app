@@ -1,4 +1,4 @@
-package pl.com.frxdream.batch;
+package pl.com.vsadga.batch;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -14,17 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import pl.com.frxdream.data.CurrencySymbol;
-import pl.com.frxdream.data.TimeFrame;
-import pl.com.frxdream.io.BarDataFileReader;
-import pl.com.frxdream.io.ReaderException;
-import pl.com.frxdream.service.BaseServiceException;
-import pl.com.frxdream.service.config.ConfigDataService;
-import pl.com.frxdream.service.symbol.CurrencyWritedService;
-import pl.com.frxdream.service.symbol.SymbolService;
-import pl.com.frxdream.service.timeframe.TimeFrameService;
-import pl.com.frxdream.service.writer.CurrencyDbWriterService;
-import pl.com.frxdream.utils.DateConverter;
+import pl.com.vsadga.data.CurrencySymbol;
+import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.io.BarDataFileReader;
+import pl.com.vsadga.io.ReaderException;
+import pl.com.vsadga.service.BaseServiceException;
+import pl.com.vsadga.service.config.ConfigDataService;
+import pl.com.vsadga.service.symbol.CurrencyWritedService;
+import pl.com.vsadga.service.symbol.SymbolService;
+import pl.com.vsadga.service.timeframe.TimeFrameService;
+import pl.com.vsadga.service.writer.CurrencyDbWriterService;
+import pl.com.vsadga.utils.DateConverter;
 
 @Component
 public class DataRewriterBy5mBatchBean {
@@ -98,21 +98,21 @@ public class DataRewriterBy5mBatchBean {
 		
 		
 		try {
-		for (CurrencySymbol symbol_list : symbolList) {
+		for (CurrencySymbol curr_symbol : symbolList) {
 			
-			for (TimeFrame tmefrm_list : tmeFrameList) {
+			for (TimeFrame tme_frame : tmeFrameList) {
 				// pobierz całą zawartość pliku:
-				rec_list = barDataFileReader.readAll(filePath, symbol_list.getSymbolName(), tmefrm_list.getTimeFrameDesc());
+				rec_list = barDataFileReader.readAll(filePath, curr_symbol.getSymbolName(), tme_frame.getTimeFrameDesc());
 				
 				// pobierz czas ostatniego zapisu waloru:
-				write_time = currencyWritedService.getWritedTime(symbol_list.getId(), tmefrm_list.getId());
+				write_time = currencyWritedService.getWritedTime(curr_symbol.getId(), tme_frame.getId());
 				
 				if (write_time == null) {
 					// wpisz wszystkie rekordy do tabeli:
-					currencyDbWriterService.writeAll(rec_list, symbol_list, tmefrm_list);
+					currencyDbWriterService.writeAll(rec_list, curr_symbol, tme_frame);
 				} else {
 					
-					writeFilePart(rec_list, write_time);
+					writeFilePart(rec_list, write_time, curr_symbol, tme_frame);
 					
 				}
 			}
@@ -127,22 +127,22 @@ public class DataRewriterBy5mBatchBean {
 		}
 	}
 	
-	private int writeFilePart(List<String> recordList, Timestamp lastWriteTime, CurrencySymbol symbol, ) throws ParseException {
+	private int writeFilePart(List<String> recordList, Timestamp lastWriteTime, CurrencySymbol symbol, TimeFrame timeFrame) throws ParseException, BaseServiceException {
 		int write_count = 0;
-		List<String> rec_2_write_list = new ArrayList<String>();
+		List<String> rec_2_write = new ArrayList<String>();
 		
 		for (String rec : recordList) {
 			if (lastWriteTime.getTime() < getRecordTime(rec)) {
 				LOGGER.info("   ### Zapis wg daty z rekordu [" + rec + "].");
 				
-				rec_2_write_list.add(rec);
+				rec_2_write.add(rec);
 				
 				write_count++;
 			}
 		}
 		
 		// zapis batchowy:
-		currencyDbWriterService.writeAll(rec_2_write_list, symbolList, timeFrameList);
+		currencyDbWriterService.writeAll(rec_2_write, symbol, timeFrame);
 		return write_count;
 	}
 	

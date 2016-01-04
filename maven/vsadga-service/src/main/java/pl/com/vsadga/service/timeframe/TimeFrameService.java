@@ -1,8 +1,8 @@
-package pl.com.frxdream.service.timeframe;
+package pl.com.vsadga.service.timeframe;
 
 import java.util.List;
 
-import pl.com.frxdream.data.TimeFrame;
+import pl.com.vsadga.data.TimeFrame;
 
 public interface TimeFrameService {
 

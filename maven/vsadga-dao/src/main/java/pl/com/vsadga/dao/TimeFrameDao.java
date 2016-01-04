@@ -1,8 +1,8 @@
-package pl.com.frxdream.dao;
+package pl.com.vsadga.dao;
 
 import java.util.List;
 
-import pl.com.frxdream.data.TimeFrame;
+import pl.com.vsadga.data.TimeFrame;
 
 public interface TimeFrameDao {
 

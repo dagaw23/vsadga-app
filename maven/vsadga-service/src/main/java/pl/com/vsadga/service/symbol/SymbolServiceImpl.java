@@ -1,9 +1,9 @@
-package pl.com.frxdream.service.symbol;
+package pl.com.vsadga.service.symbol;
 
 import java.util.List;
 
-import pl.com.frxdream.dao.CurrencySymbolDao;
-import pl.com.frxdream.data.CurrencySymbol;
+import pl.com.vsadga.dao.CurrencySymbolDao;
+import pl.com.vsadga.data.CurrencySymbol;
 
 public class SymbolServiceImpl implements SymbolService {
 

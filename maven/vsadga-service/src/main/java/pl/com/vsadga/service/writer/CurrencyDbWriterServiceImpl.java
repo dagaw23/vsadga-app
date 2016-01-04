@@ -1,4 +1,4 @@
-package pl.com.frxdream.service.writer;
+package pl.com.vsadga.service.writer;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -8,12 +8,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.com.frxdream.dao.BarDataDao;
-import pl.com.frxdream.data.BarData;
-import pl.com.frxdream.data.CurrencySymbol;
-import pl.com.frxdream.data.TimeFrame;
-import pl.com.frxdream.service.BaseServiceException;
-import pl.com.frxdream.utils.DateConverter;
+import pl.com.vsadga.dao.BarDataDao;
+import pl.com.vsadga.data.BarData;
+import pl.com.vsadga.data.CurrencySymbol;
+import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.service.BaseServiceException;
+import pl.com.vsadga.utils.DateConverter;
 
 public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 	/**
@@ -49,12 +49,6 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 	 */
 	public void setBarDataDao(BarDataDao barDataDao) {
 		this.barDataDao = barDataDao;
-	}
-
-	@Override
-	public void write(String record, CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

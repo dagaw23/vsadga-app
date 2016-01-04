@@ -1,4 +1,4 @@
-package pl.com.frxdream.data;
+package pl.com.vsadga.data;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -11,98 +11,11 @@ public class CurrencyWrited implements Serializable {
 
 	private Integer id;
 
-	private Timestamp writeTime;
-
 	private Integer symbolListId;
 
 	private Integer timeFrameId;
 
-	/**
-	 * @return the id
-	 */
-	public Integer getId() {
-		return id;
-	}
-
-	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	/**
-	 * @return the writeTime
-	 */
-	public Timestamp getWriteTime() {
-		return writeTime;
-	}
-
-	/**
-	 * @param writeTime
-	 *            the writeTime to set
-	 */
-	public void setWriteTime(Timestamp writeTime) {
-		this.writeTime = writeTime;
-	}
-
-	/**
-	 * @return the symbolListId
-	 */
-	public Integer getSymbolListId() {
-		return symbolListId;
-	}
-
-	/**
-	 * @param symbolListId
-	 *            the symbolListId to set
-	 */
-	public void setSymbolListId(Integer symbolListId) {
-		this.symbolListId = symbolListId;
-	}
-
-	/**
-	 * @return the timeFrameId
-	 */
-	public Integer getTimeFrameId() {
-		return timeFrameId;
-	}
-
-	/**
-	 * @param timeFrameId
-	 *            the timeFrameId to set
-	 */
-	public void setTimeFrameId(Integer timeFrameId) {
-		this.timeFrameId = timeFrameId;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "CurrencyWrited [id=" + id + ", writeTime=" + writeTime + ", symbolListId=" + symbolListId + ", timeFrameId=" + timeFrameId
-				+ "]";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((symbolListId == null) ? 0 : symbolListId.hashCode());
-		result = prime * result + ((timeFrameId == null) ? 0 : timeFrameId.hashCode());
-		result = prime * result + ((writeTime == null) ? 0 : writeTime.hashCode());
-		return result;
-	}
+	private Timestamp writeTime;
 
 	/*
 	 * (non-Javadoc)
@@ -139,6 +52,93 @@ public class CurrencyWrited implements Serializable {
 		} else if (!writeTime.equals(other.writeTime))
 			return false;
 		return true;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Integer getId() {
+		return id;
+	}
+
+	/**
+	 * @return the symbolListId
+	 */
+	public Integer getSymbolListId() {
+		return symbolListId;
+	}
+
+	/**
+	 * @return the timeFrameId
+	 */
+	public Integer getTimeFrameId() {
+		return timeFrameId;
+	}
+
+	/**
+	 * @return the writeTime
+	 */
+	public Timestamp getWriteTime() {
+		return writeTime;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((symbolListId == null) ? 0 : symbolListId.hashCode());
+		result = prime * result + ((timeFrameId == null) ? 0 : timeFrameId.hashCode());
+		result = prime * result + ((writeTime == null) ? 0 : writeTime.hashCode());
+		return result;
+	}
+
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param symbolListId
+	 *            the symbolListId to set
+	 */
+	public void setSymbolListId(Integer symbolListId) {
+		this.symbolListId = symbolListId;
+	}
+
+	/**
+	 * @param timeFrameId
+	 *            the timeFrameId to set
+	 */
+	public void setTimeFrameId(Integer timeFrameId) {
+		this.timeFrameId = timeFrameId;
+	}
+
+	/**
+	 * @param writeTime
+	 *            the writeTime to set
+	 */
+	public void setWriteTime(Timestamp writeTime) {
+		this.writeTime = writeTime;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "CurrencyWrited [id=" + id + ", writeTime=" + writeTime + ", symbolListId=" + symbolListId
+				+ ", timeFrameId=" + timeFrameId + "]";
 	}
 
 }

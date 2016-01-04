@@ -1,4 +1,4 @@
-package pl.com.frxdream.dao;
+package pl.com.vsadga.dao;
 
 import java.sql.Timestamp;
 

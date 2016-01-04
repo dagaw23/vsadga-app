@@ -1,14 +1,13 @@
-package pl.com.frxdream.service.writer;
+package pl.com.vsadga.service.writer;
 
 import java.util.List;
 
-import pl.com.frxdream.data.CurrencySymbol;
-import pl.com.frxdream.data.TimeFrame;
-import pl.com.frxdream.service.BaseServiceException;
+import pl.com.vsadga.data.CurrencySymbol;
+import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.service.BaseServiceException;
 
 public interface CurrencyDbWriterService {
 
 	public void writeAll(List<String> recordList, CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException;
 	
-	public void write(String record, CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException;
 }

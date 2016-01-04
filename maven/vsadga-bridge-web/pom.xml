@@ -2,8 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>pl.com.frxdream</groupId>
-	<artifactId>frxrewriter-web</artifactId>
+	<groupId>pl.com.vsadga</groupId>
+	<artifactId>vsadga-bridge-web</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 <!-- http://websystique.com/spring/spring-4-quartz-scheduler-integration-example/ -->
@@ -17,7 +17,7 @@
 	</properties>
 
 	<build>
-		<finalName>frxrewriter</finalName>
+		<finalName>bridge-web</finalName>
 		<pluginManagement>
 			<plugins>
 				<!-- maven-compiler-plugin -->
@@ -69,8 +69,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>pl.com.frxdream</groupId>
-			<artifactId>frxdream-service</artifactId>
+			<groupId>pl.com.vsadga</groupId>
+			<artifactId>vsadga-service</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 

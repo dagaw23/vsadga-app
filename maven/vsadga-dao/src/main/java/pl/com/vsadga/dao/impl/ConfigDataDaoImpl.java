@@ -1,4 +1,4 @@
-package pl.com.frxdream.dao.impl;
+package pl.com.vsadga.dao.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,8 +8,8 @@ import javax.sql.DataSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import pl.com.frxdream.dao.ConfigDataDao;
-import pl.com.frxdream.dao.JdbcDaoBase;
+import pl.com.vsadga.dao.ConfigDataDao;
+import pl.com.vsadga.dao.JdbcDaoBase;
 
 public class ConfigDataDaoImpl extends JdbcDaoBase implements ConfigDataDao {
 

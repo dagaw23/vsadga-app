@@ -1,4 +1,4 @@
-package pl.com.frxdream.data;
+package pl.com.vsadga.data;
 
 import java.io.Serializable;
 
@@ -79,11 +79,9 @@ public class CurrencySymbol implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result
-				+ ((isActive == null) ? 0 : isActive.hashCode());
+		result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
 		result = prime * result + ((m5TabNr == null) ? 0 : m5TabNr.hashCode());
-		result = prime * result
-				+ ((symbolName == null) ? 0 : symbolName.hashCode());
+		result = prime * result + ((symbolName == null) ? 0 : symbolName.hashCode());
 		return result;
 	}
 
@@ -105,8 +103,8 @@ public class CurrencySymbol implements Serializable {
 
 	@Override
 	public String toString() {
-		return "SymbolList [id=" + id + ", symbolName=" + symbolName
-				+ ", isActive=" + isActive + ", m5TabNr=" + m5TabNr + "]";
+		return "SymbolList [id=" + id + ", symbolName=" + symbolName + ", isActive=" + isActive + ", m5TabNr="
+				+ m5TabNr + "]";
 	}
 
 }

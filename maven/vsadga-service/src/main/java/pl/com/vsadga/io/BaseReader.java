@@ -1,4 +1,4 @@
-package pl.com.frxdream.io;
+package pl.com.vsadga.io;
 
 import java.io.BufferedReader;
 import java.io.File;

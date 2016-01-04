@@ -1,4 +1,4 @@
-package pl.com.frxdream.dao.impl;
+package pl.com.vsadga.dao.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,9 +8,9 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import pl.com.frxdream.dao.JdbcDaoBase;
-import pl.com.frxdream.dao.CurrencySymbolDao;
-import pl.com.frxdream.data.CurrencySymbol;
+import pl.com.vsadga.dao.CurrencySymbolDao;
+import pl.com.vsadga.dao.JdbcDaoBase;
+import pl.com.vsadga.data.CurrencySymbol;
 
 public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbolDao {
 

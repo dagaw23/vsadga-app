@@ -1,4 +1,4 @@
-package pl.com.frxdream.data;
+package pl.com.vsadga.data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -229,8 +229,9 @@ public class BarData implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "BarData [id=" + id + ", barTime=" + barTime + ", barHigh=" + barHigh + ", barLow=" + barLow + ", barClose=" + barClose
-				+ ", barVolume=" + barVolume + ", imaCount=" + imaCount + ", symbolListId=" + symbolListId + "]";
+		return "BarData [id=" + id + ", barTime=" + barTime + ", barHigh=" + barHigh + ", barLow=" + barLow
+				+ ", barClose=" + barClose + ", barVolume=" + barVolume + ", imaCount=" + imaCount
+				+ ", symbolListId=" + symbolListId + "]";
 	}
 
 }

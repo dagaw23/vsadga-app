@@ -1,4 +1,4 @@
-package pl.com.frxdream.utils;
+package pl.com.vsadga.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

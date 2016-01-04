@@ -1,7 +1,7 @@
 /**
  * 
  */
-package pl.com.frxdream.service;
+package pl.com.vsadga.service;
 
 /**
  * @author dgawinkowski

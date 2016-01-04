@@ -1,4 +1,4 @@
-package pl.com.frxdream.service.symbol;
+package pl.com.vsadga.service.symbol;
 
 import java.sql.Timestamp;
 

@@ -1,6 +1,6 @@
-package pl.com.frxdream.service.config;
+package pl.com.vsadga.service.config;
 
-import pl.com.frxdream.service.BaseServiceException;
+import pl.com.vsadga.service.BaseServiceException;
 
 public interface ConfigDataService {
 

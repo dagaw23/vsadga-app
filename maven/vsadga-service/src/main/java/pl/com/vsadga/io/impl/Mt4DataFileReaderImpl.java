@@ -1,12 +1,12 @@
-package pl.com.frxdream.io.impl;
+package pl.com.vsadga.io.impl;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.com.frxdream.io.BarDataFileReader;
-import pl.com.frxdream.io.BaseReader;
-import pl.com.frxdream.io.ReaderException;
+import pl.com.vsadga.io.BarDataFileReader;
+import pl.com.vsadga.io.BaseReader;
+import pl.com.vsadga.io.ReaderException;
 
 public class Mt4DataFileReaderImpl extends BaseReader implements BarDataFileReader {
 

@@ -1,4 +1,4 @@
-package pl.com.frxdream.data;
+package pl.com.vsadga.data;
 
 import java.io.Serializable;
 
@@ -9,36 +9,14 @@ public class ConfigData implements Serializable {
 	private static final long serialVersionUID = -6135706569134582183L;
 
 	private Integer id;
-	
+
 	private String paramName;
-	
+
 	private String paramValue;
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "ConfigData [id=" + id + ", paramName=" + paramName
-				+ ", paramValue=" + paramValue + "]";
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result
-				+ ((paramName == null) ? 0 : paramName.hashCode());
-		result = prime * result
-				+ ((paramValue == null) ? 0 : paramValue.hashCode());
-		return result;
-	}
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -76,24 +54,10 @@ public class ConfigData implements Serializable {
 	}
 
 	/**
-	 * @param id the id to set
-	 */
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	/**
 	 * @return the paramName
 	 */
 	public String getParamName() {
 		return paramName;
-	}
-
-	/**
-	 * @param paramName the paramName to set
-	 */
-	public void setParamName(String paramName) {
-		this.paramName = paramName;
 	}
 
 	/**
@@ -103,12 +67,53 @@ public class ConfigData implements Serializable {
 		return paramValue;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((paramName == null) ? 0 : paramName.hashCode());
+		result = prime * result + ((paramValue == null) ? 0 : paramValue.hashCode());
+		return result;
+	}
+
 	/**
-	 * @param paramValue the paramValue to set
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param paramName
+	 *            the paramName to set
+	 */
+	public void setParamName(String paramName) {
+		this.paramName = paramName;
+	}
+
+	/**
+	 * @param paramValue
+	 *            the paramValue to set
 	 */
 	public void setParamValue(String paramValue) {
 		this.paramValue = paramValue;
 	}
-	
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ConfigData [id=" + id + ", paramName=" + paramName + ", paramValue=" + paramValue + "]";
+	}
+
 }

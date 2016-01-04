@@ -1,7 +1,7 @@
-package pl.com.frxdream.service.config;
+package pl.com.vsadga.service.config;
 
-import pl.com.frxdream.dao.ConfigDataDao;
-import pl.com.frxdream.service.BaseServiceException;
+import pl.com.vsadga.dao.ConfigDataDao;
+import pl.com.vsadga.service.BaseServiceException;
 
 public class ConfigDataServiceImpl implements ConfigDataService {
 
