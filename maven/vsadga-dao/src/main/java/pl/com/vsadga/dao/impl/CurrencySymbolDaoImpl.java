@@ -14,7 +14,7 @@ import pl.com.vsadga.data.CurrencySymbol;
 
 public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbolDao {
 
-	private final String ALL_COLUMNS = "id, symbol_name, is_active, m5_tab_nr";
+	private final String ALL_COLUMNS = "id, symbol_name, is_active, table_name, m5_tab_nr";
 
 	private final String TAB_NME = "fxschema.currency_symbol";
 
@@ -24,7 +24,7 @@ public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbol
 
 	@Override
 	public List<CurrencySymbol> getActiveSymbols() {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where is_active is true";
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where is_active is true order by symbol_name";
 
 		return getJdbcTemplate().query(sql, new RowMapper<CurrencySymbol>() {
 
@@ -42,6 +42,7 @@ public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbol
 		result.setId(rs.getInt("id"));
 		result.setSymbolName(rs.getString("symbol_name"));
 		result.setIsActive(rs.getBoolean("is_active"));
+		result.setTableName(rs.getString("table_name"));
 		result.setM5TabNr(rs.getInt("m5_tab_nr"));
 
 		return result;

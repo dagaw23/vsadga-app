@@ -58,6 +58,9 @@
 	<bean id="timeFrameService" class="pl.com.vsadga.service.timeframe.TimeFrameServiceImpl">
 		<property name="timeFrameListDao" ref="timeFrameListDao" />
 	</bean>
+	<bean id="timeFrameService" class="pl.com.vsadga.service.data.CurrencyDataServiceImpl">
+		<property name="barDataDao" ref="barDataDao" />
+	</bean>
 	
 	<!-- Writer -->
 	<bean id="barDataFileReader" class="pl.com.vsadga.io.impl.Mt4DataFileReaderImpl">

@@ -10,4 +10,6 @@ public interface BarDataDao {
 
 	public void batchInsert(List<BarData> recordList, CurrencySymbol symbol, TimeFrame timeFrame);
 	
+	public List<BarData> getLastNbarsData(int count, CurrencySymbol symbol, TimeFrame timeFrame);
+	
 }

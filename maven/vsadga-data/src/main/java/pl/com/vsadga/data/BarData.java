@@ -23,7 +23,7 @@ public class BarData implements Serializable {
 
 	private BigDecimal imaCount;
 
-	private Integer symbolListId;
+	private Integer symbolId;
 
 	/*
 	 * (non-Javadoc)
@@ -74,10 +74,10 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!imaCount.equals(other.imaCount))
 			return false;
-		if (symbolListId == null) {
-			if (other.symbolListId != null)
+		if (symbolId == null) {
+			if (other.symbolId != null)
 				return false;
-		} else if (!symbolListId.equals(other.symbolListId))
+		} else if (!symbolId.equals(other.symbolId))
 			return false;
 		return true;
 	}
@@ -132,10 +132,10 @@ public class BarData implements Serializable {
 	}
 
 	/**
-	 * @return the symbolListId
+	 * @return the symbolId
 	 */
-	public Integer getSymbolListId() {
-		return symbolListId;
+	public Integer getSymbolId() {
+		return symbolId;
 	}
 
 	/*
@@ -154,7 +154,7 @@ public class BarData implements Serializable {
 		result = prime * result + ((barVolume == null) ? 0 : barVolume.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((imaCount == null) ? 0 : imaCount.hashCode());
-		result = prime * result + ((symbolListId == null) ? 0 : symbolListId.hashCode());
+		result = prime * result + ((symbolId == null) ? 0 : symbolId.hashCode());
 		return result;
 	}
 
@@ -215,11 +215,11 @@ public class BarData implements Serializable {
 	}
 
 	/**
-	 * @param symbolListId
-	 *            the symbolListId to set
+	 * @param symbolId
+	 *            the symbolId to set
 	 */
-	public void setSymbolListId(Integer symbolListId) {
-		this.symbolListId = symbolListId;
+	public void setSymbolId(Integer symbolId) {
+		this.symbolId = symbolId;
 	}
 
 	/*
@@ -229,9 +229,9 @@ public class BarData implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "BarData [id=" + id + ", barTime=" + barTime + ", barHigh=" + barHigh + ", barLow=" + barLow
-				+ ", barClose=" + barClose + ", barVolume=" + barVolume + ", imaCount=" + imaCount
-				+ ", symbolListId=" + symbolListId + "]";
+		return "BarData [barClose=" + barClose + ", barHigh=" + barHigh + ", barLow=" + barLow + ", barTime="
+				+ barTime + ", barVolume=" + barVolume + ", id=" + id + ", imaCount=" + imaCount + ", symbolId="
+				+ symbolId + "]";
 	}
 
 }

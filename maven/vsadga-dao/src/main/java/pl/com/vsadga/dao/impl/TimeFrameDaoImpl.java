@@ -24,7 +24,7 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 
 	@Override
 	public List<TimeFrame> getAllActive() {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where is_active is true";
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where is_active is true order by time_frame";
 
 		return getJdbcTemplate().query(sql, new RowMapper<TimeFrame>() {
 

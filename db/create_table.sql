@@ -8,7 +8,7 @@ create table fxschema.config_data(
 create table fxschema.currency_writed(
 	id				smallint		not null PRIMARY KEY,
 	write_time		timestamp		not null,
-	symbol_list_id	smallint		not null
+	symbol_id		smallint		not null
 					REFERENCES fxschema.currency_symbol(id),
 	time_frame_id	smallint		not null
 					REFERENCES fxschema.time_frame(id)
@@ -16,8 +16,9 @@ create table fxschema.currency_writed(
 
 create table fxschema.currency_symbol(
 	id				smallint		not null PRIMARY KEY,
-	symbol_name		varchar(10)	not null,
+	symbol_name		varchar(10)		not null,
 	is_active		boolean			not null,
+	table_name		varchar(10)		not null,
 	m5_tab_nr		smallint		not null
 );
 
@@ -29,7 +30,7 @@ create table fxschema.data_m5_1(
 	bar_close		numeric(10,5)	not null,
 	bar_volume		integer			not null,
 	ima_count		numeric(10,5)	not null,
-	symbol_list_id	smallint		not null
+	symbol_id		smallint		not null
 					REFERENCES fxschema.currency_symbol(id)
 );
 
@@ -41,7 +42,7 @@ create table fxschema.data_m5_2(
 	bar_close		numeric(10,5)	not null,
 	bar_volume		integer			not null,
 	ima_count		numeric(10,5)	not null,
-	symbol_list_id	smallint		not null
+	symbol_id		smallint		not null
 					REFERENCES fxschema.currency_symbol(id)
 );
 
@@ -53,7 +54,7 @@ create table fxschema.data_m15(
 	bar_close		numeric(10,5)	not null,
 	bar_volume		integer			not null,
 	ima_count		numeric(10,5)	not null,
-	symbol_list_id	smallint		not null
+	symbol_id		smallint		not null
 					REFERENCES fxschema.currency_symbol(id)
 );
 
@@ -65,7 +66,7 @@ create table fxschema.data_h1(
 	bar_close		numeric(10,5)	not null,
 	bar_volume		integer			not null,
 	ima_count		numeric(10,5)	not null,
-	symbol_list_id	smallint		not null
+	symbol_id		smallint		not null
 					REFERENCES fxschema.currency_symbol(id)
 );
 
@@ -109,14 +110,15 @@ CREATE UNIQUE INDEX currency_writed_idx ON currency_writed(symbol_list_id, time_
 
 --nextval('fxschema.config_data_seq')
 
-insert into fxschema.currency_symbol(id, symbol_name, is_active, m5_tab_nr)
-values (1, 'EURUSD', true, 1);
-insert into fxschema.currency_symbol(id, symbol_name, is_active, m5_tab_nr)
-values (2, 'GOLD', true, 1);
-insert into fxschema.currency_symbol(id, symbol_name, is_active, m5_tab_nr)
-values (3, 'GBPUSD', true, 2);
-insert into fxschema.currency_symbol(id, symbol_name, is_active, m5_tab_nr)
-values (4, 'AUDUSD', true, 2);
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name, m5_tab_nr)
+values (1, 'EURUSD', true, 'EURUSD', 1);
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name, m5_tab_nr)
+values (2, 'GOLD', true, 'GOLD', 1);
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name, m5_tab_nr)
+values (3, 'GBPUSD', true, 'GBPUSD', 2);
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name, m5_tab_nr)
+values (4, 'AUDUSD', true, 'AUDUSD', 2);
+
 
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
 values (1, 1, 'M1', false);

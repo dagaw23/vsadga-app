@@ -1,6 +1,7 @@
 package pl.com.vsadga.dao.impl;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.RowMapper;
 
 import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.dao.JdbcDaoBase;
@@ -17,7 +19,7 @@ import pl.com.vsadga.data.TimeFrame;
 
 public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
-	private final String ALL_COLUMNS = "id, bar_time, bar_low, bar_high, bar_close, bar_volume, ima_count, symbol_list_id";
+	private final String ALL_COLUMNS = "id, bar_time, bar_low, bar_high, bar_close, bar_volume, ima_count, symbol_id";
 
 	private final String SCHM_NME = "fxschema.";
 
@@ -48,20 +50,53 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				ps.setBigDecimal(4, recordList.get(i).getBarClose());
 				ps.setInt(5, recordList.get(i).getBarVolume());
 				ps.setBigDecimal(6, recordList.get(i).getImaCount());
-				ps.setInt(7, recordList.get(i).getSymbolListId());
+				ps.setInt(7, recordList.get(i).getSymbolId());
 			}
 		});
 
 	}
 
-	private String getTableName(CurrencySymbol symbolList, TimeFrame timeFrameList) {
-		String tab_name = "data_" + timeFrameList.getTimeFrameDesc();
+	@Override
+	public List<BarData> getLastNbarsData(final int count, final CurrencySymbol symbol, final TimeFrame timeFrame) {
+		String tab_name = SCHM_NME + getTableName(symbol, timeFrame);
+		
+		String sql = "select " + ALL_COLUMNS + " from " + tab_name + " where symbol_id=? order by bar_time desc";
+		
+		List<BarData> data_list = getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+			@Override
+			public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2BarData(rs);
+			}
+			
+		}, symbol.getId());
+		
+		return data_list.subList(0, count);
+	}
+
+	private String getTableName(CurrencySymbol symbol, TimeFrame timeFrame) {
+		String tab_name = "data_" + timeFrame.getTimeFrameDesc();
 
 		// dla M5 - pobierz numer tabeli:
-		if (timeFrameList.getTimeFrame() == 5) {
-			return tab_name + "_" + symbolList.getM5TabNr();
+		if (timeFrame.getTimeFrame() == 5) {
+			return tab_name + "_" + symbol.getM5TabNr();
 		} else
 			return tab_name;
+	}
+	
+	private BarData rs2BarData(final ResultSet rs) throws SQLException {
+		BarData data = new BarData();
+		
+		data.setId(rs.getInt("id"));
+		data.setBarTime(rs.getLong("bar_time"));
+		data.setBarLow(rs.getBigDecimal("bar_low"));
+		data.setBarHigh(rs.getBigDecimal("bar_high"));
+		data.setBarClose(rs.getBigDecimal("bar_close"));
+		data.setBarVolume(rs.getInt("bar_volume"));
+		data.setImaCount(rs.getBigDecimal("ima_count"));
+		data.setSymbolId(rs.getInt("symbol_id"));
+		
+		return data;
 	}
 
 }

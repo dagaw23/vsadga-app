@@ -16,6 +16,8 @@ public class CurrencySymbol implements Serializable {
 
 	private String symbolName;
 
+	private String tableName;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -50,6 +52,11 @@ public class CurrencySymbol implements Serializable {
 				return false;
 		} else if (!symbolName.equals(other.symbolName))
 			return false;
+		if (tableName == null) {
+			if (other.tableName != null)
+				return false;
+		} else if (!tableName.equals(other.tableName))
+			return false;
 		return true;
 	}
 
@@ -69,6 +76,13 @@ public class CurrencySymbol implements Serializable {
 		return symbolName;
 	}
 
+	/**
+	 * @return the tableName
+	 */
+	public String getTableName() {
+		return tableName;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -82,6 +96,7 @@ public class CurrencySymbol implements Serializable {
 		result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
 		result = prime * result + ((m5TabNr == null) ? 0 : m5TabNr.hashCode());
 		result = prime * result + ((symbolName == null) ? 0 : symbolName.hashCode());
+		result = prime * result + ((tableName == null) ? 0 : tableName.hashCode());
 		return result;
 	}
 
@@ -101,10 +116,23 @@ public class CurrencySymbol implements Serializable {
 		this.symbolName = symbolName;
 	}
 
+	/**
+	 * @param tableName
+	 *            the tableName to set
+	 */
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
-		return "SymbolList [id=" + id + ", symbolName=" + symbolName + ", isActive=" + isActive + ", m5TabNr="
-				+ m5TabNr + "]";
+		return "CurrencySymbol [id=" + id + ", isActive=" + isActive + ", m5TabNr=" + m5TabNr + ", tableName="
+				+ tableName + ", symbolName=" + symbolName + "]";
 	}
 
 }

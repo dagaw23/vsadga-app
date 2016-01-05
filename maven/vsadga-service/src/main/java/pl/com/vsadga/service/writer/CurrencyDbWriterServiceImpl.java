@@ -28,7 +28,7 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 
 	private CurrencyWritedDao currencyWritedDao;
 
-	private BarData getBarData(String record, Integer symbolListId) throws ParseException {
+	private BarData getBarData(String record, Integer symbolId) throws ParseException {
 		String[] rec_tab = record.split(";");
 
 		if (rec_tab.length != 6) {
@@ -45,7 +45,7 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 		bar_data.setBarClose(new BigDecimal(rec_tab[3]));
 		bar_data.setBarVolume(Integer.valueOf(rec_tab[4]));
 		bar_data.setImaCount(new BigDecimal(rec_tab[5]));
-		bar_data.setSymbolListId(symbolListId);
+		bar_data.setSymbolId(symbolId);
 
 		return bar_data;
 	}
