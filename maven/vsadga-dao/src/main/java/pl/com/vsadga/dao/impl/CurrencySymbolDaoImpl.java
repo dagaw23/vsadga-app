@@ -16,7 +16,7 @@ public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbol
 
 	private final String ALL_COLUMNS = "id, symbol_name, is_active, m5_tab_nr";
 
-	private final String TAB_NME = "fxschema.symbol_list";
+	private final String TAB_NME = "fxschema.currency_symbol";
 
 	public CurrencySymbolDaoImpl(DataSource dataSource) {
 		super(dataSource);
@@ -24,7 +24,7 @@ public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbol
 
 	@Override
 	public List<CurrencySymbol> getActiveSymbols() {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME;
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where is_active is true";
 
 		return getJdbcTemplate().query(sql, new RowMapper<CurrencySymbol>() {
 

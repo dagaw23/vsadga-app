@@ -16,7 +16,7 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 
 	private final String ALL_COLUMNS = "id, time_frame, time_frame_desc, is_active";
 
-	private final String TAB_NME = "fxschema.time_frame_list";
+	private final String TAB_NME = "fxschema.time_frame";
 
 	public TimeFrameDaoImpl(DataSource dataSource) {
 		super(dataSource);
@@ -24,7 +24,7 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 
 	@Override
 	public List<TimeFrame> getAllActive() {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME;
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where is_active is true";
 
 		return getJdbcTemplate().query(sql, new RowMapper<TimeFrame>() {
 

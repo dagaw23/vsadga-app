@@ -17,7 +17,7 @@ import pl.com.vsadga.data.TimeFrame;
 
 public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
-	private final String ALL_COLUMNS = "id, bar_time, bar_low, bar_high, bar_close, bar_volume, symbol_list_id";
+	private final String ALL_COLUMNS = "id, bar_time, bar_low, bar_high, bar_close, bar_volume, ima_count, symbol_list_id";
 
 	private final String SCHM_NME = "fxschema.";
 
@@ -31,7 +31,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		String seq_name = SCHM_NME + getTableName(symbolList, timeFrameList) + "_seq";
 
 		String sql = "insert into " + tab_name + "(" + ALL_COLUMNS + ") values (nextval('" + seq_name
-				+ "'),?,?,?,?,?,?)";
+				+ "'),?, ?,?,?, ?,?,?)";
 
 		getJdbcTemplate().batchUpdate(sql, new BatchPreparedStatementSetter() {
 
@@ -47,7 +47,8 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				ps.setBigDecimal(3, recordList.get(i).getBarHigh());
 				ps.setBigDecimal(4, recordList.get(i).getBarClose());
 				ps.setInt(5, recordList.get(i).getBarVolume());
-				ps.setInt(6, recordList.get(i).getSymbolListId());
+				ps.setBigDecimal(6, recordList.get(i).getImaCount());
+				ps.setInt(7, recordList.get(i).getSymbolListId());
 			}
 		});
 

@@ -35,7 +35,7 @@ public class ConfigDataDaoImpl extends JdbcDaoBase implements ConfigDataDao {
 					return null;
 			}
 
-		});
+		}, paramName);
 	}
 
 }

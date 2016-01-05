@@ -82,6 +82,9 @@ public class DataRewriterBy5mBatchBean {
 				return;
 			}
 			
+			// przetwórz pliki:
+			rewriteFileContent2db(symbol_list, tmefrm_list, file_path);
+			
 		} catch (BaseServiceException e) {
 			e.printStackTrace();
 			LOGGER.error("::cronJob:: wyjatek BaseServiceException!");
@@ -104,16 +107,21 @@ public class DataRewriterBy5mBatchBean {
 				// pobierz całą zawartość pliku:
 				rec_list = barDataFileReader.readAll(filePath, curr_symbol.getSymbolName(), tme_frame.getTimeFrameDesc());
 				
+				// jeśli pusta lista rekordów: przejdź do następnego
+				if (rec_list.isEmpty()) {
+					LOGGER.info("   ### Pusta lista rekordow [" + curr_symbol.getSymbolName() + "," + tme_frame.getTimeFrameDesc() + "].");
+					continue;
+				}
+				
 				// pobierz czas ostatniego zapisu waloru:
 				write_time = currencyWritedService.getWritedTime(curr_symbol.getId(), tme_frame.getId());
 				
 				if (write_time == null) {
 					// wpisz wszystkie rekordy do tabeli:
 					currencyDbWriterService.writeAll(rec_list, curr_symbol, tme_frame);
+					
 				} else {
-					
 					writeFilePart(rec_list, write_time, curr_symbol, tme_frame);
-					
 				}
 			}
 		}
@@ -128,8 +136,8 @@ public class DataRewriterBy5mBatchBean {
 	}
 	
 	private int writeFilePart(List<String> recordList, Timestamp lastWriteTime, CurrencySymbol symbol, TimeFrame timeFrame) throws ParseException, BaseServiceException {
-		int write_count = 0;
 		List<String> rec_2_write = new ArrayList<String>();
+		int write_count = 0;
 		
 		for (String rec : recordList) {
 			if (lastWriteTime.getTime() < getRecordTime(rec)) {
@@ -150,36 +158,5 @@ public class DataRewriterBy5mBatchBean {
 		String[] rec_tab =  record.split(";");
 		
 		return DateConverter.stringToDate(rec_tab[0], "yyyy.MM.dd HH:mm:ss").getTime();
-	}
-	
-	private GregorianCalendar getWriteTime(Timestamp timeStamp, int timeFrameInd) {
-		
-		GregorianCalendar cal = new GregorianCalendar();
-		cal.setTimeInMillis(timeStamp.getTime());
-		
-		return cal;
-		
-		//cal.set(GregorianCalendar.SECOND, 0);
-		//cal.set(GregorianCalendar.MILLISECOND, 0);
-		
-		//if (timeFrameInd == 5) {
-//			cal.add(GregorianCalendar.MINUTE, amount);
-	//		
-		//} else if (timeFrameInd == 15) {
-			
-		//} else if (timeFrameInd == 60) {
-			
-		//} else if (timeFrameInd == 240) {
-			
-		//} else if (timeFrameInd == 1440) {
-			
-		//} else {
-			//LOGGER.info("Przedzial czasowy [" + timeFrameInd + "] nie jest wspierany.");
-			//return null;
-		//}
-			
-		
-		//DateConverter.dateToString(date)
-		
 	}
 }
