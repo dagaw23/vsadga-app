@@ -70,7 +70,7 @@ void OnTick()
    
       // czy zmienila sie minuta:
       if (gLastMinute != TimeMinute(l_time)) {
-         Sleep(2000); // zatrzymanie jeszcze dla pewnosci na 2 sekundy
+         Sleep(2000); // zatrzymanie jeszcze na 2 sekundy
          Alert("OnTick():", gLastMinute, ",", TimeMinute(l_time), ".");
       
          gLastMinute = TimeMinute(l_time);
@@ -208,16 +208,9 @@ void write_to_file(string file_name, string symbol, int tme_frm, int buff_size)
       PrintFormat("%s file is available for writing.", file_name);
       PrintFormat("File path: %s\\%s\\", TerminalInfoString(TERMINAL_DATA_PATH), FILE_DIR_PATH);
       
-      // przesunienie kursora na sam koniec pliku:
-      bool seek_flag = FileSeek(file_handle, 0, SEEK_END);
+      write_data_to_file(file_handle, symbol, tme_frm, buff_size);
+      PrintFormat("Data is written, %s file is closed.", file_name);          
       
-      if (seek_flag) {
-         write_data_to_file(file_handle, symbol, tme_frm, buff_size);
-         PrintFormat("Data is written, %s file is closed.", file_name);
-      } else {
-         PrintFormat("Data is not written - by seek flag, Error code = %d.", GetLastError());
-      }
-            
       FileClose(file_handle);
       
    } else
