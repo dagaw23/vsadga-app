@@ -2,6 +2,7 @@ package pl.com.vsadga.data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class BarData implements Serializable {
 	/**
@@ -9,20 +10,67 @@ public class BarData implements Serializable {
 	 */
 	private static final long serialVersionUID = -404888175506948188L;
 
+	/**
+	 * cena zamknięcia
+	 */
 	private BigDecimal barClose;
 
+	/**
+	 * czas bara (w milisekundach)
+	 */
+	private Date barTime;
+
+	/**
+	 * cena maksymalna w trakcie bara
+	 */
 	private BigDecimal barHigh;
 
+	/**
+	 * cena minimalna w trakcie bara
+	 */
 	private BigDecimal barLow;
 
-	private Long barTime;
-
+	/**
+	 * ilość ticków w trakcie bara
+	 */
 	private Integer barVolume;
 
+	/**
+	 * ID rekordu
+	 */
 	private Integer id;
 
+	/**
+	 * wyliczona średnia krocząca
+	 */
 	private BigDecimal imaCount;
 
+	/**
+	 * numer sygnału, jaki wystąpił na barze
+	 */
+	private Integer indicatorNr;
+
+	/**
+	 * waga wskaźnika <br/>
+	 * (im większy numer, tym większe znaczenie wskaźnika)
+	 */
+	private Integer indicatorWeight;
+
+	/**
+	 * czy sygnał został potwierdzony
+	 */
+	private Boolean isConfirm;
+
+	/**
+	 * czy bar został przetworzony pod kierunkiem sygnału 0: nie przetworzony
+	 * pod kierunkiem sygnału, 1: przetworzony, ale czeka na potwierdzenie 2:
+	 * przetoworzony do końca
+	 */
+	private Integer processPhase;
+
+	/**
+	 * odwołanie do symbolu, którego dotyczy bar
+	 */
 	private Integer symbolId;
 
 	/*
@@ -44,6 +92,11 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!barClose.equals(other.barClose))
 			return false;
+		if (barTime == null) {
+			if (other.barTime != null)
+				return false;
+		} else if (!barTime.equals(other.barTime))
+			return false;
 		if (barHigh == null) {
 			if (other.barHigh != null)
 				return false;
@@ -53,11 +106,6 @@ public class BarData implements Serializable {
 			if (other.barLow != null)
 				return false;
 		} else if (!barLow.equals(other.barLow))
-			return false;
-		if (barTime == null) {
-			if (other.barTime != null)
-				return false;
-		} else if (!barTime.equals(other.barTime))
 			return false;
 		if (barVolume == null) {
 			if (other.barVolume != null)
@@ -74,6 +122,26 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!imaCount.equals(other.imaCount))
 			return false;
+		if (indicatorNr == null) {
+			if (other.indicatorNr != null)
+				return false;
+		} else if (!indicatorNr.equals(other.indicatorNr))
+			return false;
+		if (indicatorWeight == null) {
+			if (other.indicatorWeight != null)
+				return false;
+		} else if (!indicatorWeight.equals(other.indicatorWeight))
+			return false;
+		if (isConfirm == null) {
+			if (other.isConfirm != null)
+				return false;
+		} else if (!isConfirm.equals(other.isConfirm))
+			return false;
+		if (processPhase == null) {
+			if (other.processPhase != null)
+				return false;
+		} else if (!processPhase.equals(other.processPhase))
+			return false;
 		if (symbolId == null) {
 			if (other.symbolId != null)
 				return false;
@@ -87,6 +155,10 @@ public class BarData implements Serializable {
 	 */
 	public BigDecimal getBarClose() {
 		return barClose;
+	}
+
+	public Date getBarTime() {
+		return barTime;
 	}
 
 	/**
@@ -103,16 +175,6 @@ public class BarData implements Serializable {
 		return barLow;
 	}
 
-	/**
-	 * @return the barTime
-	 */
-	public Long getBarTime() {
-		return barTime;
-	}
-
-	/**
-	 * @return the barVolume
-	 */
 	public Integer getBarVolume() {
 		return barVolume;
 	}
@@ -129,6 +191,22 @@ public class BarData implements Serializable {
 	 */
 	public BigDecimal getImaCount() {
 		return imaCount;
+	}
+
+	public Integer getIndicatorNr() {
+		return indicatorNr;
+	}
+
+	public Integer getIndicatorWeight() {
+		return indicatorWeight;
+	}
+
+	public Boolean getIsConfirm() {
+		return isConfirm;
+	}
+
+	public Integer getProcessPhase() {
+		return processPhase;
 	}
 
 	/**
@@ -148,12 +226,16 @@ public class BarData implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((barClose == null) ? 0 : barClose.hashCode());
+		result = prime * result + ((barTime == null) ? 0 : barTime.hashCode());
 		result = prime * result + ((barHigh == null) ? 0 : barHigh.hashCode());
 		result = prime * result + ((barLow == null) ? 0 : barLow.hashCode());
-		result = prime * result + ((barTime == null) ? 0 : barTime.hashCode());
 		result = prime * result + ((barVolume == null) ? 0 : barVolume.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((imaCount == null) ? 0 : imaCount.hashCode());
+		result = prime * result + ((indicatorNr == null) ? 0 : indicatorNr.hashCode());
+		result = prime * result + ((indicatorWeight == null) ? 0 : indicatorWeight.hashCode());
+		result = prime * result + ((isConfirm == null) ? 0 : isConfirm.hashCode());
+		result = prime * result + ((processPhase == null) ? 0 : processPhase.hashCode());
 		result = prime * result + ((symbolId == null) ? 0 : symbolId.hashCode());
 		return result;
 	}
@@ -164,6 +246,10 @@ public class BarData implements Serializable {
 	 */
 	public void setBarClose(BigDecimal barClose) {
 		this.barClose = barClose;
+	}
+
+	public void setBarTime(Date barTime) {
+		this.barTime = barTime;
 	}
 
 	/**
@@ -180,14 +266,6 @@ public class BarData implements Serializable {
 	 */
 	public void setBarLow(BigDecimal barLow) {
 		this.barLow = barLow;
-	}
-
-	/**
-	 * @param barTime
-	 *            the barTime to set
-	 */
-	public void setBarTime(Long barTime) {
-		this.barTime = barTime;
 	}
 
 	/**
@@ -214,6 +292,22 @@ public class BarData implements Serializable {
 		this.imaCount = imaCount;
 	}
 
+	public void setIndicatorNr(Integer indicatorNr) {
+		this.indicatorNr = indicatorNr;
+	}
+
+	public void setIndicatorWeight(Integer indicatorWeight) {
+		this.indicatorWeight = indicatorWeight;
+	}
+
+	public void setIsConfirm(Boolean isConfirm) {
+		this.isConfirm = isConfirm;
+	}
+
+	public void setProcessPhase(Integer processPhase) {
+		this.processPhase = processPhase;
+	}
+
 	/**
 	 * @param symbolId
 	 *            the symbolId to set
@@ -229,9 +323,10 @@ public class BarData implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "BarData [barClose=" + barClose + ", barHigh=" + barHigh + ", barLow=" + barLow + ", barTime="
-				+ barTime + ", barVolume=" + barVolume + ", id=" + id + ", imaCount=" + imaCount + ", symbolId="
-				+ symbolId + "]";
+		return "BarData [barClose=" + barClose + ", barTime=" + barTime + ", barHigh=" + barHigh + ", barLow=" + barLow
+				+ ", barVolume=" + barVolume + ", id=" + id + ", imaCount=" + imaCount + ", indicatorNr=" + indicatorNr
+				+ ", indicatorWeight=" + indicatorWeight + ", isConfirm=" + isConfirm + ", processPhase=" + processPhase
+				+ ", symbolId=" + symbolId + "]";
 	}
 
 }

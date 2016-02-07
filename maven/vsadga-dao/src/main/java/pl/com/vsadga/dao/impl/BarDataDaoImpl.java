@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -44,7 +45,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				ps.setTimestamp(1, new Timestamp(recordList.get(i).getBarTime()));
+				ps.setTimestamp(1, new Timestamp(recordList.get(i).getBarTime().getTime()));
 				ps.setBigDecimal(2, recordList.get(i).getBarLow());
 				ps.setBigDecimal(3, recordList.get(i).getBarHigh());
 				ps.setBigDecimal(4, recordList.get(i).getBarClose());
@@ -75,11 +76,11 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	private String getTableName(CurrencySymbol symbol, TimeFrame timeFrame) {
-		String tab_name = "data_" + timeFrame.getTimeFrameDesc();
+		String tab_name = "data_"  +  timeFrame.getTimeFrameDesc();
 
-		// dla M5 - pobierz numer tabeli:
+		// dla M5 - dodaj jeszcze symbol:
 		if (timeFrame.getTimeFrame() == 5) {
-			return tab_name + "_" + symbol.getM5TabNr();
+			return tab_name + "_" + symbol.getTableName();
 		} else
 			return tab_name;
 	}
@@ -88,7 +89,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		BarData data = new BarData();
 		
 		data.setId(rs.getInt("id"));
-		data.setBarTime(rs.getLong("bar_time"));
+		data.setBarTime(new Date(rs.getTimestamp("bar_time").getTime()));
 		data.setBarLow(rs.getBigDecimal("bar_low"));
 		data.setBarHigh(rs.getBigDecimal("bar_high"));
 		data.setBarClose(rs.getBigDecimal("bar_close"));

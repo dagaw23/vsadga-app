@@ -22,26 +22,34 @@ create table fxschema.currency_symbol(
 	m5_tab_nr		smallint		not null
 );
 
-create table fxschema.data_m5_1(
-	id				integer			not null PRIMARY KEY,
-	bar_time		timestamp		not null,
-	bar_low			numeric(10,5)	not null,
-	bar_high		numeric(10,5)	not null,
-	bar_close		numeric(10,5)	not null,
-	bar_volume		integer			not null,
-	ima_count		numeric(10,5)	not null,
+create table fxschema.data_m5_EURUSD(
+	id					integer			not null PRIMARY KEY,
+	bar_time			timestamp		not null,
+	bar_low				numeric(10,5)	not null,
+	bar_high			numeric(10,5)	not null,
+	bar_close			numeric(10,5)	not null,
+	bar_volume			integer			not null,
+	ima_count			numeric(10,5)	not null,
+	indicator_nr		integer			not null,
+	indicator_weight	integer			not null,
+	is_confirm			boolean			not null,
+	process_phase		integer			not null,
 	symbol_id		smallint		not null
 					REFERENCES fxschema.currency_symbol(id)
 );
 
-create table fxschema.data_m5_2(
-	id				integer			not null PRIMARY KEY,
-	bar_time		timestamp		not null,
-	bar_low			numeric(10,5)	not null,
-	bar_high		numeric(10,5)	not null,
-	bar_close		numeric(10,5)	not null,
-	bar_volume		integer			not null,
-	ima_count		numeric(10,5)	not null,
+create table fxschema.data_m5_GBPUSD(
+	id					integer			not null PRIMARY KEY,
+	bar_time			timestamp		not null,
+	bar_low				numeric(10,5)	not null,
+	bar_high			numeric(10,5)	not null,
+	bar_close			numeric(10,5)	not null,
+	bar_volume			integer			not null,
+	ima_count			numeric(10,5)	not null,
+	indicator_nr		integer			not null,
+	indicator_weight	integer			not null,
+	is_confirm			boolean			not null,
+	process_phase		integer			not null,
 	symbol_id		smallint		not null
 					REFERENCES fxschema.currency_symbol(id)
 );
