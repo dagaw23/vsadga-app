@@ -9,10 +9,14 @@ import pl.com.vsadga.data.TimeFrame;
 
 public interface BarDataDao {
 
-	public void batchInsert(List<BarData> recordList, CurrencySymbol symbol, TimeFrame timeFrame);
+	public void batchInsert(CurrencySymbol symbol, TimeFrame timeFrame, List<BarData> dataList);
 	
-	boolean existBarData(CurrencySymbol symbol, Date barDate);
+	boolean existBarData(CurrencySymbol symbol, TimeFrame timeFrame, Date date);
 	
-	public List<BarData> getLastNbarsData(int count, CurrencySymbol symbol, TimeFrame timeFrame);
+	public List<BarData> getLastNbarsData(CurrencySymbol symbol, TimeFrame timeFrame, int size);
+	
+	int insert(CurrencySymbol symbol, TimeFrame timeFrame, BarData barData);
+	
+	int updateIndyData(Integer id, TimeFrame timeFrame, Integer nr, Integer weight, Boolean isConfirm, Integer phase);
 	
 }

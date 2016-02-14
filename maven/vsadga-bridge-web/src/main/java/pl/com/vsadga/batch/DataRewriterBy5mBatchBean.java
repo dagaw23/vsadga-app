@@ -112,6 +112,8 @@ public class DataRewriterBy5mBatchBean {
 					continue;
 				}
 				
+				// po
+				
 				// pobierz czas ostatniego zapisu waloru:
 				write_time = currencyWritedService.getWritedTime(curr_symbol.getId(), tme_frame.getId());
 				

@@ -8,6 +8,18 @@ import pl.com.vsadga.service.BaseServiceException;
 
 public interface CurrencyDbWriterService {
 
-	public void writeAll(List<String> recordList, CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException;
-	
+	public void writeAll(List<String> recordList, CurrencySymbol symbol, TimeFrame timeFrame)
+			throws BaseServiceException;
+
+	/**
+	 * Sprawdza wg aktualnej daty systemowej oraz rodzaju ramki - które bary są
+	 * do wpisania, a które do aktualizacji w tabeli.
+	 * 
+	 * @param symbol
+	 * @param timeFrame
+	 * @param recordList
+	 * @throws BaseServiceException
+	 */
+	void write(CurrencySymbol symbol, TimeFrame timeFrame, List<String> recordList) throws BaseServiceException;
+
 }

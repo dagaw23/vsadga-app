@@ -5,15 +5,6 @@ create table fxschema.config_data(
 	param_value		varchar(200)	not null
 );
 
-create table fxschema.currency_writed(
-	id				smallint		not null PRIMARY KEY,
-	write_time		timestamp		not null,
-	symbol_id		smallint		not null
-					REFERENCES fxschema.currency_symbol(id),
-	time_frame_id	smallint		not null
-					REFERENCES fxschema.time_frame(id)
-);
-
 create table fxschema.currency_symbol(
 	id				smallint		not null PRIMARY KEY,
 	symbol_name		varchar(10)		not null,
@@ -22,7 +13,7 @@ create table fxschema.currency_symbol(
 	m5_tab_nr		smallint		not null
 );
 
-create table fxschema.data_m5_EURUSD(
+create table fxschema.data_m5(
 	id					integer			not null PRIMARY KEY,
 	bar_time			timestamp		not null,
 	bar_low				numeric(10,5)	not null,
@@ -30,25 +21,9 @@ create table fxschema.data_m5_EURUSD(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
-	indicator_nr		integer			not null,
-	indicator_weight	integer			not null,
-	is_confirm			boolean			not null,
-	process_phase		integer			not null,
-	symbol_id		smallint		not null
-					REFERENCES fxschema.currency_symbol(id)
-);
-
-create table fxschema.data_m5_GBPUSD(
-	id					integer			not null PRIMARY KEY,
-	bar_time			timestamp		not null,
-	bar_low				numeric(10,5)	not null,
-	bar_high			numeric(10,5)	not null,
-	bar_close			numeric(10,5)	not null,
-	bar_volume			integer			not null,
-	ima_count			numeric(10,5)	not null,
-	indicator_nr		integer			not null,
-	indicator_weight	integer			not null,
-	is_confirm			boolean			not null,
+	indicator_nr		integer			null,
+	indicator_weight	integer			null,
+	is_confirm			boolean			null,
 	process_phase		integer			not null,
 	symbol_id		smallint		not null
 					REFERENCES fxschema.currency_symbol(id)
@@ -86,19 +61,8 @@ create table fxschema.time_frame(
 );
 
 
-
-CREATE SEQUENCE fxschema.currency_writed_seq 
-	INCREMENT BY 1
-    START WITH 1
-	CACHE 100
-	CYCLE;
 	
-CREATE SEQUENCE fxschema.data_m5_1_seq 
-	INCREMENT BY 1
-    START WITH 1
-	CACHE 100
-	CYCLE;
-CREATE SEQUENCE fxschema.data_m5_2_seq 
+CREATE SEQUENCE fxschema.data_m5_seq 
 	INCREMENT BY 1
     START WITH 1
 	CACHE 100
@@ -113,8 +77,6 @@ CREATE SEQUENCE fxschema.data_h1_seq
     START WITH 1
 	CACHE 100
 	CYCLE;
-
-CREATE UNIQUE INDEX currency_writed_idx ON currency_writed(symbol_list_id, time_frame_id);
 
 --nextval('fxschema.config_data_seq')
 
