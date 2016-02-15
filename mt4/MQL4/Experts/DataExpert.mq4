@@ -13,9 +13,10 @@ input string   SYMBOL_1="EURUSD";
 input string   SYMBOL_2="AUDUSD";
 input string   SYMBOL_3="GBPUSD";
 input string   SYMBOL_4="GOLD";
+input string   SYMBOL_5="OIL-MAR16";
 
 input string   FILE_DIR_PATH="Actual";
-input int      ARRAY_WRITE_SIZE=10;
+input int      ARRAY_WRITE_SIZE=5;
 
 input bool     IS_FULL_LOAD=false;
 input int      FULL_LOAD_SIZE=2000;
@@ -55,22 +56,25 @@ void OnTick()
       write_by_symbol(SYMBOL_2, PERIOD_M5, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_3, PERIOD_M5, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_4, PERIOD_M5, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_5, PERIOD_M5, FULL_LOAD_SIZE);
       
       write_by_symbol(SYMBOL_1, PERIOD_M15, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_2, PERIOD_M15, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_3, PERIOD_M15, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_4, PERIOD_M15, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_5, PERIOD_M15, FULL_LOAD_SIZE);
       
       write_by_symbol(SYMBOL_1, PERIOD_H1, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_2, PERIOD_H1, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_3, PERIOD_H1, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_4, PERIOD_H1, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_5, PERIOD_H1, FULL_LOAD_SIZE);
    } else {
       datetime l_time = TimeCurrent();
    
       // czy zmienila sie minuta:
       if (gLastMinute != TimeMinute(l_time)) {
-         Sleep(2000); // zatrzymanie jeszcze na 2 sekundy
+         Sleep(1000); // zatrzymanie jeszcze na 1 sekunde
          Alert("OnTick():", gLastMinute, ",", TimeMinute(l_time), ".");
       
          gLastMinute = TimeMinute(l_time);
@@ -146,45 +150,38 @@ bool is_market_close(datetime date_time)
 void write_by_5_minutes(datetime date_time)
 {
    int l_min = TimeMinute(date_time);
+   Alert("Writing by 5MIN [", l_min, "]");
    
-   if (l_min%5 == 0) {
-      Alert("Writing by 5MIN [", l_min, "]");
-      
-      write_by_symbol(SYMBOL_1, PERIOD_M5, ARRAY_WRITE_SIZE);
-      write_by_symbol(SYMBOL_2, PERIOD_M5, ARRAY_WRITE_SIZE);
-      write_by_symbol(SYMBOL_3, PERIOD_M5, ARRAY_WRITE_SIZE);
-      write_by_symbol(SYMBOL_4, PERIOD_M5, ARRAY_WRITE_SIZE);
-   }
-
+   write_by_symbol(SYMBOL_1, PERIOD_M5, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_2, PERIOD_M5, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_3, PERIOD_M5, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_4, PERIOD_M5, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_5, PERIOD_M5, ARRAY_WRITE_SIZE);
 }
 
 void write_by_15_minutes(datetime date_time)
 {
    int l_min = TimeMinute(date_time);
-   
-   if (l_min%15 == 0) {
-      Alert("Writing by 15MIN [", l_min, "]");
+   Alert("Writing by 15MIN [", l_min, "]");
       
-      write_by_symbol(SYMBOL_1, PERIOD_M15, ARRAY_WRITE_SIZE);
-      write_by_symbol(SYMBOL_2, PERIOD_M15, ARRAY_WRITE_SIZE);
-      write_by_symbol(SYMBOL_3, PERIOD_M15, ARRAY_WRITE_SIZE);
-      write_by_symbol(SYMBOL_4, PERIOD_M15, ARRAY_WRITE_SIZE);
-   }
+   write_by_symbol(SYMBOL_1, PERIOD_M15, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_2, PERIOD_M15, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_3, PERIOD_M15, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_4, PERIOD_M15, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_5, PERIOD_M15, ARRAY_WRITE_SIZE);
 }
 
 void write_by_1_hour(datetime date_time)
 {
    int l_min = TimeMinute(date_time);
    int l_hr = TimeHour(date_time);
-   
-   if (l_min == 0) {
-      Alert("Writing by 1 hour [", l_hr, ":", l_min, "]");
+   Alert("Writing by 1 hour [", l_hr, ":", l_min, "]");
       
-      write_by_symbol(SYMBOL_1, PERIOD_H1, ARRAY_WRITE_SIZE);
-      write_by_symbol(SYMBOL_2, PERIOD_H1, ARRAY_WRITE_SIZE);
-      write_by_symbol(SYMBOL_3, PERIOD_H1, ARRAY_WRITE_SIZE);
-      write_by_symbol(SYMBOL_4, PERIOD_H1, ARRAY_WRITE_SIZE);
-   }
+   write_by_symbol(SYMBOL_1, PERIOD_H1, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_2, PERIOD_H1, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_3, PERIOD_H1, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_4, PERIOD_H1, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_5, PERIOD_H1, ARRAY_WRITE_SIZE);
 }
 
 void write_by_symbol(string symbol, int tme_frm, int buff_size)
@@ -253,7 +250,13 @@ void write_data_to_file(int file_handle, string symbol, int tme_frm, int buff_si
 //+------------------------------------------------------------------+
 string getFileName(string symbol, int tme_frm)
 {
-   return symbol + "_" + getTimeframeDesc(tme_frm);
+   int min_pos = StringFind(symbol, "-");
+      
+   if (min_pos != -1) {
+      return StringSubstr(symbol, 0, min_pos) + "_" + getTimeframeDesc(tme_frm);
+   } else {
+      return symbol + "_" + getTimeframeDesc(tme_frm);
+   }
 }
 
 string getTimeframeDesc(int timeframe)
