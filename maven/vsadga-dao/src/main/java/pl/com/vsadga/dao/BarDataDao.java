@@ -17,6 +17,8 @@ public interface BarDataDao {
 	
 	int insert(CurrencySymbol symbol, TimeFrame timeFrame, BarData barData);
 	
+	int insertOrUpdate(CurrencySymbol symbol, TimeFrame timeFrame, )
+	
 	int updateIndyData(Integer id, TimeFrame timeFrame, Integer nr, Integer weight, Boolean isConfirm, Integer phase);
 	
 }

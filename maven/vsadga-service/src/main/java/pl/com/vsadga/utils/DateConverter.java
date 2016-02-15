@@ -145,6 +145,22 @@ public final class DateConverter {
 		String replaceAll = date.replaceAll("^0{0,4}", "");
 		return df.parse(replaceAll);
 	}
+	
+	public static GregorianCalendar stringToGregorian(final String date, final String pattern) throws ParseException {
+		GregorianCalendar res = new GregorianCalendar();
+		SimpleDateFormat df = null;
+		
+		
+		if (pattern == null) {
+			df = new SimpleDateFormat("yyyyMMdd");
+		} else {
+			df = new SimpleDateFormat(pattern);
+		}
+		
+		res.setTime(df.parse(date));
+		
+		return res;
+	}
 
 	/**
 	 * Tworzy {@link java.text.DateFormat;} na podstawie wzorca.
