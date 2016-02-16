@@ -9,8 +9,7 @@ create table fxschema.currency_symbol(
 	id				smallint		not null PRIMARY KEY,
 	symbol_name		varchar(10)		not null,
 	is_active		boolean			not null,
-	table_name		varchar(10)		not null,
-	m5_tab_nr		smallint		not null
+	table_name		varchar(10)		not null
 );
 
 create table fxschema.data_m5(
@@ -25,33 +24,44 @@ create table fxschema.data_m5(
 	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	process_phase		integer			not null,
-	symbol_id		smallint		not null
-					REFERENCES fxschema.currency_symbol(id)
+	symbol_id			smallint		not null
+						REFERENCES fxschema.currency_symbol(id)
 );
+create unique index data_m5_idx ON fxschema.data_m5 (bar_time, symbol_id);
 
 create table fxschema.data_m15(
-	id				integer			not null PRIMARY KEY,
-	bar_time		timestamp		not null,
-	bar_low			numeric(10,5)	not null,
-	bar_high		numeric(10,5)	not null,
-	bar_close		numeric(10,5)	not null,
-	bar_volume		integer			not null,
-	ima_count		numeric(10,5)	not null,
-	symbol_id		smallint		not null
-					REFERENCES fxschema.currency_symbol(id)
+	id					integer			not null PRIMARY KEY,
+	bar_time			timestamp		not null,
+	bar_low				numeric(10,5)	not null,
+	bar_high			numeric(10,5)	not null,
+	bar_close			numeric(10,5)	not null,
+	bar_volume			integer			not null,
+	ima_count			numeric(10,5)	not null,
+	indicator_nr		integer			null,
+	indicator_weight	integer			null,
+	is_confirm			boolean			null,
+	process_phase		integer			not null,
+	symbol_id			smallint		not null
+						REFERENCES fxschema.currency_symbol(id)
 );
+create unique index data_m15_idx ON fxschema.data_m15 (bar_time, symbol_id);
 
 create table fxschema.data_h1(
-	id				integer			not null PRIMARY KEY,
-	bar_time		timestamp		not null,
-	bar_low			numeric(10,5)	not null,
-	bar_high		numeric(10,5)	not null,
-	bar_close		numeric(10,5)	not null,
-	bar_volume		integer			not null,
-	ima_count		numeric(10,5)	not null,
-	symbol_id		smallint		not null
-					REFERENCES fxschema.currency_symbol(id)
+	id					integer			not null PRIMARY KEY,
+	bar_time			timestamp		not null,
+	bar_low				numeric(10,5)	not null,
+	bar_high			numeric(10,5)	not null,
+	bar_close			numeric(10,5)	not null,
+	bar_volume			integer			not null,
+	ima_count			numeric(10,5)	not null,
+	indicator_nr		integer			null,
+	indicator_weight	integer			null,
+	is_confirm			boolean			null,
+	process_phase		integer			not null,
+	symbol_id			smallint		not null
+						REFERENCES fxschema.currency_symbol(id)
 );
+create unique index data_h1_idx ON fxschema.data_h1 (bar_time, symbol_id);
 
 create table fxschema.time_frame(
 	id				smallint		not null PRIMARY KEY,
@@ -80,14 +90,14 @@ CREATE SEQUENCE fxschema.data_h1_seq
 
 --nextval('fxschema.config_data_seq')
 
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name, m5_tab_nr)
-values (1, 'EURUSD', true, 'EURUSD', 1);
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name, m5_tab_nr)
-values (2, 'GOLD', true, 'GOLD', 1);
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name, m5_tab_nr)
-values (3, 'GBPUSD', true, 'GBPUSD', 2);
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name, m5_tab_nr)
-values (4, 'AUDUSD', true, 'AUDUSD', 2);
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
+values (1, 'EURUSD', false, 'EURUSD');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
+values (2, 'GOLD', true, 'GOLD');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
+values (3, 'GBPUSD', false, 'GBPUSD');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
+values (4, 'AUDUSD', false, 'AUDUSD');
 
 
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
@@ -95,7 +105,7 @@ values (1, 1, 'M1', false);
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
 values (2, 5, 'M5', true);
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
-values (3, 15, 'M15', true);
+values (3, 15, 'M15', false);
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
 values (4, 30, 'M30', false);
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)

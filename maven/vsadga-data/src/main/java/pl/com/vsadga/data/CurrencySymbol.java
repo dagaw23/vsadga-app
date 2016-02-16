@@ -12,8 +12,6 @@ public class CurrencySymbol implements Serializable {
 
 	private Boolean isActive;
 
-	private Integer m5TabNr;
-
 	private String symbolName;
 
 	private String tableName;
@@ -42,11 +40,6 @@ public class CurrencySymbol implements Serializable {
 				return false;
 		} else if (!isActive.equals(other.isActive))
 			return false;
-		if (m5TabNr == null) {
-			if (other.m5TabNr != null)
-				return false;
-		} else if (!m5TabNr.equals(other.m5TabNr))
-			return false;
 		if (symbolName == null) {
 			if (other.symbolName != null)
 				return false;
@@ -60,18 +53,23 @@ public class CurrencySymbol implements Serializable {
 		return true;
 	}
 
+	/**
+	 * @return the id
+	 */
 	public Integer getId() {
 		return id;
 	}
 
+	/**
+	 * @return the isActive
+	 */
 	public Boolean getIsActive() {
 		return isActive;
 	}
 
-	public Integer getM5TabNr() {
-		return m5TabNr;
-	}
-
+	/**
+	 * @return the symbolName
+	 */
 	public String getSymbolName() {
 		return symbolName;
 	}
@@ -94,24 +92,31 @@ public class CurrencySymbol implements Serializable {
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
-		result = prime * result + ((m5TabNr == null) ? 0 : m5TabNr.hashCode());
 		result = prime * result + ((symbolName == null) ? 0 : symbolName.hashCode());
 		result = prime * result + ((tableName == null) ? 0 : tableName.hashCode());
 		return result;
 	}
 
+	/**
+	 * @param id
+	 *            the id to set
+	 */
 	public void setId(Integer id) {
 		this.id = id;
 	}
 
+	/**
+	 * @param isActive
+	 *            the isActive to set
+	 */
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
 	}
 
-	public void setM5TabNr(Integer m5TabNr) {
-		this.m5TabNr = m5TabNr;
-	}
-
+	/**
+	 * @param symbolName
+	 *            the symbolName to set
+	 */
 	public void setSymbolName(String symbolName) {
 		this.symbolName = symbolName;
 	}
@@ -131,8 +136,8 @@ public class CurrencySymbol implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "CurrencySymbol [id=" + id + ", isActive=" + isActive + ", m5TabNr=" + m5TabNr + ", tableName="
-				+ tableName + ", symbolName=" + symbolName + "]";
+		return "CurrencySymbol [id=" + id + ", isActive=" + isActive + ", symbolName=" + symbolName
+				+ ", tableName=" + tableName + "]";
 	}
 
 }

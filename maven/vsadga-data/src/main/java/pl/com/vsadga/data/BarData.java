@@ -62,9 +62,13 @@ public class BarData implements Serializable {
 	private Boolean isConfirm;
 
 	/**
-	 * czy bar został przetworzony pod kierunkiem sygnału 0: nie przetworzony
-	 * pod kierunkiem sygnału, 1: przetworzony, ale czeka na potwierdzenie 2:
-	 * przetoworzony do końca
+	 * jaki jest status przetworzenia bara:
+	 * <ul>
+	 * <li>0: wpisane wartości tymczasowe dla cen,
+	 * <li>1: wpisane wartości ostateczne dla cen, ale nie zostały wpisane sygnały,
+	 * <li>2: przetworzony pod kierunkiem sygnału, ale czeka na potwierdzenie,
+	 * <li>2: przetoworzony do końca.
+	 * </ul>
 	 */
 	private Integer processPhase;
 
@@ -323,10 +327,10 @@ public class BarData implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "BarData [barClose=" + barClose + ", barTime=" + barTime + ", barHigh=" + barHigh + ", barLow=" + barLow
-				+ ", barVolume=" + barVolume + ", id=" + id + ", imaCount=" + imaCount + ", indicatorNr=" + indicatorNr
-				+ ", indicatorWeight=" + indicatorWeight + ", isConfirm=" + isConfirm + ", processPhase=" + processPhase
-				+ ", symbolId=" + symbolId + "]";
+		return "BarData [barClose=" + barClose + ", barTime=" + barTime + ", barHigh=" + barHigh + ", barLow="
+				+ barLow + ", barVolume=" + barVolume + ", id=" + id + ", imaCount=" + imaCount + ", indicatorNr="
+				+ indicatorNr + ", indicatorWeight=" + indicatorWeight + ", isConfirm=" + isConfirm
+				+ ", processPhase=" + processPhase + ", symbolId=" + symbolId + "]";
 	}
 
 }

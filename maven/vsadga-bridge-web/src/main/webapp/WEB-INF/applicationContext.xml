@@ -31,9 +31,6 @@
 	<bean id="configDataDao" class="pl.com.vsadga.dao.impl.ConfigDataDaoImpl">
 		<constructor-arg ref="dataSource" />
 	</bean>
-	<bean id="currencyWritedDao" class="pl.com.vsadga.dao.impl.CurrencyWritedDaoImpl">
-		<constructor-arg ref="dataSource" />
-	</bean>
 	<bean id="symbolListDao" class="pl.com.vsadga.dao.impl.CurrencySymbolDaoImpl">
 		<constructor-arg ref="dataSource" />
 	</bean>
@@ -47,10 +44,6 @@
 	</bean>
 	<bean id="currencyDbWriterService" class="pl.com.vsadga.service.writer.CurrencyDbWriterServiceImpl">
 		<property name="barDataDao" ref="barDataDao" />
-		<property name="currencyWritedDao" ref="currencyWritedDao" />
-	</bean>
-	<bean id="currencyWritedService" class="pl.com.vsadga.service.symbol.CurrencyWritedServiceImpl">
-		<property name="currencyWritedDao" ref="currencyWritedDao" />
 	</bean>
 	<bean id="symbolService" class="pl.com.vsadga.service.symbol.SymbolServiceImpl">
 		<property name="symbolListDao" ref="symbolListDao" />

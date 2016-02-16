@@ -17,8 +17,6 @@ import org.springframework.jdbc.core.RowMapper;
 import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.dao.JdbcDaoBase;
 import pl.com.vsadga.data.BarData;
-import pl.com.vsadga.data.CurrencySymbol;
-import pl.com.vsadga.data.TimeFrame;
 
 public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
@@ -32,9 +30,9 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
-	public void batchInsert(CurrencySymbol symbol, TimeFrame timeFrame, final List<BarData> dataList) {
-		String sql = "insert into " + getTableName(timeFrame) + " (" + ALL_COLUMNS + ") values (nextval('"
-				+ getSeqName(timeFrame) + "'),?, ?,?,?, ?,?, ?,?,?, ?,?)";
+	public void batchInsert(String frameDesc, final List<BarData> dataList) {
+		String sql = "insert into " + getTableName(frameDesc) + " (" + ALL_COLUMNS + ") values (nextval('"
+				+ getSeqName(frameDesc) + "'),?, ?,?,?, ?,?, ?,?,?, ?,?)";
 
 		getJdbcTemplate().batchUpdate(sql, new BatchPreparedStatementSetter() {
 
@@ -62,8 +60,8 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
-	public boolean existBarData(CurrencySymbol symbol, TimeFrame timeFrame, Date barDate) {
-		String sql = "select id from " + getTableName(timeFrame) + " where symbol_id=? and bar_time=?";
+	public boolean existBarData(Integer symbolId, String frameDesc, Date barDate) {
+		String sql = "select id from " + getTableName(frameDesc) + " where symbol_id=? and bar_time=?";
 
 		Integer rec_id = getJdbcTemplate().query(sql, new ResultSetExtractor<Integer>() {
 
@@ -74,7 +72,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				else
 					return null;
 			}
-		}, symbol.getId(), barDate);
+		}, symbolId, barDate);
 
 		if (rec_id != null)
 			return true;
@@ -83,8 +81,26 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
-	public List<BarData> getLastNbarsData(final CurrencySymbol symbol, final TimeFrame timeFrame, final int size) {
-		String sql = "select " + ALL_COLUMNS + " from " + getTableName(timeFrame)
+	public BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime) {
+		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
+				+ " where bar_time=? and symbol_id=?";
+
+		return getJdbcTemplate().query(sql, new ResultSetExtractor<BarData>() {
+
+			@Override
+			public BarData extractData(ResultSet rs) throws SQLException, DataAccessException {
+				if (rs.next())
+					return rs2BarData(rs);
+				else
+					return null;
+			}
+
+		}, new Timestamp(barTime.getTime()), symbolId);
+	}
+
+	@Override
+	public List<BarData> getLastNbarsData(Integer symbolId, String frameDesc, int size) {
+		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
 				+ " where symbol_id=? order by bar_time desc";
 
 		List<BarData> data_list = getJdbcTemplate().query(sql, new RowMapper<BarData>() {
@@ -94,36 +110,45 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				return rs2BarData(rs);
 			}
 
-		}, symbol.getId());
+		}, symbolId);
 
 		return data_list.subList(0, size);
 	}
 
 	@Override
-	public int insert(CurrencySymbol symbol, TimeFrame timeFrame, BarData data) {
-		String sql = "insert into " + getTableName(timeFrame) + " (" + ALL_COLUMNS + ") values (nextval('"
-				+ getSeqName(timeFrame) + "'),?, ?,?,?, ?,?, ?,?,?, ?,?)";
+	public int insert(String frameDesc, BarData data) {
+		String sql = "insert into " + getTableName(frameDesc) + " (" + ALL_COLUMNS + ") values (nextval('"
+				+ getSeqName(frameDesc) + "'),?, ?,?,?, ?,?, ?,?,?, ?,?)";
 
-		return getJdbcTemplate().update(sql, data.getBarTime(), data.getBarLow(), data.getBarHigh(), data.getBarClose(),
-				data.getBarVolume(), data.getImaCount(), data.getIndicatorNr(), data.getIndicatorWeight(),
-				data.getIsConfirm(), data.getProcessPhase(), data.getSymbolId());
+		return getJdbcTemplate().update(sql, data.getBarTime(), data.getBarLow(), data.getBarHigh(),
+				data.getBarClose(), data.getBarVolume(), data.getImaCount(), data.getIndicatorNr(),
+				data.getIndicatorWeight(), data.getIsConfirm(), data.getProcessPhase(), data.getSymbolId());
 	}
 
 	@Override
-	public int updateIndyData(Integer id, TimeFrame timeFrame, Integer nr, Integer weight, Boolean isConfirm,
+	public int update(String frameDesc, Integer id, BarData barData) {
+		String sql = "update " + getTableName(frameDesc)
+				+ " set bar_low=?, bar_high=?, bar_close=?, bar_volume=?, ima_count=?, process_phase=? where id=?";
+
+		return getJdbcTemplate().update(sql, barData.getBarLow(), barData.getBarHigh(), barData.getBarClose(),
+				barData.getBarVolume(), barData.getImaCount(), barData.getProcessPhase(), id);
+	}
+
+	@Override
+	public int updateIndyData(Integer barDataId, String frameDesc, Integer nr, Integer weight, Boolean isConfirm,
 			Integer phase) {
-		String sql = "update " + getTableName(timeFrame) + " set indicator_nr=?, indicator_weight=?, "
+		String sql = "update " + getTableName(frameDesc) + " set indicator_nr=?, indicator_weight=?, "
 				+ "is_confirm=?, process_phase=? where id=?";
 
-		return getJdbcTemplate().update(sql, nr, weight, isConfirm, phase, id);
+		return getJdbcTemplate().update(sql, nr, weight, isConfirm, phase, barDataId);
 	}
 
-	private String getSeqName(TimeFrame timeFrame) {
-		return getTableName(timeFrame) + "_seq";
+	private String getSeqName(String timeFrameDesc) {
+		return getTableName(timeFrameDesc) + "_seq";
 	}
 
-	private String getTableName(TimeFrame timeFrame) {
-		return SCHM_NME + "data_" + timeFrame.getTimeFrameDesc().toLowerCase();
+	private String getTableName(String timeFrameDesc) {
+		return SCHM_NME + "data_" + timeFrameDesc.toLowerCase();
 	}
 
 	private BarData rs2BarData(final ResultSet rs) throws SQLException {

@@ -27,7 +27,7 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 
 	@Override
 	public List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame) {
-		return barDataDao.getLastNbarsData(size, symbol, timeFrame);
+		return barDataDao.getLastNbarsData(symbol.getId(), timeFrame.getTimeFrameDesc(), size);
 	}
 
 }
