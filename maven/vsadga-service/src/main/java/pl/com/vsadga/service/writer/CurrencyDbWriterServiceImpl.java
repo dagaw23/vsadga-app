@@ -227,7 +227,9 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 
 			// aktualny bar - wstawienie, jeśli nie ma w tabeli:
 			if (rec_cal.compareTo(sys_date) == 0) {
-				LOGGER.info("   [DATE] aktualny wg REC [" + rec_cal + "] i SYS [" + sys_date + "].");
+				LOGGER.info("   [DATE] aktualny wg REC ["
+						+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "] i SYS ["
+						+ DateConverter.dateToString(sys_date.getTime(), "HH:mm:ss,SSS") + "].");
 
 				insertNewBarData(rec, symbolId, frameDesc, rec_cal);
 				continue;
@@ -235,14 +237,17 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 
 			// poprzedni bar - końcowa aktualizacja części wartości:
 			if (rec_cal.compareTo(prev_date) == 0) {
-				LOGGER.info("   [DATE] prev wg REC [" + rec_cal + "] i PREV [" + prev_date + "].");
+				LOGGER.info("   [DATE] prev wg REC ["
+						+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "] i PREV ["
+						+ DateConverter.dateToString(prev_date.getTime(), "HH:mm:ss,SSS") + "].");
 
 				insertOrUpdateLastBarData(rec, symbolId, frameDesc, rec_cal, 1);
 				continue;
 			}
 
 			// poprzednie bary - tylko jeśli nie ma ich w tabeli lub jeśli mają staus 0:
-			LOGGER.info("   [DATE] wg REC [" + rec_cal + "] i SYS [" + sys_date + "].");
+			LOGGER.info("   [DATE] wg REC [" + DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS")
+					+ "] i SYS [" + DateConverter.dateToString(sys_date.getTime(), "HH:mm:ss,SSS") + "].");
 			insertOrUpdatePrevBarData(rec, symbolId, frameDesc, rec_cal);
 		}
 	}
@@ -321,7 +326,9 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 
 			// ostatni bar - aktualizacja:
 			if (rec_cal.compareTo(prev_date) == 0) {
-				LOGGER.info("   [DATE] Update wg REC [" + rec_cal + "] i PREV [" + prev_date + "].");
+				LOGGER.info("   [DATE] Update wg REC ["
+						+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "] i PREV ["
+						+ DateConverter.dateToString(prev_date.getTime(), "HH:mm:ss,SSS") + "].");
 
 				insertOrUpdateLastBarData(rec, symbolId, frameDesc, rec_cal, 0);
 				continue;
@@ -329,7 +336,9 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 
 			// pozostałe bary - tylko wstawienie, jeśli nie ma ich w tabeli lub jeśli jeszcze ich
 			// status równy 0:
-			LOGGER.info("   [DATE] Update wg REC [" + rec_cal + "] i SYS [" + prev_date + "].");
+			LOGGER.info("   [DATE] Update wg REC ["
+					+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "] i SYS ["
+					+ DateConverter.dateToString(prev_date.getTime(), "HH:mm:ss,SSS") + "].");
 			insertOrUpdatePrevBarData(rec, symbolId, frameDesc, rec_cal);
 		}
 	}
