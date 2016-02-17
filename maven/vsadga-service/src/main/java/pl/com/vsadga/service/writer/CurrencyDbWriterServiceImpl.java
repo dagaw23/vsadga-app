@@ -74,7 +74,7 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 				if (act_minute == 0)
 					insertOrUpdateBarData(symbol.getId(), timeFrame, recordList, sys_date);
 				else
-					updateBarData(symbol.getId(), timeFrame.getTimeFrameDesc(), recordList, (act_minute % 15), sys_date);
+					updateBarData(symbol.getId(), timeFrame.getTimeFrameDesc(), recordList, (act_minute % 60), sys_date);
 			}
 			
 		} catch (ParseException e) {

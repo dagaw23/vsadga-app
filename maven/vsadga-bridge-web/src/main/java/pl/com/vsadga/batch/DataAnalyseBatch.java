@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.data.CurrencyDataService;
 import pl.com.vsadga.service.symbol.SymbolService;
 import pl.com.vsadga.service.timeframe.TimeFrameService;
@@ -31,7 +32,7 @@ public class DataAnalyseBatch {
 	private TimeFrameService timeFrameService;
 
 	public void cronJob() {
-		//@Scheduled(cron = "10 0/1 * * * MON-FRI")
+		// @Scheduled(cron = "10 0/1 * * * MON-FRI")
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;
 
@@ -47,12 +48,22 @@ public class DataAnalyseBatch {
 		}
 
 		List<BarData> data_list = null;
-		for (CurrencySymbol symbol : symbol_list) {
-			for (TimeFrame tme_frame : tmefrm_list) {
-				data_list = currencyDataService.getLastNbarData(20, symbol, tme_frame);
+		try {
+			for (CurrencySymbol symbol : symbol_list) {
+				for (TimeFrame tme_frame : tmefrm_list) {
+					LOGGER.info("   [PROC] " + symbol.getSymbolName() + " in " + tme_frame.getTimeFrameDesc()
+							+ ".");
 
-				print(data_list);
+					// pobierz listę danych z bara:
+					data_list = currencyDataService.getBarDataList(symbol.getId(), tme_frame.getTimeFrameDesc());
+					
+					
+
+					print(data_list);
+				}
 			}
+		} catch (BaseServiceException e) {
+			e.printStackTrace();
 		}
 	}
 

@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import pl.com.vsadga.data.BarData;
-import pl.com.vsadga.data.CurrencySymbol;
-import pl.com.vsadga.data.TimeFrame;
 
 public interface BarDataDao {
 
@@ -14,6 +12,17 @@ public interface BarDataDao {
 	boolean existBarData(Integer symbolId, String frameDesc, Date barDate);
 	
 	List<BarData> getLastNbarsData(Integer symbolId, String frameDesc, int size);
+	
+	/**
+	 * Pobiera listę barów dla waloru i ramki czasowej, który jeszcze nie został przetworzony wg kolumny PROCESS_PHASE (z wartością 1).
+	 * 
+	 * @param symbolId
+	 * @param frameDesc
+	 * @return
+	 */
+	List<BarData> getNotProcessBarDataList(Integer symbolId, String frameDesc);
+	
+	List<BarData> getBarDataList(Integer symbolId, String frameDesc);
 	
 	int insert(String frameDesc, BarData data);
 	
@@ -29,6 +38,8 @@ public interface BarDataDao {
 	
 	int updateIndyData(Integer barDataId, String frameDesc, Integer nr, Integer weight, Boolean isConfirm,
 			Integer phase);
+	
+	int updateProcessPhase(Integer id, Integer processPhase, String frameDesc);
 	
 	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
 	

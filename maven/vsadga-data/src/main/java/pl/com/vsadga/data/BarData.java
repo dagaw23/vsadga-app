@@ -67,7 +67,7 @@ public class BarData implements Serializable {
 	 * <li>0: wpisane wartości tymczasowe dla cen,
 	 * <li>1: wpisane wartości ostateczne dla cen, ale nie zostały wpisane sygnały,
 	 * <li>2: przetworzony pod kierunkiem sygnału, ale czeka na potwierdzenie,
-	 * <li>2: przetoworzony do końca.
+	 * <li>3: przetoworzony do końca.
 	 * </ul>
 	 */
 	private Integer processPhase;

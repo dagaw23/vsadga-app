@@ -82,6 +82,21 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
+	public List<BarData> getBarDataList(Integer symbolId, String frameDesc) {
+		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
+				+ " where symbol_id=? order by bar_time asc";
+
+		return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+			@Override
+			public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2BarData(rs);
+			}
+
+		}, symbolId);
+	}
+
+	@Override
 	public BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
 				+ " where bar_time=? and symbol_id=?";
@@ -117,6 +132,21 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
+	public List<BarData> getNotProcessBarDataList(Integer symbolId, String frameDesc) {
+		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
+				+ " where symbol_id=? and process_phase=1 order by bar_time asc";
+
+		return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+			@Override
+			public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2BarData(rs);
+			}
+
+		}, symbolId);
+	}
+
+	@Override
 	public int insert(String frameDesc, BarData data) {
 		String sql = "insert into " + getTableName(frameDesc) + " (" + ALL_COLUMNS + ") values (nextval('"
 				+ getSeqName(frameDesc) + "'),?, ?,?,?, ?,?, ?,?,?, ?,?,?)";
@@ -143,6 +173,14 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				+ "is_confirm=?, process_phase=? where id=?";
 
 		return getJdbcTemplate().update(sql, nr, weight, isConfirm, phase, barDataId);
+	}
+
+	@Override
+	public int updateProcessPhase(Integer id, Integer processPhase, String frameDesc) {
+		String sql = "update " + getTableName(frameDesc)
+				+ " set process_phase=? where id=?";
+
+		return getJdbcTemplate().update(sql, processPhase, id);
 	}
 
 	private String getSeqName(String timeFrameDesc) {
