@@ -21,7 +21,7 @@ import pl.com.vsadga.data.BarData;
 public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 	private final String ALL_COLUMNS = "id, bar_time, bar_low, bar_high, bar_close, bar_volume, ima_count, "
-			+ "indicator_nr, indicator_weight, is_confirm, process_phase, symbol_id";
+			+ "indicator_nr, indicator_weight, is_confirm, trend_indicator, process_phase, symbol_id";
 
 	private final String SCHM_NME = "fxschema.";
 
@@ -52,8 +52,9 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				ps.setInt(7, dataList.get(i).getIndicatorNr());
 				ps.setInt(8, dataList.get(i).getIndicatorWeight());
 				ps.setBoolean(9, dataList.get(i).getIsConfirm());
-				ps.setInt(10, dataList.get(i).getProcessPhase());
-				ps.setInt(11, dataList.get(i).getSymbolId());
+				ps.setString(10, dataList.get(i).getTrendIndicator());
+				ps.setInt(11, dataList.get(i).getProcessPhase());
+				ps.setInt(12, dataList.get(i).getSymbolId());
 			}
 		});
 
@@ -118,11 +119,12 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	@Override
 	public int insert(String frameDesc, BarData data) {
 		String sql = "insert into " + getTableName(frameDesc) + " (" + ALL_COLUMNS + ") values (nextval('"
-				+ getSeqName(frameDesc) + "'),?, ?,?,?, ?,?, ?,?,?, ?,?)";
+				+ getSeqName(frameDesc) + "'),?, ?,?,?, ?,?, ?,?,?, ?,?,?)";
 
 		return getJdbcTemplate().update(sql, data.getBarTime(), data.getBarLow(), data.getBarHigh(),
 				data.getBarClose(), data.getBarVolume(), data.getImaCount(), data.getIndicatorNr(),
-				data.getIndicatorWeight(), data.getIsConfirm(), data.getProcessPhase(), data.getSymbolId());
+				data.getIndicatorWeight(), data.getIsConfirm(), data.getTrendIndicator(), data.getProcessPhase(),
+				data.getSymbolId());
 	}
 
 	@Override
@@ -168,6 +170,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		data.setIndicatorWeight(rs.getInt("indicator_weight"));
 		data.setIsConfirm(rs.getBoolean("is_confirm"));
 
+		data.setTrendIndicator(rs.getString("trend_indicator"));
 		data.setProcessPhase(rs.getInt("process_phase"));
 		data.setSymbolId(rs.getInt("symbol_id"));
 

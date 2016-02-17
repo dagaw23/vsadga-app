@@ -23,6 +23,7 @@ create table fxschema.data_m5(
 	indicator_nr		integer			null,
 	indicator_weight	integer			null,
 	is_confirm			boolean			null,
+	trend_indicator		varchar(1)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -40,6 +41,7 @@ create table fxschema.data_m15(
 	indicator_nr		integer			null,
 	indicator_weight	integer			null,
 	is_confirm			boolean			null,
+	trend_indicator		varchar(1)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -57,6 +59,7 @@ create table fxschema.data_h1(
 	indicator_nr		integer			null,
 	indicator_weight	integer			null,
 	is_confirm			boolean			null,
+	trend_indicator		varchar(1)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -121,5 +124,7 @@ values (9, 43200, 'MN1', false);
 
 insert into fxschema.config_data(id, param_name, param_value)
 values (1, 'MT4_PATH', 'c:\Users\dgawinkowski\AppData\Roaming\MetaQuotes\Terminal\BEF0A9F90269E8DF733D1FE584305AC7\MQL4\Files\Actual');
+insert into fxschema.config_data(id, param_name, param_value)
+values (2, 'HOUR_SHIFT', '-1');
 
 

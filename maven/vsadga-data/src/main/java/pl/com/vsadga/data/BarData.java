@@ -16,11 +16,6 @@ public class BarData implements Serializable {
 	private BigDecimal barClose;
 
 	/**
-	 * czas bara (w milisekundach)
-	 */
-	private Date barTime;
-
-	/**
 	 * cena maksymalna w trakcie bara
 	 */
 	private BigDecimal barHigh;
@@ -29,6 +24,11 @@ public class BarData implements Serializable {
 	 * cena minimalna w trakcie bara
 	 */
 	private BigDecimal barLow;
+
+	/**
+	 * czas bara (w milisekundach)
+	 */
+	private Date barTime;
 
 	/**
 	 * ilość ticków w trakcie bara
@@ -77,6 +77,16 @@ public class BarData implements Serializable {
 	 */
 	private Integer symbolId;
 
+	/**
+	 * jaki jest aktualny trend:
+	 * <ul>
+	 * <li>U - uptrend,
+	 * <li>D - downtrend,
+	 * <li>S - boczny.
+	 * </ul>
+	 */
+	private String trendIndicator;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -96,11 +106,6 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!barClose.equals(other.barClose))
 			return false;
-		if (barTime == null) {
-			if (other.barTime != null)
-				return false;
-		} else if (!barTime.equals(other.barTime))
-			return false;
 		if (barHigh == null) {
 			if (other.barHigh != null)
 				return false;
@@ -110,6 +115,11 @@ public class BarData implements Serializable {
 			if (other.barLow != null)
 				return false;
 		} else if (!barLow.equals(other.barLow))
+			return false;
+		if (barTime == null) {
+			if (other.barTime != null)
+				return false;
+		} else if (!barTime.equals(other.barTime))
 			return false;
 		if (barVolume == null) {
 			if (other.barVolume != null)
@@ -151,6 +161,11 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!symbolId.equals(other.symbolId))
 			return false;
+		if (trendIndicator == null) {
+			if (other.trendIndicator != null)
+				return false;
+		} else if (!trendIndicator.equals(other.trendIndicator))
+			return false;
 		return true;
 	}
 
@@ -159,10 +174,6 @@ public class BarData implements Serializable {
 	 */
 	public BigDecimal getBarClose() {
 		return barClose;
-	}
-
-	public Date getBarTime() {
-		return barTime;
 	}
 
 	/**
@@ -177,6 +188,10 @@ public class BarData implements Serializable {
 	 */
 	public BigDecimal getBarLow() {
 		return barLow;
+	}
+
+	public Date getBarTime() {
+		return barTime;
 	}
 
 	public Integer getBarVolume() {
@@ -220,6 +235,13 @@ public class BarData implements Serializable {
 		return symbolId;
 	}
 
+	/**
+	 * @return the trendIndicator
+	 */
+	public String getTrendIndicator() {
+		return trendIndicator;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -230,9 +252,9 @@ public class BarData implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((barClose == null) ? 0 : barClose.hashCode());
-		result = prime * result + ((barTime == null) ? 0 : barTime.hashCode());
 		result = prime * result + ((barHigh == null) ? 0 : barHigh.hashCode());
 		result = prime * result + ((barLow == null) ? 0 : barLow.hashCode());
+		result = prime * result + ((barTime == null) ? 0 : barTime.hashCode());
 		result = prime * result + ((barVolume == null) ? 0 : barVolume.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((imaCount == null) ? 0 : imaCount.hashCode());
@@ -241,6 +263,7 @@ public class BarData implements Serializable {
 		result = prime * result + ((isConfirm == null) ? 0 : isConfirm.hashCode());
 		result = prime * result + ((processPhase == null) ? 0 : processPhase.hashCode());
 		result = prime * result + ((symbolId == null) ? 0 : symbolId.hashCode());
+		result = prime * result + ((trendIndicator == null) ? 0 : trendIndicator.hashCode());
 		return result;
 	}
 
@@ -250,10 +273,6 @@ public class BarData implements Serializable {
 	 */
 	public void setBarClose(BigDecimal barClose) {
 		this.barClose = barClose;
-	}
-
-	public void setBarTime(Date barTime) {
-		this.barTime = barTime;
 	}
 
 	/**
@@ -270,6 +289,10 @@ public class BarData implements Serializable {
 	 */
 	public void setBarLow(BigDecimal barLow) {
 		this.barLow = barLow;
+	}
+
+	public void setBarTime(Date barTime) {
+		this.barTime = barTime;
 	}
 
 	/**
@@ -320,6 +343,14 @@ public class BarData implements Serializable {
 		this.symbolId = symbolId;
 	}
 
+	/**
+	 * @param trendIndicator
+	 *            the trendIndicator to set
+	 */
+	public void setTrendIndicator(String trendIndicator) {
+		this.trendIndicator = trendIndicator;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -330,7 +361,8 @@ public class BarData implements Serializable {
 		return "BarData [barClose=" + barClose + ", barTime=" + barTime + ", barHigh=" + barHigh + ", barLow="
 				+ barLow + ", barVolume=" + barVolume + ", id=" + id + ", imaCount=" + imaCount + ", indicatorNr="
 				+ indicatorNr + ", indicatorWeight=" + indicatorWeight + ", isConfirm=" + isConfirm
-				+ ", processPhase=" + processPhase + ", symbolId=" + symbolId + "]";
+				+ ", processPhase=" + processPhase + ", trendIndicator=" + trendIndicator + ", symbolId="
+				+ symbolId + "]";
 	}
 
 }

@@ -35,24 +35,41 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 	}
 
 	@Override
-	public void write(CurrencySymbol symbol, TimeFrame timeFrame, List<String> recordList)
+	public void write(CurrencySymbol symbol, TimeFrame timeFrame, List<String> recordList, int hourShift)
 			throws BaseServiceException {
 		int tme_frm = timeFrame.getTimeFrame().intValue();
-		GregorianCalendar cal = getSystemDate();
-		int act_minute = cal.get(Calendar.MINUTE);
+
+		GregorianCalendar sys_date = getSystemDate(hourShift);
+		int act_minute = sys_date.get(Calendar.MINUTE);
 
 		try {
-			// 5 minut
+			// *** 5 minut ***
 			if (tme_frm == 5) {
 
-				// 0, 5, 10, ..., 55
 				if ((act_minute % 5) == 0) {
-					insertOrUpdateBy5(symbol.getId(), timeFrame.getTimeFrameDesc(), recordList);
+					// 0, 5, 10, ..., 55
+					//insertOrUpdateBy5(symbol.getId(), timeFrame.getTimeFrameDesc(), recordList, sys_date);
+					insertOrUpdateBarData(symbol.getId(), timeFrame, recordList, sys_date);
 				} else {
 					// aktualizacja tylko ostatniego:
-					updateBy5(symbol.getId(), timeFrame.getTimeFrameDesc(), recordList, (act_minute % 5));
+					//updateBy5(symbol.getId(), timeFrame.getTimeFrameDesc(), recordList, (act_minute % 5), sys_date);
+					updateBarData(symbol.getId(), timeFrame.getTimeFrameDesc(), recordList, (act_minute % 5), sys_date);
 				}
 			}
+
+			// *** 15 minut ***
+			if (tme_frm == 15) {
+				
+				if ((act_minute % 15) == 0) {
+					// 0, 15, 30, 45
+					insertOrUpdateBarData(symbol.getId(), timeFrame, recordList, sys_date);
+				} else {
+					updateBarData(symbol.getId(), timeFrame.getTimeFrameDesc(), recordList, (act_minute % 15), sys_date);
+				}
+			}
+			
+			// *** 60 minut ***
+			
 		} catch (ParseException e) {
 			e.printStackTrace();
 			throw new BaseServiceException("::write:: wyjatek ParseException!", e);
@@ -179,10 +196,14 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 	 * 
 	 * @return
 	 */
-	private GregorianCalendar getSystemDate() {
+	private GregorianCalendar getSystemDate(int hourShift) {
 		GregorianCalendar cal = new GregorianCalendar();
 		cal.setTime(new Date());
 
+		// przesunięcie godziny:
+		cal.add(Calendar.HOUR_OF_DAY, hourShift);
+
+		// wyzerowanie sekund i milisekund:
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 
@@ -206,19 +227,19 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 
 		if (exist_rec == null) {
 			barDataDao.insert(frameDesc, getNewBarData(record, symbolId, 0));
-			LOGGER.info("   [ADD] Nowy [" + upd_cnt + "] rekord.");
+			LOGGER.info("   [ADD] Nowy rekord [" + upd_cnt + "].");
 		} else {
 			LOGGER.info("   [ERROR] Rekord w tabeli nie powinien jeszcze istniec [" + exist_rec
 					+ "] dla rekordu pliku plaskiego [" + record + "].");
 		}
 	}
 
-	private void insertOrUpdateBy5(Integer symbolId, String frameDesc, List<String> recordList)
-			throws ParseException {
+	private void insertOrUpdateBy5(Integer symbolId, String frameDesc, List<String> recordList,
+			GregorianCalendar actualDate) throws ParseException {
 		GregorianCalendar rec_cal = null;
 
-		GregorianCalendar sys_date = getSystemDate();
-		GregorianCalendar prev_date = getSystemDate();
+		GregorianCalendar prev_date = new GregorianCalendar();
+		prev_date.setTime(actualDate.getTime());
 		prev_date.add(Calendar.MINUTE, -5);
 
 		for (String rec : recordList) {
@@ -226,10 +247,10 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 			rec_cal = getRecordTime(rec);
 
 			// aktualny bar - wstawienie, jeśli nie ma w tabeli:
-			if (rec_cal.compareTo(sys_date) == 0) {
+			if (rec_cal.compareTo(actualDate) == 0) {
 				LOGGER.info("   [DATE] aktualny wg REC ["
 						+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "] i SYS ["
-						+ DateConverter.dateToString(sys_date.getTime(), "HH:mm:ss,SSS") + "].");
+						+ DateConverter.dateToString(actualDate.getTime(), "HH:mm:ss,SSS") + "].");
 
 				insertNewBarData(rec, symbolId, frameDesc, rec_cal);
 				continue;
@@ -247,8 +268,49 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 
 			// poprzednie bary - tylko jeśli nie ma ich w tabeli lub jeśli mają staus 0:
 			LOGGER.info("   [DATE] wg REC [" + DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS")
-					+ "] i SYS [" + DateConverter.dateToString(sys_date.getTime(), "HH:mm:ss,SSS") + "].");
+					+ "] i SYS [" + DateConverter.dateToString(actualDate.getTime(), "HH:mm:ss,SSS") + "].");
 			insertOrUpdatePrevBarData(rec, symbolId, frameDesc, rec_cal);
+		}
+	}
+
+	private void insertOrUpdateBarData(Integer symbolId, TimeFrame tmeFrm, List<String> recordList,
+			GregorianCalendar actualDate) throws ParseException {
+		GregorianCalendar rec_cal = null;
+
+		// wyliczenie daty dla poprzedniego bara:
+		GregorianCalendar prev_date = new GregorianCalendar();
+		prev_date.setTime(actualDate.getTime());
+		prev_date.add(Calendar.MINUTE, -(tmeFrm.getTimeFrame()));
+
+		for (String rec : recordList) {
+			// czas z rekordu pliku płaskiego:
+			rec_cal = getRecordTime(rec);
+
+			// aktualny bar - wstawienie, jeśli nie ma w tabeli:
+			if (rec_cal.compareTo(actualDate) == 0) {
+				LOGGER.info("   [BAR] Nowy bar " + tmeFrm.getTimeFrame() + "M - data z REC ["
+						+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "], data SYS ["
+						+ DateConverter.dateToString(actualDate.getTime(), "HH:mm:ss,SSS") + "].");
+
+				insertNewBarData(rec, symbolId, tmeFrm.getTimeFrameDesc(), rec_cal);
+				continue;
+			}
+
+			// poprzedni bar - końcowa aktualizacja części wartości:
+			if (rec_cal.compareTo(prev_date) == 0) {
+				LOGGER.info("   [BAR] Poprzedni bar " + tmeFrm.getTimeFrame() + "M - data z REC ["
+						+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "], data PREV ["
+						+ DateConverter.dateToString(prev_date.getTime(), "HH:mm:ss,SSS") + "].");
+
+				insertOrUpdateLastBarData(rec, symbolId, tmeFrm.getTimeFrameDesc(), rec_cal, 1);
+				continue;
+			}
+
+			// poprzednie bary - tylko jeśli nie ma ich w tabeli lub jeśli mają staus 0:
+			LOGGER.info("   [BAR] Weryfikacja bara " + tmeFrm.getTimeFrame() + "M - data z REC ["
+					+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "], data SYS ["
+					+ DateConverter.dateToString(actualDate.getTime(), "HH:mm:ss,SSS") + "].");
+			insertOrUpdatePrevBarData(rec, symbolId, tmeFrm.getTimeFrameDesc(), rec_cal);
 		}
 	}
 
@@ -272,12 +334,12 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 			// wstawienie brakującego bara - ze statusem końcowym:
 			upd_cnt = barDataDao.insert(frameDesc, getNewBarData(record, symbolId, processPhase));
 
-			LOGGER.info("   [ADD] Rekord NOWY [" + upd_cnt + "]");
+			LOGGER.info("   [ADD] NOWY rekord [" + upd_cnt + "]");
 		} else {
 			// aktualizacja - ze statusem końcowym
 			upd_cnt = barDataDao.update(frameDesc, exist_rec.getId(), getPartBarData(record, processPhase));
 
-			LOGGER.info("   [UPD] Rekord MODIFY [" + upd_cnt + "] o ID=[" + exist_rec.getId() + "].");
+			LOGGER.info("   [UPD] Zaktualizowany rekord [" + upd_cnt + "] o ID=[" + exist_rec.getId() + "].");
 		}
 	}
 
@@ -301,23 +363,24 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 			// wstawienie brakującego bara - ze statusem końcowym:
 			upd_cnt = barDataDao.insert(frameDesc, getNewBarData(record, symbolId, 1));
 
-			LOGGER.info("   [ADD] Rekord w ilosci [" + upd_cnt + "]");
+			LOGGER.info("   [ADD] Rekord NOWY zalegly [" + upd_cnt + "]");
 		} else if (exist_rec.getProcessPhase().intValue() == 0) {
 			// aktualizacja - ze statusem końcowym
 			upd_cnt = barDataDao.update(frameDesc, exist_rec.getId(), getPartBarData(record, 1));
 
-			LOGGER.info("   [UPD] Rekord w ilosci [" + upd_cnt + "] gdzie status=[" + exist_rec.getProcessPhase()
-					+ "]");
+			LOGGER.info("   [UPD] Rekord UPDATE zalegly [" + upd_cnt + "] z PROCESS_PHASE ["
+					+ exist_rec.getProcessPhase() + "]");
 		}
 	}
 
-	private void updateBy5(Integer symbolId, String frameDesc, List<String> recordList, int minute)
-			throws ParseException {
+	private void updateBy5(Integer symbolId, String frameDesc, List<String> recordList, int minute,
+			GregorianCalendar actualDate) throws ParseException {
 		GregorianCalendar rec_cal = null;
 
 		// GregorianCalendar sys_date = getSystemDate();
 		// czas bara ostatniego:
-		GregorianCalendar prev_date = getSystemDate();
+		GregorianCalendar prev_date = new GregorianCalendar();
+		prev_date.setTime(actualDate.getTime());
 		prev_date.add(Calendar.MINUTE, -minute);
 
 		for (String rec : recordList) {
@@ -326,7 +389,7 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 
 			// ostatni bar - aktualizacja:
 			if (rec_cal.compareTo(prev_date) == 0) {
-				LOGGER.info("   [DATE] Update wg REC ["
+				LOGGER.info("   [DATE] Minutka [" + minute + "], data REC ["
 						+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "] i PREV ["
 						+ DateConverter.dateToString(prev_date.getTime(), "HH:mm:ss,SSS") + "].");
 
@@ -336,8 +399,40 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 
 			// pozostałe bary - tylko wstawienie, jeśli nie ma ich w tabeli lub jeśli jeszcze ich
 			// status równy 0:
-			LOGGER.info("   [DATE] Update wg REC ["
-					+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "] i SYS ["
+			LOGGER.info("   [DATE] Analiza poprzednich barow wg minutki [" + minute + "] i czasu z REC ["
+					+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "] i PREV ["
+					+ DateConverter.dateToString(prev_date.getTime(), "HH:mm:ss,SSS") + "].");
+			insertOrUpdatePrevBarData(rec, symbolId, frameDesc, rec_cal);
+		}
+	}
+
+	private void updateBarData(Integer symbolId, String frameDesc, List<String> recordList, int minute,
+			GregorianCalendar actualDate) throws ParseException {
+		GregorianCalendar rec_cal = null;
+
+		// wyliczenie czasu dla bara jeszcze nie skończonego:
+		GregorianCalendar prev_date = new GregorianCalendar();
+		prev_date.setTime(actualDate.getTime());
+		prev_date.add(Calendar.MINUTE, -minute);
+
+		for (String rec : recordList) {
+			// czas z rekordu pliku płaskiego:
+			rec_cal = getRecordTime(rec);
+
+			// bar do aktualizacji:
+			if (rec_cal.compareTo(prev_date) == 0) {
+				LOGGER.info("   [BAR] Aktualizacja bara - minutka [" + minute + "], data z REC ["
+						+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "], data PREV ["
+						+ DateConverter.dateToString(prev_date.getTime(), "HH:mm:ss,SSS") + "].");
+
+				insertOrUpdateLastBarData(rec, symbolId, frameDesc, rec_cal, 0);
+				continue;
+			}
+
+			// pozostałe bary - tylko wstawienie, jeśli nie ma ich w tabeli lub jeśli jeszcze ich
+			// status równy 0:
+			LOGGER.info("   [BAR] Analiza poprzedniego bara - minutka [" + minute + "], data z REC ["
+					+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "], data PREV ["
 					+ DateConverter.dateToString(prev_date.getTime(), "HH:mm:ss,SSS") + "].");
 			insertOrUpdatePrevBarData(rec, symbolId, frameDesc, rec_cal);
 		}

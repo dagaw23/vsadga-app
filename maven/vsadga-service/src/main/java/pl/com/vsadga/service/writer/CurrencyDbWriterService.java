@@ -20,6 +20,6 @@ public interface CurrencyDbWriterService {
 	 * @param recordList
 	 * @throws BaseServiceException
 	 */
-	void write(CurrencySymbol symbol, TimeFrame timeFrame, List<String> recordList) throws BaseServiceException;
+	void write(CurrencySymbol symbol, TimeFrame timeFrame, List<String> recordList, int hourShift) throws BaseServiceException;
 
 }
