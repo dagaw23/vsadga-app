@@ -59,7 +59,7 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 
 			// *** 15 minut ***
 			if (tme_frm == 15) {
-				
+
 				if ((act_minute % 15) == 0) {
 					// 0, 15, 30, 45
 					insertOrUpdateBarData(symbol.getId(), timeFrame, recordList, sys_date);
@@ -69,6 +69,13 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 			}
 			
 			// *** 60 minut ***
+			if (tme_frm == 60) {
+
+				if (act_minute == 0)
+					insertOrUpdateBarData(symbol.getId(), timeFrame, recordList, sys_date);
+				else
+					updateBarData(symbol.getId(), timeFrame.getTimeFrameDesc(), recordList, (act_minute % 15), sys_date);
+			}
 			
 		} catch (ParseException e) {
 			e.printStackTrace();
