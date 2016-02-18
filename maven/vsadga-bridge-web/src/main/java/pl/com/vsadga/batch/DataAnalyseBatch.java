@@ -13,9 +13,9 @@ import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.data.CurrencyDataService;
+import pl.com.vsadga.service.process.BarDataProcessor;
 import pl.com.vsadga.service.symbol.SymbolService;
 import pl.com.vsadga.service.timeframe.TimeFrameService;
-import pl.com.vsadga.utils.DateConverter;
 
 @Component
 public class DataAnalyseBatch {
@@ -30,9 +30,12 @@ public class DataAnalyseBatch {
 
 	@Autowired
 	private TimeFrameService timeFrameService;
+	
+	@Autowired
+	private BarDataProcessor barDataProcessor;
 
+	@Scheduled(cron = "10 * * * * MON-FRI")
 	public void cronJob() {
-		// @Scheduled(cron = "10 0/1 * * * MON-FRI")
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;
 
@@ -51,15 +54,14 @@ public class DataAnalyseBatch {
 		try {
 			for (CurrencySymbol symbol : symbol_list) {
 				for (TimeFrame tme_frame : tmefrm_list) {
-					LOGGER.info("   [PROC] " + symbol.getSymbolName() + " in " + tme_frame.getTimeFrameDesc()
-							+ ".");
+					LOGGER.info("   [PROC] " + symbol.getSymbolName() + " in " + tme_frame.getTimeFrameDesc() + ".");
 
 					// pobierz listę danych z bara:
 					data_list = currencyDataService.getBarDataList(symbol.getId(), tme_frame.getTimeFrameDesc());
+					LOGGER.info("   [PROC] Liczba barow do przetworzenia: " + data_list.size() + ".");
 					
-					
-
-					print(data_list);
+					// przetwórz listę barów:
+					barDataProcessor.processBarsData(data_list, tme_frame);
 				}
 			}
 		} catch (BaseServiceException e) {
@@ -67,11 +69,4 @@ public class DataAnalyseBatch {
 		}
 	}
 
-	private void print(List<BarData> barDataList) {
-
-		for (BarData data : barDataList)
-			LOGGER.info("   > " + DateConverter.dateToString(data.getBarTime(), "yyyyMMdd hh:mm:ss") + ","
-					+ data.getBarVolume() + "," + data.getBarHigh() + "," + data.getBarLow() + ","
-					+ data.getBarClose() + "," + data.getImaCount() + "," + data.getSymbolId() + ".");
-	}
 }

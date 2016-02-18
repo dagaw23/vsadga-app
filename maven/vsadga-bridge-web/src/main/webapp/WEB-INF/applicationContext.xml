@@ -60,4 +60,10 @@
 		<constructor-arg value="utf-8"/>
 	</bean>
 	
+	<!-- Processors -->
+	<bean id="barDataProcessor" class="pl.com.vsadga.service.process.BarDataProcessorImpl">
+		<property name="barDataDao" ref="barDataDao" />
+		<property name="minimumStatsSize" value="5"/>
+	</bean>
+	
 </beans>

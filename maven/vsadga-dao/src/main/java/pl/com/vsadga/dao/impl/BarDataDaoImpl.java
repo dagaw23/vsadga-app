@@ -177,10 +177,16 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 	@Override
 	public int updateProcessPhase(Integer id, Integer processPhase, String frameDesc) {
-		String sql = "update " + getTableName(frameDesc)
-				+ " set process_phase=? where id=?";
+		String sql = "update " + getTableName(frameDesc) + " set process_phase=? where id=?";
 
 		return getJdbcTemplate().update(sql, processPhase, id);
+	}
+
+	@Override
+	public int updateProcessPhaseWithTrend(Integer id, Integer processPhase, String trend, String frameDesc) {
+		String sql = "update " + getTableName(frameDesc) + " set process_phase=?, trend_indicator=? where id=?";
+
+		return getJdbcTemplate().update(sql, processPhase, trend, id);
 	}
 
 	private String getSeqName(String timeFrameDesc) {

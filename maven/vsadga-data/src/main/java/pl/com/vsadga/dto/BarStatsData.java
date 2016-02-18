@@ -16,7 +16,26 @@ public class BarStatsData implements Serializable {
 
 	private Integer barVolume;
 
+	/**
+	 * wyliczona średnia krocząca
+	 */
+	private BigDecimal imaCount;
+
 	private String trend;
+
+	public BarStatsData() {
+		super();
+	}
+
+	public BarStatsData(BigDecimal barClose, BigDecimal barSpread, Integer barVolume, String trend,
+			BigDecimal imaCount) {
+		super();
+		this.barClose = barClose;
+		this.barSpread = barSpread;
+		this.barVolume = barVolume;
+		this.trend = trend;
+		this.imaCount = imaCount;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -46,6 +65,11 @@ public class BarStatsData implements Serializable {
 			if (other.barVolume != null)
 				return false;
 		} else if (!barVolume.equals(other.barVolume))
+			return false;
+		if (imaCount == null) {
+			if (other.imaCount != null)
+				return false;
+		} else if (!imaCount.equals(other.imaCount))
 			return false;
 		if (trend == null) {
 			if (other.trend != null)
@@ -77,6 +101,13 @@ public class BarStatsData implements Serializable {
 	}
 
 	/**
+	 * @return the imaCount
+	 */
+	public BigDecimal getImaCount() {
+		return imaCount;
+	}
+
+	/**
 	 * @return the trend
 	 */
 	public String getTrend() {
@@ -95,6 +126,7 @@ public class BarStatsData implements Serializable {
 		result = prime * result + ((barClose == null) ? 0 : barClose.hashCode());
 		result = prime * result + ((barSpread == null) ? 0 : barSpread.hashCode());
 		result = prime * result + ((barVolume == null) ? 0 : barVolume.hashCode());
+		result = prime * result + ((imaCount == null) ? 0 : imaCount.hashCode());
 		result = prime * result + ((trend == null) ? 0 : trend.hashCode());
 		return result;
 	}
@@ -124,6 +156,14 @@ public class BarStatsData implements Serializable {
 	}
 
 	/**
+	 * @param imaCount
+	 *            the imaCount to set
+	 */
+	public void setImaCount(BigDecimal imaCount) {
+		this.imaCount = imaCount;
+	}
+
+	/**
 	 * @param trend
 	 *            the trend to set
 	 */
@@ -139,7 +179,7 @@ public class BarStatsData implements Serializable {
 	@Override
 	public String toString() {
 		return "BarStatsData [barClose=" + barClose + ", barSpread=" + barSpread + ", barVolume=" + barVolume
-				+ ", trend=" + trend + "]";
+				+ ", trend=" + trend + ", imaCount=" + imaCount + "]";
 	}
 
 }

@@ -41,6 +41,8 @@ public interface BarDataDao {
 	
 	int updateProcessPhase(Integer id, Integer processPhase, String frameDesc);
 	
+	int updateProcessPhaseWithTrend(Integer id, Integer processPhase, String trend, String frameDesc);
+	
 	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
 	
 }
