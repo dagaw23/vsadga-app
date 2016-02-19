@@ -87,6 +87,11 @@ public class BarData implements Serializable {
 	 */
 	private String trendIndicator;
 
+	/**
+	 * kolejność wystąpienia barów trendowych
+	 */
+	private Integer trendWeight;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -166,6 +171,11 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!trendIndicator.equals(other.trendIndicator))
 			return false;
+		if (trendWeight == null) {
+			if (other.trendWeight != null)
+				return false;
+		} else if (!trendWeight.equals(other.trendWeight))
+			return false;
 		return true;
 	}
 
@@ -242,6 +252,13 @@ public class BarData implements Serializable {
 		return trendIndicator;
 	}
 
+	/**
+	 * @return the trendWeight
+	 */
+	public Integer getTrendWeight() {
+		return trendWeight;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -264,6 +281,7 @@ public class BarData implements Serializable {
 		result = prime * result + ((processPhase == null) ? 0 : processPhase.hashCode());
 		result = prime * result + ((symbolId == null) ? 0 : symbolId.hashCode());
 		result = prime * result + ((trendIndicator == null) ? 0 : trendIndicator.hashCode());
+		result = prime * result + ((trendWeight == null) ? 0 : trendWeight.hashCode());
 		return result;
 	}
 
@@ -351,6 +369,14 @@ public class BarData implements Serializable {
 		this.trendIndicator = trendIndicator;
 	}
 
+	/**
+	 * @param trendWeight
+	 *            the trendWeight to set
+	 */
+	public void setTrendWeight(Integer trendWeight) {
+		this.trendWeight = trendWeight;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -358,11 +384,11 @@ public class BarData implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "BarData [barClose=" + barClose + ", barTime=" + barTime + ", barHigh=" + barHigh + ", barLow="
-				+ barLow + ", barVolume=" + barVolume + ", id=" + id + ", imaCount=" + imaCount + ", indicatorNr="
-				+ indicatorNr + ", indicatorWeight=" + indicatorWeight + ", isConfirm=" + isConfirm
-				+ ", processPhase=" + processPhase + ", trendIndicator=" + trendIndicator + ", symbolId="
-				+ symbolId + "]";
+		return "BarData [barClose=" + barClose + ", barHigh=" + barHigh + ", barLow=" + barLow + ", barTime="
+				+ barTime + ", barVolume=" + barVolume + ", trendWeight=" + trendWeight + ", id=" + id
+				+ ", imaCount=" + imaCount + ", indicatorNr=" + indicatorNr + ", indicatorWeight="
+				+ indicatorWeight + ", isConfirm=" + isConfirm + ", processPhase=" + processPhase + ", symbolId="
+				+ symbolId + ", trendIndicator=" + trendIndicator + "]";
 	}
 
 }

@@ -24,6 +24,7 @@ create table fxschema.data_m5(
 	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
+	trend_weight		integer			null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -42,6 +43,7 @@ create table fxschema.data_m15(
 	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
+	trend_weight		integer			null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -60,6 +62,7 @@ create table fxschema.data_h1(
 	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
+	trend_weight		integer			null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -127,4 +130,7 @@ values (1, 'MT4_PATH', 'c:\Users\dgawinkowski\AppData\Roaming\MetaQuotes\Termina
 insert into fxschema.config_data(id, param_name, param_value)
 values (2, 'HOUR_SHIFT', '-1');
 
+alter table fxschema.data_m5  ADD COLUMN trend_weight integer;
+alter table fxschema.data_m15 ADD COLUMN trend_weight integer;
+alter table fxschema.data_h1  ADD COLUMN trend_weight integer;
 
