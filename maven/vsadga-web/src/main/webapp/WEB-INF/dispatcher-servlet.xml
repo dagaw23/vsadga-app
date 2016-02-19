@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd         
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd        
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd        
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd         
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+		http://www.springframework.org/schema/task  http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+	<task:annotation-driven/>
+	<context:annotation-config/>
+	<context:component-scan base-package="pl.com.vsadga.web.controller" />
+	<context:component-scan base-package="pl.com.vsadga.batch"/>
+
+	<!-- polaczenie DB -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" value="jdbc:postgresql://localhost/fxdb" />
+		<property name="username" value="fxuser" />
+		<property name="password" value="fxuser1." />
+	</bean>
+	
+	<!-- DAOs -->
+	<bean id="barDataDao" class="pl.com.vsadga.dao.impl.BarDataDaoImpl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="configDataDao" class="pl.com.vsadga.dao.impl.ConfigDataDaoImpl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="symbolListDao" class="pl.com.vsadga.dao.impl.CurrencySymbolDaoImpl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="timeFrameListDao" class="pl.com.vsadga.dao.impl.TimeFrameDaoImpl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	
+	<!-- Services -->
+	<bean id="configDataService" class="pl.com.vsadga.service.config.ConfigDataServiceImpl">
+		<property name="configDataDao" ref="configDataDao" />
+	</bean>
+	<bean id="currencyDbWriterService" class="pl.com.vsadga.service.writer.CurrencyDbWriterServiceImpl">
+		<property name="barDataDao" ref="barDataDao" />
+	</bean>
+	<bean id="symbolService" class="pl.com.vsadga.service.symbol.SymbolServiceImpl">
+		<property name="symbolListDao" ref="symbolListDao" />
+	</bean>
+	<bean id="timeFrameService" class="pl.com.vsadga.service.timeframe.TimeFrameServiceImpl">
+		<property name="timeFrameListDao" ref="timeFrameListDao" />
+	</bean>
+	<bean id="currencyDataService" class="pl.com.vsadga.service.data.CurrencyDataServiceImpl">
+		<property name="barDataDao" ref="barDataDao" />
+	</bean>
+
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+</beans>

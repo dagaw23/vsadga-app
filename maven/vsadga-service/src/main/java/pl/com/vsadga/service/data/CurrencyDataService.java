@@ -11,7 +11,7 @@ public interface CurrencyDataService {
 
 	List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException;
 
-	List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame);
+	List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException;
 
 	List<BarData> getNotProcessBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException;
 }

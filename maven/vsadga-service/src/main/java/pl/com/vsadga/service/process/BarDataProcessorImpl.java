@@ -175,7 +175,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 				if (weight == 1)
 					return new TrendParams("S", 6);
 				else
-					return new TrendParams("D", 6);
+					return new TrendParams("D", 1);
 			}
 		}
 		// *** poprzedni bar jest BOCZNY ***

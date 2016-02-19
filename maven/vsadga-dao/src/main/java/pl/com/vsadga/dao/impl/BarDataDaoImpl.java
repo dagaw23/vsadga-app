@@ -128,8 +128,11 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 			}
 
 		}, symbolId);
-
-		return data_list.subList(0, size);
+		
+		if (data_list.size() < 20)
+			return data_list;
+		else
+			return data_list.subList(0, size);
 	}
 
 	@Override
