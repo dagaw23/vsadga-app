@@ -128,7 +128,7 @@ values (9, 43200, 'MN1', false);
 insert into fxschema.config_data(id, param_name, param_value)
 values (1, 'MT4_PATH', 'c:\Users\dgawinkowski\AppData\Roaming\MetaQuotes\Terminal\BEF0A9F90269E8DF733D1FE584305AC7\MQL4\Files\Actual');
 insert into fxschema.config_data(id, param_name, param_value)
-values (2, 'HOUR_SHIFT', '-1');
+values (2, 'HOUR_SHIFT', '1');
 
 alter table fxschema.data_m5  ADD COLUMN trend_weight integer;
 alter table fxschema.data_m15 ADD COLUMN trend_weight integer;

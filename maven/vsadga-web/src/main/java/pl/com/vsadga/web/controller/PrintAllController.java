@@ -14,6 +14,7 @@ import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.data.CurrencyDataService;
 import pl.com.vsadga.service.symbol.SymbolService;
 import pl.com.vsadga.service.timeframe.TimeFrameService;
+import pl.com.vsadga.utils.DateConverter;
 
 @Controller
 public class PrintAllController {
@@ -56,10 +57,16 @@ public class PrintAllController {
 		StringBuffer row1 = new StringBuffer();
 		StringBuffer row2 = new StringBuffer();
 		StringBuffer row3 = new StringBuffer();
-		result.append("<table><tr height='20'>");
+		StringBuffer row_tme = new StringBuffer();
+		StringBuffer row_ima = new StringBuffer();
+		result.append("<table>");
 		
 		for (BarData bar_data : dataList) {
 			row1.append("<td width='20' style='background-color:"); 
+			
+			// pomijamy nie przetworzone jeszcze do minimum 2:
+			if (bar_data.getProcessPhase().intValue() < 2)
+				continue;
 			
 			if (bar_data.getTrendIndicator().equals("U")) {
 				row1.append("green");
@@ -72,6 +79,9 @@ public class PrintAllController {
 			
 			row2.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getBarClose()).append("</td>");
 			row3.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getBarVolume()).append("</td>");
+			row_tme.append("<td style='font-size:4px, font-family:Arial'>")
+				.append(DateConverter.dateToString(bar_data.getBarTime(), "HH:mm")).append("</td>");
+			row_ima.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getImaCount()).append("</td>");
 			
 			i++;
 			
@@ -79,7 +89,11 @@ public class PrintAllController {
 				break;
 		}
 		
+		result.append("<tr height='10'>").append(row_tme.toString());
+		result.append("</tr><tr height='20'>");
 		result.append(row1.toString());
+		result.append("</tr><tr height='10'>");
+		result.append(row_ima.toString());
 		result.append("</tr><tr height='10'>");
 		result.append(row2.toString());
 		result.append("</tr><tr height='10'>");
