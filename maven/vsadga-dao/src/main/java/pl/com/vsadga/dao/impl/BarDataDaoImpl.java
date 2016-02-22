@@ -85,9 +85,9 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
-	public List<BarData> getBarDataList(Integer symbolId, String frameDesc) {
+	public List<BarData> getBarDataList(Integer symbolId, String frameDesc, Date startDate) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
-				+ " where symbol_id=? order by bar_time asc";
+				+ " where symbol_id=? and bar_time > ? order by bar_time asc";
 
 		return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
 
@@ -96,7 +96,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				return rs2BarData(rs);
 			}
 
-		}, symbolId);
+		}, symbolId, new Timestamp(startDate.getTime()));
 	}
 
 	@Override
