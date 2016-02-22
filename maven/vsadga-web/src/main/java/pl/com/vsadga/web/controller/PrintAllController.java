@@ -54,31 +54,30 @@ public class PrintAllController {
 	private String getMessage(List<BarData> dataList) {
 		int i = 0;
 		StringBuffer result = new StringBuffer();
-		StringBuffer row1 = new StringBuffer();
-		StringBuffer row2 = new StringBuffer();
-		StringBuffer row3 = new StringBuffer();
+		StringBuffer row_trd = new StringBuffer();
+		StringBuffer row_cls = new StringBuffer();
+		StringBuffer row_vol = new StringBuffer();
 		StringBuffer row_tme = new StringBuffer();
 		StringBuffer row_ima = new StringBuffer();
 		result.append("<table>");
 		
 		for (BarData bar_data : dataList) {
-			row1.append("<td width='20' style='background-color:"); 
-			
 			// pomijamy nie przetworzone jeszcze do minimum 2:
 			if (bar_data.getProcessPhase().intValue() < 2)
 				continue;
 			
+			row_trd.append("<td width='20' style='background-color:"); 
 			if (bar_data.getTrendIndicator().equals("U")) {
-				row1.append("green");
+				row_trd.append("green");
 			} else if (bar_data.getTrendIndicator().equals("D")) {
-				row1.append("red");
+				row_trd.append("red");
 			} else {
-				row1.append("gray");
+				row_trd.append("gray");
 			}
-			row1.append("'/>");
+			row_trd.append("'/>");
 			
-			row2.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getBarClose()).append("</td>");
-			row3.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getBarVolume()).append("</td>");
+			row_cls.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getBarClose()).append("</td>");
+			row_vol.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getBarVolume()).append("</td>");
 			row_tme.append("<td style='font-size:4px, font-family:Arial'>")
 				.append(DateConverter.dateToString(bar_data.getBarTime(), "HH:mm")).append("</td>");
 			row_ima.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getImaCount()).append("</td>");
@@ -91,13 +90,13 @@ public class PrintAllController {
 		
 		result.append("<tr height='10'>").append(row_tme.toString());
 		result.append("</tr><tr height='20'>");
-		result.append(row1.toString());
+		result.append(row_trd.toString());
 		result.append("</tr><tr height='10'>");
 		result.append(row_ima.toString());
 		result.append("</tr><tr height='10'>");
-		result.append(row2.toString());
+		result.append(row_cls.toString());
 		result.append("</tr><tr height='10'>");
-		result.append(row3.toString());
+		result.append(row_vol.toString());
 		result.append("</tr></table>");
 		
 		return result.toString();

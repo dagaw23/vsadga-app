@@ -69,6 +69,25 @@ create table fxschema.data_h1(
 );
 create unique index data_h1_idx ON fxschema.data_h1 (bar_time, symbol_id);
 
+create table fxschema.data_h4(
+	id					integer			not null PRIMARY KEY,
+	bar_time			timestamp		not null,
+	bar_low				numeric(10,5)	not null,
+	bar_high			numeric(10,5)	not null,
+	bar_close			numeric(10,5)	not null,
+	bar_volume			integer			not null,
+	ima_count			numeric(10,5)	not null,
+	indicator_nr		integer			null,
+	indicator_weight	integer			null,
+	is_confirm			boolean			null,
+	trend_indicator		varchar(1)		null,
+	trend_weight		integer			null,
+	process_phase		integer			not null,
+	symbol_id			smallint		not null
+						REFERENCES fxschema.currency_symbol(id)
+);
+create unique index data_h4_idx ON fxschema.data_h4 (bar_time, symbol_id);
+
 create table fxschema.time_frame(
 	id				smallint		not null PRIMARY KEY,
 	time_frame		integer			not null,
@@ -93,6 +112,11 @@ CREATE SEQUENCE fxschema.data_h1_seq
     START WITH 1
 	CACHE 100
 	CYCLE;
+CREATE SEQUENCE fxschema.data_h4_seq 
+	INCREMENT BY 1
+    START WITH 1
+	CACHE 100
+	CYCLE;
 
 --nextval('fxschema.config_data_seq')
 
@@ -104,6 +128,8 @@ insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
 values (3, 'GBPUSD', false, 'GBPUSD');
 insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
 values (4, 'AUDUSD', false, 'AUDUSD');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
+values (5, 'OIL', true, 'OIL');
 
 
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)

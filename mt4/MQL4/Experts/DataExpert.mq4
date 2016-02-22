@@ -13,7 +13,7 @@ input string   SYMBOL_1="EURUSD";
 input string   SYMBOL_2="AUDUSD";
 input string   SYMBOL_3="GBPUSD";
 input string   SYMBOL_4="GOLD";
-input string   SYMBOL_5="OIL-MAR16";
+input string   SYMBOL_5="OIL-APR16";
 
 input string   FILE_DIR_PATH="Actual";
 input int      ARRAY_WRITE_SIZE=5;
@@ -23,6 +23,7 @@ input int      FULL_LOAD_SIZE=2000;
 
 //------------------------------------------ Global variables ----------------------------------------
 int gLastMinute=100;
+bool gIsDone=false;
 
 
 //+------------------------------------------------------------------+
@@ -51,6 +52,10 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
 {
+   // czy przetwarzanie juz zostalo wykonane:
+   if (gIsDone)
+      return;
+   
    if (IS_FULL_LOAD) {
       write_by_symbol(SYMBOL_1, PERIOD_M5, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_2, PERIOD_M5, FULL_LOAD_SIZE);
@@ -69,6 +74,14 @@ void OnTick()
       write_by_symbol(SYMBOL_3, PERIOD_H1, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_4, PERIOD_H1, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_5, PERIOD_H1, FULL_LOAD_SIZE);
+      
+      write_by_symbol(SYMBOL_1, PERIOD_H4, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_2, PERIOD_H4, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_3, PERIOD_H4, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_4, PERIOD_H4, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_5, PERIOD_H4, FULL_LOAD_SIZE);
+      
+      gIsDone=true;
    } else {
       datetime l_time = TimeCurrent();
    
@@ -113,6 +126,7 @@ void write_all(datetime date_time)
    write_by_5_minutes(date_time);
    write_by_15_minutes(date_time);
    write_by_1_hour(date_time);
+   write_by_4_hour(date_time);
 }
 
 /*
@@ -182,6 +196,19 @@ void write_by_1_hour(datetime date_time)
    write_by_symbol(SYMBOL_3, PERIOD_H1, ARRAY_WRITE_SIZE);
    write_by_symbol(SYMBOL_4, PERIOD_H1, ARRAY_WRITE_SIZE);
    write_by_symbol(SYMBOL_5, PERIOD_H1, ARRAY_WRITE_SIZE);
+}
+
+void write_by_4_hour(datetime date_time)
+{
+   int l_min = TimeMinute(date_time);
+   int l_hr = TimeHour(date_time);
+   Alert("Writing by 4 hour [", l_hr, ":", l_min, "]");
+      
+   write_by_symbol(SYMBOL_1, PERIOD_H4, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_2, PERIOD_H4, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_3, PERIOD_H4, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_4, PERIOD_H4, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_5, PERIOD_H4, ARRAY_WRITE_SIZE);
 }
 
 void write_by_symbol(string symbol, int tme_frm, int buff_size)

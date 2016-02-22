@@ -77,6 +77,14 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 					updateBarData(symbol.getId(), timeFrame.getTimeFrameDesc(), recordList, (act_minute % 60), sys_date);
 			}
 			
+			// *** 240 minut ***
+			if (tme_frm == 240) {
+				
+				if (act_minute == 0)
+					insertOrUpdateBarData(symbol.getId(), timeFrame, recordList, sys_date);
+				else
+					updateBarData(symbol.getId(), timeFrame.getTimeFrameDesc(), recordList, (act_minute % 240), sys_date);
+			}
 		} catch (ParseException e) {
 			e.printStackTrace();
 			throw new BaseServiceException("::write:: wyjatek ParseException!", e);

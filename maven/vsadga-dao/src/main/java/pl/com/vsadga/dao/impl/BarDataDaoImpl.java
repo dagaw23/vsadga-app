@@ -4,6 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -117,6 +119,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 	@Override
 	public List<BarData> getLastNbarsData(Integer symbolId, String frameDesc, int size) {
+		List<BarData> result_list = null;
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
 				+ " where symbol_id=? order by bar_time desc";
 
@@ -130,9 +133,30 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		}, symbolId);
 		
 		if (data_list.size() < 20)
-			return data_list;
+			result_list = data_list;
 		else
-			return data_list.subList(0, size);
+			result_list = data_list.subList(0, size);
+		
+		// sortowanie listy wynikowej:
+		Collections.sort(result_list, new BarDataComparator());
+		
+		return result_list;
+	}
+	
+	// TODO: czy sortowanie nie przeniesc do service?
+	private class BarDataComparator implements Comparator<BarData> {
+
+		@Override
+		public int compare(BarData o1, BarData o2) {
+			
+			if (o1.getBarTime().getTime() > o2.getBarTime().getTime())
+				return 1;
+			else if (o1.getBarTime().getTime() < o2.getBarTime().getTime())
+				return -1;
+			else
+				return 0;
+		}
+		
 	}
 
 	@Override
