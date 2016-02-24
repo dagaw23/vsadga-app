@@ -1,8 +1,7 @@
 package pl.com.vsadga.service.data;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -13,7 +12,6 @@ import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.service.BaseServiceException;
-import pl.com.vsadga.utils.DateConverter;
 
 public class CurrencyDataServiceImpl implements CurrencyDataService {
 	/**
@@ -25,21 +23,28 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 
 	@Override
 	public List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException {
-		// przetwarzamy maksymalnie 5 dni wstecz:
-		GregorianCalendar cal = new GregorianCalendar();
-		cal.setTime(new Date());
-		cal.add(Calendar.HOUR_OF_DAY, -120);
-
-		LOGGER.info("   [GET] " + symbolId + "," + timeFrameDesc + ":"
-				+ DateConverter.dateToString(cal.getTime(), "yyyy/MM/dd HH:mm") + ".");
-
-		return barDataDao.getBarDataList(symbolId, timeFrameDesc, cal.getTime());
+		return barDataDao.getBarDataList(symbolId, timeFrameDesc);
 	}
 
 	@Override
-	public List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame)
-			throws BaseServiceException {
-		return barDataDao.getLastNbarsData(symbol.getId(), timeFrame.getTimeFrameDesc(), size);
+	public List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException {
+		List<BarData> result_list = barDataDao.getLastNbarsData(symbol.getId(), timeFrame.getTimeFrameDesc(), size);
+		
+		// sortowanie listy wynikowej:
+		Collections.sort(result_list, new Comparator<BarData>() {
+
+			@Override
+			public int compare(BarData o1, BarData o2) {
+				if (o1.getBarTime().getTime() > o2.getBarTime().getTime())
+					return 1;
+				else if (o1.getBarTime().getTime() < o2.getBarTime().getTime())
+					return -1;
+				else
+					return 0;
+			}
+		});
+		
+		return result_list;
 	}
 
 	@Override

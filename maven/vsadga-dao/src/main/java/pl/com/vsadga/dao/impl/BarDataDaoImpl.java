@@ -85,9 +85,9 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
-	public List<BarData> getBarDataList(Integer symbolId, String frameDesc, Date startDate) {
+	public List<BarData> getBarDataList(Integer symbolId, String frameDesc) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
-				+ " where symbol_id=? and bar_time > ? order by bar_time asc";
+				+ " where symbol_id=? order by bar_time asc";
 
 		return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
 
@@ -96,7 +96,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				return rs2BarData(rs);
 			}
 
-		}, symbolId, new Timestamp(startDate.getTime()));
+		}, symbolId);
 	}
 
 	@Override
@@ -119,7 +119,6 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 	@Override
 	public List<BarData> getLastNbarsData(Integer symbolId, String frameDesc, int size) {
-		List<BarData> result_list = null;
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
 				+ " where symbol_id=? order by bar_time desc";
 
@@ -132,33 +131,12 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 		}, symbolId);
 		
-		if (data_list.size() < 20)
-			result_list = data_list;
+		if (data_list.size() <= size)
+			return data_list;
 		else
-			result_list = data_list.subList(0, size);
-		
-		// sortowanie listy wynikowej:
-		Collections.sort(result_list, new BarDataComparator());
-		
-		return result_list;
+			return data_list.subList(0, size);
 	}
 	
-	// TODO: czy sortowanie nie przeniesc do service?
-	private class BarDataComparator implements Comparator<BarData> {
-
-		@Override
-		public int compare(BarData o1, BarData o2) {
-			
-			if (o1.getBarTime().getTime() > o2.getBarTime().getTime())
-				return 1;
-			else if (o1.getBarTime().getTime() < o2.getBarTime().getTime())
-				return -1;
-			else
-				return 0;
-		}
-		
-	}
-
 	@Override
 	public List<BarData> getNotProcessBarDataList(Integer symbolId, String frameDesc) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)

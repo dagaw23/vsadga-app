@@ -22,7 +22,7 @@ public interface BarDataDao {
 	 */
 	List<BarData> getNotProcessBarDataList(Integer symbolId, String frameDesc);
 	
-	List<BarData> getBarDataList(Integer symbolId, String frameDesc, Date startDate);
+	List<BarData> getBarDataList(Integer symbolId, String frameDesc);
 	
 	int insert(String frameDesc, BarData data);
 	

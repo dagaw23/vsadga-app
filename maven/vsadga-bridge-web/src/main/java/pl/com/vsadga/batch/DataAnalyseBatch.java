@@ -16,6 +16,7 @@ import pl.com.vsadga.service.data.CurrencyDataService;
 import pl.com.vsadga.service.process.BarDataProcessor;
 import pl.com.vsadga.service.symbol.SymbolService;
 import pl.com.vsadga.service.timeframe.TimeFrameService;
+import pl.com.vsadga.utils.DateConverter;
 
 @Component
 public class DataAnalyseBatch {
@@ -30,7 +31,7 @@ public class DataAnalyseBatch {
 
 	@Autowired
 	private TimeFrameService timeFrameService;
-	
+
 	@Autowired
 	private BarDataProcessor barDataProcessor;
 
@@ -54,12 +55,23 @@ public class DataAnalyseBatch {
 		try {
 			for (CurrencySymbol symbol : symbol_list) {
 				for (TimeFrame tme_frame : tmefrm_list) {
-					LOGGER.info("   [PROC] " + symbol.getSymbolName() + " in " + tme_frame.getTimeFrameDesc() + ".");
+					LOGGER.info("   [PROC] " + symbol.getSymbolName() + " in " + tme_frame.getTimeFrameDesc()
+							+ ".");
 
 					// pobierz listę danych z bara:
-					data_list = currencyDataService.getBarDataList(symbol.getId(), tme_frame.getTimeFrameDesc());
-					LOGGER.info("   [PROC] Liczba barow do przetworzenia: " + data_list.size() + ".");
-					
+					data_list = currencyDataService.getLastNbarData(100, symbol, tme_frame);
+					int list_size = data_list.size();
+					String msg = "   [PROC] Liczba barow do przetworzenia: " + list_size;
+
+					if (list_size > 0)
+						msg += " ("
+								+ DateConverter.dateToString(data_list.get(0).getBarTime(), "yy/MM/dd HH:mm")
+								+ ","
+								+ DateConverter.dateToString(data_list.get(list_size - 1).getBarTime(),
+										"yy/MM/dd HH:mm") + ").";
+
+					LOGGER.info(msg);
+
 					// przetwórz listę barów:
 					barDataProcessor.processBarsData(data_list, tme_frame);
 				}

@@ -1,8 +1,10 @@
 package pl.com.vsadga.service.process;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +51,6 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		int bar_count = barDataList.size();
 		BarData bar_data = null;
 
-		// 3
-		// 5
 		for (int i = 0; i < bar_count; i++) {
 			// pobierz bar:
 			bar_data = barDataList.get(i);
@@ -123,6 +123,19 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 		return barDataMap.get(prev_nr);
 	}
+	
+	private BarStatsData getPrevPrevBar() {
+		int prev_prev_nr = 0;
+
+		if (actualMapPosition == 1)
+			prev_prev_nr = minimumStatsSize - 1;
+		else if (actualMapPosition == 2)
+			prev_prev_nr = minimumStatsSize;
+		else
+			prev_prev_nr = actualMapPosition - 1;
+
+		return barDataMap.get(prev_prev_nr);
+	}
 
 	private TrendParams getTrendParams(BarData barData) {
 		BarStatsData prev_bar = null;
@@ -132,9 +145,9 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 		// porównaj AKTUALNY bar - z poprzednim (średnia krocząca):
 		int bar_compare = barData.getImaCount().compareTo(prev_bar.getImaCount());
-		LOGGER.info("   [TREND] ACT [" + barData.getImaCount() + "]:"
-				+ DateConverter.dateToString(barData.getBarTime(), "yy/MM/dd HH:mm") + ", PREV ["
-				+ prev_bar.getImaCount() + "], wynik=" + bar_compare + ".");
+		//LOGGER.info("   [TREND] ACT [" + barData.getImaCount() + "]:"
+		//		+ DateConverter.dateToString(barData.getBarTime(), "yy/MM/dd HH:mm") + ", PREV ["
+		//		+ prev_bar.getImaCount() + "], wynik=" + bar_compare + ".");
 
 		// trend w poprzednim barze:
 		String trend = prev_bar.getTrendIndicator();
@@ -229,8 +242,8 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 		// jeśli brak barów statystycznych: aktualizuj tylko status i trend
 		if (barDataMap.size() < minimumStatsSize) {
-			LOGGER.info("   [STATS] Zbyt malo barow do analizy [" + barDataMap.size() + "-" + minimumStatsSize
-					+ "].");
+			//LOGGER.info("   [STATS] Zbyt malo barow do analizy [" + barDataMap.size() + "-" + minimumStatsSize
+			//		+ "].");
 			TrendParams params = null;
 
 			// status 0: niekompletny, nie sprawdzamy trendu
@@ -246,8 +259,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 						params.getTrendWeight(), frameDesc);
 
 				// zapisz informację o barze do mapy:
-				barDataMap.put(actualMapPosition, getBarStatsData(barData, params));
-				actualMapPosition += 1;
+				addBarData2Map(barData, params);
 			}
 
 			// aktualizacja tylko statusu bara:
@@ -255,10 +267,8 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 				barDataDao.updateProcessPhase(barData.getId(), 3, frameDesc);
 
 			// zapisz informację o barze do mapy:
-			if (bar_phase == 2 || bar_phase == 3) {
-				barDataMap.put(actualMapPosition, getBarStatsData(barData));
-				actualMapPosition += 1;
-			}
+			if (bar_phase == 2 || bar_phase == 3)
+				addBarData2Map(barData);
 
 			return;
 		}
@@ -267,38 +277,35 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 		// *** status BAR: 0 ***
 		if (bar_phase == 0) {
-			LOGGER.info("   [STATS] Bar wg statusu [" + bar_phase + "] jeszcze NIE JEST ZAKONCZONY.");
+			//LOGGER.info("   [STATS] Bar wg statusu [" + bar_phase + "] jeszcze NIE JEST ZAKONCZONY.");
 			return;
 		}
 
 		// *** status BAR: 3 ***
 		if (bar_phase == 3) {
-			LOGGER.info("   [STATS] Bar wg statusu [" + bar_phase + "] juz ZAKONCZONY.");
-
-			barDataMap.put(actualMapPosition, getBarStatsData(barData));
-			actualMapPosition += 1;
+			//LOGGER.info("   [STATS] Bar wg statusu [" + bar_phase + "] juz ZAKONCZONY.");
+			addBarData2Map(barData);
 		}
 
 		// *** status BAR: 1 ***
 		if (bar_phase == 1) {
-			LOGGER.info("   [STATS] Bar ze statusem [" + bar_phase + "] - KOMPLETNE wyliczanie.");
+			//LOGGER.info("   [STATS] Bar ze statusem [" + bar_phase + "] - KOMPLETNE wyliczanie.");
 
 			// sprawdzenie trendu - tylko dla statusu 1
 			// (0 - jeszcze nie zakończony, 2 - czeka na potwierdzenie, 3 - już zakończony)
 			TrendParams params = getTrendParams(barData);
-			LOGGER.info("   - trend: [" + params.getTrendIndicator() + "," + params.getTrendWeight() + "].");
+			//LOGGER.info("   - trend: [" + params.getTrendIndicator() + "," + params.getTrendWeight() + "].");
 
 			// sprawdzenie, czy jakiś wskaźnik jest
-			// TODO
-
+			getActualBarIndicator(barData);
+			
 			// aktualizacja bara w tabeli:
 			// TODO w tej chwili do statusu 3 - ale oprzeć to na wskaźniku wyliczonym
 			barDataDao.updateProcessPhaseWithTrend(barData.getId(), 3, params.getTrendIndicator(),
 					params.getTrendWeight(), frameDesc);
 
 			// zapisz informację o barze do mapy:
-			barDataMap.put(actualMapPosition, getBarStatsData(barData, params));
-			actualMapPosition += 1;
+			addBarData2Map(barData, params);
 		}
 
 		// czy poprzedni bar czeka na potwierdzenie:
@@ -314,7 +321,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 		// *** status BAR: 2 ***
 		if (bar_phase == 2) {
-			LOGGER.info("   [STATS] Bar wg statusu [" + barData.getProcessPhase() + "] do POTWIERDZENIA.");
+			//LOGGER.info("   [STATS] Bar wg statusu [" + barData.getProcessPhase() + "] do POTWIERDZENIA.");
 			isBarToConfirmation = true;
 
 			// zapisz informację o barze do mapy:
@@ -324,6 +331,85 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			isBarToConfirmation = false;
 		}
 
+	}
+	
+	private Integer getActualBarIndicator(BarData barData) {
+		Integer result = null;
+		
+		
+		// TODO 1: dodac wpisywanie czasu bara do BarStatsData
+		// TODO 2: parametry konfigurayjne do pobierania liczby barów do przetworzenia oraz liczby barów w mapie.
+		// pobierz 2 poprzednie bary:
+		BarStatsData prev_bar = getPrevBar();
+		BarStatsData prev_prev_bar = getPrevPrevBar();
+		
+		// czy wolumen jest mniejszy od dwóch poprzednich:
+		if (prev_prev_bar.getBarVolume().intValue() > prev_bar.getBarVolume().intValue() 
+				&& prev_bar.getBarVolume().intValue() > barData.getBarVolume().intValue()) {
+			LOGGER.info("   [VOLUME] " + prev_prev_bar.getBarVolume() + "," + prev_bar.getBarVolume() + "," + barData.getBarVolume() 
+					+ ", data aktualnego=" + DateConverter.dateToString(barData.getBarTime(), "yy/MM/dd HH:mm") + ".");
+			
+			if (isUpBar(barData, prev_bar))
+				LOGGER.info("SPREAD AVG:" + getSpreadAvg() + ",ACT SPREAD:" + barData.getBarHigh().subtract(barData.getBarLow()) + ": UP BAR.");
+			
+			if (isDownBar(barData, prev_bar))
+				LOGGER.info("SPREAD AVG:" + getSpreadAvg() + ",ACT SPREAD:" + barData.getBarHigh().subtract(barData.getBarLow()) + ": DOWN BAR.");
+		}
+		
+		// czy aktualny UP BAR:
+		
+		
+		return result;
+	}
+	
+	private BigDecimal getSpreadAvg() {
+		BigDecimal result = new BigDecimal(0);
+		Set<Integer> keys = barDataMap.keySet();
+		
+		for (Integer key : keys)
+			result = result.add(barDataMap.get(key).getBarSpread());
+		
+		return result.divide(new BigDecimal(minimumStatsSize));
+	}
+	
+	private boolean isUpBar(BarData actualBar, BarStatsData prevBar) {
+		if (actualBar.getBarClose().compareTo(prevBar.getBarClose()) > 0)
+			return true;
+		else
+			return false;
+	}
+	
+	private boolean isDownBar(BarData actualBar, BarStatsData prevBar) {
+		if (actualBar.getBarClose().compareTo(prevBar.getBarClose()) < 0)
+			return true;
+		else
+			return false;
+	}
+	
+	private void analyseUpBar() {
+		
+	}
+	
+	private void addBarData2Map(BarData barData, TrendParams trendParams) {
+		// dodaj bar na aktualną pozycję:
+		barDataMap.put(actualMapPosition, getBarStatsData(barData, trendParams));
+		
+		// czy osiągnięty został ostatni element w mapie:
+		if (actualMapPosition == minimumStatsSize)
+			actualMapPosition = 1;
+		else
+			actualMapPosition += 1;
+	}
+	
+	private void addBarData2Map(BarData barData) {
+		// dodaj bar na aktualną pozycję:
+		barDataMap.put(actualMapPosition, getBarStatsData(barData));
+		
+		// czy osiągnięty został ostatni element w mapie:
+		if (actualMapPosition == minimumStatsSize)
+			actualMapPosition = 1;
+		else
+			actualMapPosition += 1;
 	}
 
 }
