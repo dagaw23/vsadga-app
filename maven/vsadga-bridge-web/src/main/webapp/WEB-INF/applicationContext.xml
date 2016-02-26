@@ -12,18 +12,24 @@
 		http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
 		http://www.springframework.org/schema/task  http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
-	<task:annotation-driven/>
-	<context:annotation-config/>
-	<context:component-scan base-package="pl.com.vsadga.batch"/>
+	<task:annotation-driven />
+	<context:annotation-config />
+	<context:component-scan base-package="pl.com.vsadga.batch" />
 
 	<!-- polaczenie DB -->
-	<bean id="dataSource" class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
 		<property name="driverClassName" value="org.postgresql.Driver" />
 		<property name="url" value="jdbc:postgresql://localhost/fxdb" />
 		<property name="username" value="fxuser" />
 		<property name="password" value="fxuser1." />
 	</bean>
 	
+	<!-- Data -->
+	<bean id="indicatorData" class="pl.com.vsadga.dto.IndicatorData">
+		<constructor-arg value="5" />
+	</bean>
+
 	<!-- DAOs -->
 	<bean id="barDataDao" class="pl.com.vsadga.dao.impl.BarDataDaoImpl">
 		<constructor-arg ref="dataSource" />
@@ -37,12 +43,13 @@
 	<bean id="timeFrameListDao" class="pl.com.vsadga.dao.impl.TimeFrameDaoImpl">
 		<constructor-arg ref="dataSource" />
 	</bean>
-	
+
 	<!-- Services -->
 	<bean id="configDataService" class="pl.com.vsadga.service.config.ConfigDataServiceImpl">
 		<property name="configDataDao" ref="configDataDao" />
 	</bean>
-	<bean id="currencyDbWriterService" class="pl.com.vsadga.service.writer.CurrencyDbWriterServiceImpl">
+	<bean id="currencyDbWriterService"
+		class="pl.com.vsadga.service.writer.CurrencyDbWriterServiceImpl">
 		<property name="barDataDao" ref="barDataDao" />
 	</bean>
 	<bean id="symbolService" class="pl.com.vsadga.service.symbol.SymbolServiceImpl">
@@ -54,16 +61,23 @@
 	<bean id="currencyDataService" class="pl.com.vsadga.service.data.CurrencyDataServiceImpl">
 		<property name="barDataDao" ref="barDataDao" />
 	</bean>
-	
+
 	<!-- Writer -->
 	<bean id="barDataFileReader" class="pl.com.vsadga.io.impl.Mt4DataFileReaderImpl">
-		<constructor-arg value="utf-8"/>
+		<constructor-arg value="utf-8" />
 	</bean>
-	
+
 	<!-- Processors -->
-	<bean id="barDataProcessor" class="pl.com.vsadga.service.process.BarDataProcessorImpl">
-		<property name="barDataDao" ref="barDataDao" />
-		<property name="minimumStatsSize" value="5"/>
+	<bean id="indicatorProcessor" class="pl.com.vsadga.service.process.impl.IndicatorProcessorImpl">
+		<property name="indicatorData" ref="indicatorData" />
 	</bean>
-	
+	<bean id="trendProcessor" class="pl.com.vsadga.service.process.impl.TrendProcessorImpl">
+		<property name="indicatorData" ref="indicatorData" />
+	</bean>
+	<bean id="barDataProcessor" class="pl.com.vsadga.service.process.impl.BarDataProcessorImpl">
+		<property name="barDataDao" ref="barDataDao" />
+		<property name="indicatorProcessor" ref="indicatorProcessor" />
+		<property name="trendProcessor" ref="trendProcessor" />
+	</bean>
+
 </beans>

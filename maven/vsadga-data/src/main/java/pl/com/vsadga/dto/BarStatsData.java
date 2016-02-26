@@ -14,6 +14,11 @@ public class BarStatsData implements Serializable {
 
 	private BigDecimal barSpread;
 
+	/**
+	 * czy aktualny bar powinien zostać potwierdzony
+	 */
+	private Boolean barToConfirmation;
+
 	private Integer barVolume;
 
 	/**
@@ -34,6 +39,18 @@ public class BarStatsData implements Serializable {
 		super();
 		this.barClose = barClose;
 		this.barSpread = barSpread;
+		this.barVolume = barVolume;
+		this.trendIndicator = trendIndicator;
+		this.trendWeight = trendWeight;
+		this.imaCount = imaCount;
+	}
+
+	public BarStatsData(BigDecimal barClose, BigDecimal barSpread, Boolean barToConfirmation, Integer barVolume,
+			String trendIndicator, Integer trendWeight, BigDecimal imaCount) {
+		super();
+		this.barClose = barClose;
+		this.barSpread = barSpread;
+		this.barToConfirmation = barToConfirmation;
 		this.barVolume = barVolume;
 		this.trendIndicator = trendIndicator;
 		this.trendWeight = trendWeight;
@@ -63,6 +80,11 @@ public class BarStatsData implements Serializable {
 			if (other.barSpread != null)
 				return false;
 		} else if (!barSpread.equals(other.barSpread))
+			return false;
+		if (barToConfirmation == null) {
+			if (other.barToConfirmation != null)
+				return false;
+		} else if (!barToConfirmation.equals(other.barToConfirmation))
 			return false;
 		if (barVolume == null) {
 			if (other.barVolume != null)
@@ -99,6 +121,13 @@ public class BarStatsData implements Serializable {
 	 */
 	public BigDecimal getBarSpread() {
 		return barSpread;
+	}
+
+	/**
+	 * @return the barToConfirmation
+	 */
+	public Boolean getBarToConfirmation() {
+		return barToConfirmation;
 	}
 
 	/**
@@ -140,6 +169,7 @@ public class BarStatsData implements Serializable {
 		int result = 1;
 		result = prime * result + ((barClose == null) ? 0 : barClose.hashCode());
 		result = prime * result + ((barSpread == null) ? 0 : barSpread.hashCode());
+		result = prime * result + ((barToConfirmation == null) ? 0 : barToConfirmation.hashCode());
 		result = prime * result + ((barVolume == null) ? 0 : barVolume.hashCode());
 		result = prime * result + ((imaCount == null) ? 0 : imaCount.hashCode());
 		result = prime * result + ((trendIndicator == null) ? 0 : trendIndicator.hashCode());
@@ -161,6 +191,14 @@ public class BarStatsData implements Serializable {
 	 */
 	public void setBarSpread(BigDecimal barSpread) {
 		this.barSpread = barSpread;
+	}
+
+	/**
+	 * @param barToConfirmation
+	 *            the barToConfirmation to set
+	 */
+	public void setBarToConfirmation(Boolean barToConfirmation) {
+		this.barToConfirmation = barToConfirmation;
 	}
 
 	/**
@@ -204,7 +242,7 @@ public class BarStatsData implements Serializable {
 	public String toString() {
 		return "BarStatsData [barClose=" + barClose + ", barSpread=" + barSpread + ", barVolume=" + barVolume
 				+ ", imaCount=" + imaCount + ", trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight
-				+ "]";
+				+ ", barToConfirmation=" + barToConfirmation + "]";
 	}
 
 }

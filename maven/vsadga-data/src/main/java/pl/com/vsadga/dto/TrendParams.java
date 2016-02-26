@@ -6,14 +6,13 @@ public class TrendParams {
 
 	private Integer trendWeight;
 
-	public TrendParams() {
-		super();
-	}
+	private String volumeTrendIndicator;
 
-	public TrendParams(String trendIndicator, Integer trendWeight) {
+	public TrendParams(String trendIndicator, Integer trendWeight, String volumeTrendIndicator) {
 		super();
 		this.trendIndicator = trendIndicator;
 		this.trendWeight = trendWeight;
+		this.volumeTrendIndicator = volumeTrendIndicator;
 	}
 
 	/*
@@ -40,6 +39,11 @@ public class TrendParams {
 				return false;
 		} else if (!trendWeight.equals(other.trendWeight))
 			return false;
+		if (volumeTrendIndicator == null) {
+			if (other.volumeTrendIndicator != null)
+				return false;
+		} else if (!volumeTrendIndicator.equals(other.volumeTrendIndicator))
+			return false;
 		return true;
 	}
 
@@ -57,6 +61,13 @@ public class TrendParams {
 		return trendWeight;
 	}
 
+	/**
+	 * @return the volumeTrendIndicator
+	 */
+	public String getVolumeTrendIndicator() {
+		return volumeTrendIndicator;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -68,6 +79,7 @@ public class TrendParams {
 		int result = 1;
 		result = prime * result + ((trendIndicator == null) ? 0 : trendIndicator.hashCode());
 		result = prime * result + ((trendWeight == null) ? 0 : trendWeight.hashCode());
+		result = prime * result + ((volumeTrendIndicator == null) ? 0 : volumeTrendIndicator.hashCode());
 		return result;
 	}
 
@@ -87,6 +99,14 @@ public class TrendParams {
 		this.trendWeight = trendWeight;
 	}
 
+	/**
+	 * @param volumeTrendIndicator
+	 *            the volumeTrendIndicator to set
+	 */
+	public void setVolumeTrendIndicator(String volumeTrendIndicator) {
+		this.volumeTrendIndicator = volumeTrendIndicator;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -94,7 +114,8 @@ public class TrendParams {
 	 */
 	@Override
 	public String toString() {
-		return "TrendParams [trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight + "]";
+		return "TrendParams [trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight
+				+ ", volumeTrendIndicator=" + volumeTrendIndicator + "]";
 	}
 
 }
