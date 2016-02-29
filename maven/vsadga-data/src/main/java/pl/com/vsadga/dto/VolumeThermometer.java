@@ -11,39 +11,44 @@ public class VolumeThermometer {
 	private static final Logger LOGGER = LoggerFactory.getLogger(VolumeThermometer.class);
 
 	/**
-	 * czas 1-go bara w kolejności
+	 * ostatnio zwrócony trend wolumenu
+	 */
+	private VolumeType actualVolumeType;
+
+	/**
+	 * data 1-go bara w kolejności
 	 */
 	private Date barTime1;
 
 	/**
-	 * czas 2-go bara w kolejności
+	 * data 2-go bara w kolejności
 	 */
 	private Date barTime2;
 
 	/**
-	 * ilość ticków w trakcie 1-go bara w kolejności
+	 * wolumen 1-go bara w kolejności
 	 */
 	private Integer barVolume1;
 
 	/**
-	 * ilość ticków w trakcie 2-go bara w kolejności
+	 * wolumen 2-go bara w kolejności
 	 */
 	private Integer barVolume2;
-	
-	/**
-	 * ostatnio zwrócony trend wolumenu
-	 */
-	private VolumeType lastVolumeType;
 
-	public VolumeType getVolumeThermometer(Date barTime, Integer barVolume) {
+	/**
+	 * @return the actualVolumeType
+	 */
+	public VolumeType getActualVolumeType() {
+		return actualVolumeType;
+	}
+
+	public void writeVolumeThermometer(Date barTime, Integer barVolume) {
 		VolumeType result = null;
-		
+
 		// czy już można wyliczyć trend wolumenu:
-		if (!isReadyToCheck(barTime, barVolume)) {
-			this.lastVolumeType = VolumeType.UNDEF_VOLUME;
-			return VolumeType.UNDEF_VOLUME;
-		}
-		
+		if (!isReadyToCheck(barTime, barVolume))
+			return;
+
 		// UP poprzednich:
 		if (barVolume1.intValue() < barVolume2.intValue()) {
 			// aktualny bar:
@@ -81,19 +86,10 @@ public class VolumeThermometer {
 				result = VolumeType.SIDE_VOLUME;
 		}
 
-		LOGGER.info("   [VOL] Wolumeny [" + barVolume1 + "," + barVolume2 + "," + barVolume
-				+ "], result [" + result + "] dla [" + getDateDesc(barTime) + "].");
-		this.lastVolumeType = result;
-		addNextBar(barTime, barVolume);
+		LOGGER.info("   [VOL] Wolumeny [" + barVolume1 + "," + barVolume2 + "," + barVolume + "], result ["
+				+ result + "] dla [" + getDateDesc(barTime) + "].");
 
-		return result;
-	}
-	
-	/**
-	 * @return the lastVolumeType
-	 */
-	public VolumeType getLastVolumeType() {
-		return lastVolumeType;
+		addNextBar(barTime, barVolume, result);
 	}
 
 	/**
@@ -105,35 +101,13 @@ public class VolumeThermometer {
 	 * @param barVolume
 	 *            ilość ticków w barze
 	 */
-	private void addNextBar(Date barTime, Integer barVolume) {
+	private void addNextBar(Date barTime, Integer barVolume, VolumeType actVolType) {
 		this.barTime1 = this.barTime2;
-		this.barTime2 = barTime;
-
 		this.barVolume1 = this.barVolume2;
+
+		this.barTime2 = barTime;
 		this.barVolume2 = barVolume;
-	}
-	
-	/**
-	 * Sprawdza, czy informacja o dwóch poprzednich barach została już zapisana w zmiennych.
-	 * 
-	 * @return
-	 */
-	private boolean isReadyToCheck(Date barTime, Integer barVolume) {
-		if (this.barVolume1 == null) {
-			this.barVolume1 = barVolume;
-			this.barTime1 = barTime;
-			
-			return false;
-		}
-		
-		if (this.barVolume2 == null) {
-			this.barVolume2 = barVolume;
-			this.barTime2 = barTime;
-			
-			return false;
-		}
-		
-		return true;
+		this.actualVolumeType = actVolType;
 	}
 
 	private String getDateDesc(Date inputDate) {
@@ -141,4 +115,30 @@ public class VolumeThermometer {
 
 		return sdf.format(inputDate);
 	}
+
+	/**
+	 * Sprawdza, czy informacja o dwóch poprzednich barach została już zapisana w zmiennych.
+	 * 
+	 * @return
+	 */
+	private boolean isReadyToCheck(Date barTime, Integer barVolume) {
+		if (barVolume1 == null || barTime1 == null) {
+			barVolume1 = barVolume;
+			barTime1 = barTime;
+			actualVolumeType = VolumeType.UNDEF_VOLUME;
+
+			return false;
+		}
+
+		if (barVolume2 == null || barTime2 == null) {
+			barVolume2 = barVolume;
+			barTime2 = barTime;
+			actualVolumeType = VolumeType.UNDEF_VOLUME;
+
+			return false;
+		}
+
+		return true;
+	}
+
 }
