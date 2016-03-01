@@ -69,11 +69,16 @@
 
 	<!-- Processors -->
 	<bean id="indicatorProcessor" class="pl.com.vsadga.service.process.impl.IndicatorProcessorImpl">
+		<property name="configDataService" ref="configDataService" />
 		<property name="indicatorData" ref="indicatorData" />
 	</bean>
 	<bean id="trendProcessor" class="pl.com.vsadga.service.process.impl.TrendProcessorImpl">
+		<property name="configDataService" ref="configDataService" />
 		<property name="indicatorData" ref="indicatorData" />
+		
 	</bean>
+	<bean id="volumeProcessor" class="pl.com.vsadga.service.process.impl.VolumeProcessorImpl"/>
+	
 	<bean id="barDataProcessor" class="pl.com.vsadga.service.process.impl.BarDataProcessorImpl">
 		<property name="barDataDao" ref="barDataDao" />
 		<property name="indicatorProcessor" ref="indicatorProcessor" />

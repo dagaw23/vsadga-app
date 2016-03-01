@@ -16,6 +16,7 @@ import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.process.BarDataProcessor;
 import pl.com.vsadga.service.process.IndicatorProcessor;
 import pl.com.vsadga.service.process.TrendProcessor;
+import pl.com.vsadga.service.process.VolumeProcessor;
 
 public class BarDataProcessorImpl implements BarDataProcessor {
 
@@ -27,6 +28,8 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 	private TrendProcessor trendProcessor;
 	
+	private VolumeProcessor volumeProcessor;
+	
 	@Override
 	public void processBarsData(List<BarData> barDataList, TimeFrame timeFrame) throws BaseServiceException {
 		if (barDataList == null || barDataList.isEmpty()) {
@@ -36,7 +39,6 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 		int bar_count = barDataList.size();
 		BarData bar_data = null;
-		trendProcessor.clearVolumeData();
 
 		for (int i = 0; i < bar_count; i++) {
 			// pobierz bar:
@@ -72,6 +74,13 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	}
 
 	/**
+	 * @param volumeProcessor the volumeProcessor to set
+	 */
+	public void setVolumeProcessor(VolumeProcessor volumeProcessor) {
+		this.volumeProcessor = volumeProcessor;
+	}
+
+	/**
 	 * Przetwarza pojedynczy bar - w porównaniu z poprzednim barem.
 	 * 
 	 * @param barData
@@ -82,6 +91,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		int bar_phase = barData.getProcessPhase().intValue();
 		TrendParams trend_pars = null;
 		IndicatorInfo ind_info = null;
+		String vol_therm = null;
 
 		// *** status BAR: 0 ***
 		if (bar_phase == 0) {
@@ -106,18 +116,11 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			// sprawdzenie wskaźnika:
 			ind_info = indicatorProcessor.getDataIndicator(barData, frameDesc);
 			
-			// nie został przetworzony wskaźnik: od razu do statusu 3
-			if (!ind_info.isProcessIndy()) {
-				LOGGER.info("   [BAR] Nie przetworzony jeszcze.");
-
-				barDataDao.updateProcessPhaseWithTrend(barData.getId(), 3, trend_pars.getTrendIndicator(),
-						trend_pars.getTrendWeight(), frameDesc);
-			}
-
-			// aktualizacja bara w tabeli:
-			// TODO w tej chwili do statusu 3 - ale oprzeć to na wskaźniku wyliczonym
-			barDataDao.updateProcessPhaseWithTrend(barData.getId(), 3, trend_pars.getTrendIndicator(),
-					trend_pars.getTrendWeight(), frameDesc);
+			// sprawdzenie trendu wolumenu:
+			vol_therm = volumeProcessor.checkVolumeThermometer(barData);
+			
+			// wpisanie informacji o barze - do tabeli:
+			updateBarData(trend_pars, ind_info, vol_therm, frameDesc, barData.getId());
 		}
 
 		// *** status BAR: 2 ***
@@ -135,9 +138,33 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		}
 
 	}
-	
-	private BarType getBarType(BarData barData) {
-		
-	}
 
+	private void updateBarData(TrendParams trendParams, IndicatorInfo indInfo, String volTherm, String frameDesc, Integer id) {
+		
+		trendParams.get
+		
+		// jaki jest trend:
+		if (trendParams == null) {
+			
+			
+		} else {
+			
+			
+		}
+		
+		
+		// nie został przetworzony wskaźnik: od razu do statusu 3
+					if (!ind_info.isProcessIndy()) {
+						LOGGER.info("   [BAR] Nie przetworzony jeszcze.");
+
+						barDataDao.updateProcessPhaseWithTrend(barData.getId(), 3, trend_pars.getTrendIndicator(),
+								trend_pars.getTrendWeight(), frameDesc);
+					}
+
+					// aktualizacja bara w tabeli:
+					// TODO w tej chwili do statusu 3 - ale oprzeć to na wskaźniku wyliczonym
+					barDataDao.updateProcessPhaseWithTrend(barData.getId(), 3, trend_pars.getTrendIndicator(),
+							trend_pars.getTrendWeight(), frameDesc);
+	}
+	
 }

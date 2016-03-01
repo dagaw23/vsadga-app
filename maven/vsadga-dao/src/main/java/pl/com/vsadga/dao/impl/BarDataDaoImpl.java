@@ -4,8 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -22,8 +20,9 @@ import pl.com.vsadga.data.BarData;
 
 public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
-	private final String ALL_COLUMNS = "id, bar_time, bar_low, bar_high, bar_close, bar_volume, ima_count, "
-			+ "indicator_nr, indicator_weight, is_confirm, trend_indicator, trend_weight, process_phase, symbol_id";
+	private final String ALL_COLUMNS = "id, bar_time, bar_low, bar_high, bar_close, bar_volume, "
+			+ "ima_count, indicator_nr, indicator_weight, is_confirm, "
+			+ "trend_indicator, trend_weight, volume_thermometer, process_phase, symbol_id";
 
 	private final String SCHM_NME = "fxschema.";
 
@@ -34,7 +33,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	@Override
 	public void batchInsert(String frameDesc, final List<BarData> dataList) {
 		String sql = "insert into " + getTableName(frameDesc) + " (" + ALL_COLUMNS + ") values (nextval('"
-				+ getSeqName(frameDesc) + "'),?, ?,?,?, ?,?, ?,?,?, ?,?)";
+				+ getSeqName(frameDesc) + "'),?,?,?,?,?, ?,?,?,?, ?,?,?,?,?)";
 
 		getJdbcTemplate().batchUpdate(sql, new BatchPreparedStatementSetter() {
 
@@ -50,14 +49,17 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				ps.setBigDecimal(3, dataList.get(i).getBarHigh());
 				ps.setBigDecimal(4, dataList.get(i).getBarClose());
 				ps.setInt(5, dataList.get(i).getBarVolume());
+
 				ps.setBigDecimal(6, dataList.get(i).getImaCount());
 				ps.setInt(7, dataList.get(i).getIndicatorNr());
 				ps.setInt(8, dataList.get(i).getIndicatorWeight());
 				ps.setBoolean(9, dataList.get(i).getIsConfirm());
+
 				ps.setString(10, dataList.get(i).getTrendIndicator());
 				ps.setInt(11, dataList.get(i).getTrendWeight());
-				ps.setInt(12, dataList.get(i).getProcessPhase());
-				ps.setInt(13, dataList.get(i).getSymbolId());
+				ps.setString(12, dataList.get(i).getVolumeThermometer());
+				ps.setInt(13, dataList.get(i).getProcessPhase());
+				ps.setInt(14, dataList.get(i).getSymbolId());
 			}
 		});
 
@@ -130,13 +132,13 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 			}
 
 		}, symbolId);
-		
+
 		if (data_list.size() <= size)
 			return data_list;
 		else
 			return data_list.subList(0, size);
 	}
-	
+
 	@Override
 	public List<BarData> getNotProcessBarDataList(Integer symbolId, String frameDesc) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
@@ -155,12 +157,12 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	@Override
 	public int insert(String frameDesc, BarData data) {
 		String sql = "insert into " + getTableName(frameDesc) + " (" + ALL_COLUMNS + ") values (nextval('"
-				+ getSeqName(frameDesc) + "'),?, ?,?,?, ?,?, ?,?,?, ?,?,?,?)";
+				+ getSeqName(frameDesc) + "'),?,?,?,?,?, ?,?,?,?, ?,?,?,?,?)";
 
 		return getJdbcTemplate().update(sql, data.getBarTime(), data.getBarLow(), data.getBarHigh(),
 				data.getBarClose(), data.getBarVolume(), data.getImaCount(), data.getIndicatorNr(),
 				data.getIndicatorWeight(), data.getIsConfirm(), data.getTrendIndicator(), data.getTrendWeight(),
-				data.getProcessPhase(), data.getSymbolId());
+				data.getVolumeThermometer(), data.getProcessPhase(), data.getSymbolId());
 	}
 
 	@Override
@@ -189,10 +191,12 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
-	public int updateProcessPhaseWithTrend(Integer id, Integer processPhase, String trendIndicator, Integer trendWeight, String frameDesc) {
-		String sql = "update " + getTableName(frameDesc) + " set process_phase=?, trend_indicator=?, trend_weight=? where id=?";
+	public int updateProcessPhaseWithTrend(Integer id, String frameDesc, Integer processPhase,
+			String trendIndicator, Integer trendWeight, String volumeThermometer) {
+		String sql = "update " + getTableName(frameDesc)
+				+ " set process_phase=?, trend_indicator=?, trend_weight=?, volume_thermometer=? where id=?";
 
-		return getJdbcTemplate().update(sql, processPhase, trendIndicator, trendWeight, id);
+		return getJdbcTemplate().update(sql, processPhase, trendIndicator, trendWeight, volumeThermometer, id);
 	}
 
 	private String getSeqName(String timeFrameDesc) {
@@ -207,21 +211,21 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		BarData data = new BarData();
 
 		data.setId(rs.getInt("id"));
-		data.setBarTime(new Date(rs.getTimestamp("bar_time").getTime()));
 
+		data.setBarTime(new Date(rs.getTimestamp("bar_time").getTime()));
 		data.setBarLow(rs.getBigDecimal("bar_low"));
 		data.setBarHigh(rs.getBigDecimal("bar_high"));
 		data.setBarClose(rs.getBigDecimal("bar_close"));
-
 		data.setBarVolume(rs.getInt("bar_volume"));
-		data.setImaCount(rs.getBigDecimal("ima_count"));
 
+		data.setImaCount(rs.getBigDecimal("ima_count"));
 		data.setIndicatorNr(rs.getInt("indicator_nr"));
 		data.setIndicatorWeight(rs.getInt("indicator_weight"));
 		data.setIsConfirm(rs.getBoolean("is_confirm"));
 
 		data.setTrendIndicator(rs.getString("trend_indicator"));
 		data.setTrendWeight(rs.getInt("trend_weight"));
+		data.setVolumeThermometer(rs.getString("volume_thermometer"));
 		data.setProcessPhase(rs.getInt("process_phase"));
 		data.setSymbolId(rs.getInt("symbol_id"));
 

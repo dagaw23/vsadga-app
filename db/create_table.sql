@@ -25,6 +25,7 @@ create table fxschema.data_m5(
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
+	volume_thermometer	varchar(1)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -44,6 +45,7 @@ create table fxschema.data_m15(
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
+	volume_thermometer	varchar(1)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -63,6 +65,7 @@ create table fxschema.data_h1(
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
+	volume_thermometer	varchar(1)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -82,6 +85,7 @@ create table fxschema.data_h4(
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
+	volume_thermometer	varchar(1)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -155,8 +159,18 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (1, 'MT4_PATH', 'c:\Users\dgawinkowski\AppData\Roaming\MetaQuotes\Terminal\BEF0A9F90269E8DF733D1FE584305AC7\MQL4\Files\Actual');
 insert into fxschema.config_data(id, param_name, param_value)
 values (2, 'HOUR_SHIFT', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (3, 'PROCESS_RANGE', '2016/02/01 08:00 - 2016/02/01 23:00');
+insert into fxschema.config_data(id, param_name, param_value)
+values (4, 'IS_PROCESS_TREND', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (5, 'IS_PROCESS_VOLUME', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (6, 'IS_PROCESS_INDICATOR', '1');
 
-alter table fxschema.data_m5  ADD COLUMN trend_weight integer;
-alter table fxschema.data_m15 ADD COLUMN trend_weight integer;
-alter table fxschema.data_h1  ADD COLUMN trend_weight integer;
+
+alter table fxschema.data_m5  ADD COLUMN volume_thermometer	varchar(1);
+alter table fxschema.data_m15 ADD COLUMN volume_thermometer	varchar(1);
+alter table fxschema.data_h1  ADD COLUMN volume_thermometer	varchar(1);
+alter table fxschema.data_h4  ADD COLUMN volume_thermometer	varchar(1);
 

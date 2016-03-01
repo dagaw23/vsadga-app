@@ -17,5 +17,7 @@ public interface VolumeProcessor {
 	 * @throws BaseServiceException
 	 */
 	String checkVolumeThermometer(BarData actualBar) throws BaseServiceException;
+	
+	void clearProcessData();
 
 }

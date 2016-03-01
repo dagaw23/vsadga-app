@@ -1,5 +1,6 @@
 package pl.com.vsadga.service.process.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,12 +9,15 @@ import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.IndicatorData;
 import pl.com.vsadga.dto.IndicatorInfo;
 import pl.com.vsadga.service.BaseServiceException;
+import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.process.IndicatorProcessor;
 import pl.com.vsadga.utils.DateConverter;
 
 public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndicatorProcessorImpl.class);
+
+	private ConfigDataService configDataService;
 
 	private IndicatorData indicatorData;
 
@@ -33,6 +37,10 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 	@Override
 	public IndicatorInfo getDataIndicator(BarData barData, String frameDesc) throws BaseServiceException {
+		if (!isProcessIndicator()) {
+			LOGGER.info("   [INDY] Usluga przetwarzania wskaznika jest wylaczona.");
+			return null;
+		}
 
 		// jeśli mapa dla wskaźnika nie została wyliczona - tylko wpisz Bar do kolekcji:
 		if (!indicatorData.isReadyIndicatorMap()) {
@@ -50,6 +58,14 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 		indicatorData.addBarData2Map(barData);
 
 		return new IndicatorInfo(0, true);
+	}
+
+	/**
+	 * @param configDataService
+	 *            the configDataService to set
+	 */
+	public void setConfigDataService(ConfigDataService configDataService) {
+		this.configDataService = configDataService;
 	}
 
 	/**
@@ -93,6 +109,29 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 	private boolean isDownBar(BarData actualBar, BarStatsData prevBar) {
 		if (actualBar.getBarClose().compareTo(prevBar.getBarClose()) < 0)
+			return true;
+		else
+			return false;
+	}
+
+	private boolean isProcessIndicator() throws BaseServiceException {
+
+		String param_value = configDataService.getParam("IS_PROCESS_INDICATOR");
+
+		if (param_value == null || StringUtils.isBlank(param_value)) {
+			LOGGER.info("   [TREND] Brak parametru IS_PROCESS_INDICATOR [" + param_value
+					+ "] w tabeli CONFIG_DATA.");
+			return false;
+		}
+
+		if (!StringUtils.isNumeric(param_value)) {
+			LOGGER.info("   [TREND] Parametr IS_PROCESS_INDICATOR [" + param_value + "] nie jest numeryczny.");
+			return false;
+		}
+
+		int is_proc = Integer.valueOf(param_value);
+
+		if (is_proc == 1)
 			return true;
 		else
 			return false;

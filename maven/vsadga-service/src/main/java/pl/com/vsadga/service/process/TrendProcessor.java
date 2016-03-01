@@ -7,6 +7,4 @@ import pl.com.vsadga.service.BaseServiceException;
 public interface TrendProcessor {
 
 	TrendParams getActualTrend(BarData barData) throws BaseServiceException;
-	
-	void clearVolumeData();
 }
