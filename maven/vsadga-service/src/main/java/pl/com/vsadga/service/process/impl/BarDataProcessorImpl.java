@@ -11,7 +11,7 @@ import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.dto.BarType;
 import pl.com.vsadga.dto.IndicatorInfo;
 import pl.com.vsadga.dto.TrendParams;
-import pl.com.vsadga.dto.VolumeThermometer;
+import pl.com.vsadga.dto.process.VolumeThermometer;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.process.BarDataProcessor;
 import pl.com.vsadga.service.process.IndicatorProcessor;
@@ -139,32 +139,30 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 	}
 
-	private void updateBarData(TrendParams trendParams, IndicatorInfo indInfo, String volTherm, String frameDesc, Integer id) {
-		
-		trendParams.get
+	private void updateBarData(TrendParams trendParams, IndicatorInfo indyInfo, String volTherm, String frameDesc, Integer id) {
+		String trend_indy = null;
+		Integer trend_weight = null;
+		Integer indy_nr = null;
+		int process_phase = 3;
 		
 		// jaki jest trend:
-		if (trendParams == null) {
-			
-			
-		} else {
-			
-			
+		if (trendParams != null) {
+			trend_indy = trendParams.getTrendIndicator();
+			trend_weight = trendParams.getTrendWeight();
 		}
 		
+		// jaki jest sygnał:
+		if (indyInfo != null) {
+			indy_nr = indyInfo.getIndicatorNr();
+			
+			// jeśli został przetworzony i jest większy od zera
+			// - dla części sygnałów jest potrzebne potwierdzenie:
+			// TODO && isIndicatorToConfirm(indy_nr)
+			if (indyInfo.isProcessIndy() && indy_nr.intValue() > 0)
+				process_phase = 2;
+		}
 		
-		// nie został przetworzony wskaźnik: od razu do statusu 3
-					if (!ind_info.isProcessIndy()) {
-						LOGGER.info("   [BAR] Nie przetworzony jeszcze.");
-
-						barDataDao.updateProcessPhaseWithTrend(barData.getId(), 3, trend_pars.getTrendIndicator(),
-								trend_pars.getTrendWeight(), frameDesc);
-					}
-
-					// aktualizacja bara w tabeli:
-					// TODO w tej chwili do statusu 3 - ale oprzeć to na wskaźniku wyliczonym
-					barDataDao.updateProcessPhaseWithTrend(barData.getId(), 3, trend_pars.getTrendIndicator(),
-							trend_pars.getTrendWeight(), frameDesc);
+		barDataDao.updateProcessPhaseWithTrend(id, frameDesc, process_phase, trend_indy, trend_weight, volTherm);
 	}
 	
 }

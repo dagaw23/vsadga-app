@@ -1,17 +1,24 @@
-package pl.com.vsadga.dto;
+package pl.com.vsadga.dto.process;
 
-public class TrendParams {
+public class TrendData {
 
+	/**
+	 * trend w poprzednim barze:
+	 * <ul>
+	 * <li>U: rosnący,
+	 * <li>D: malejący,
+	 * <li>S: boczny.
+	 * </ul>
+	 */
 	private String trendIndicator;
 
+	/**
+	 * waga trendu <br/>
+	 * dla malejącego wagi mogą być następujące: 1, 2, 3.<br/>
+	 * dla rosnącego wagi mogą być następujące: 6, 7, 8.<br/>
+	 */
 	private Integer trendWeight;
-
-	public TrendParams(String trendIndicator, Integer trendWeight) {
-		super();
-		this.trendIndicator = trendIndicator;
-		this.trendWeight = trendWeight;
-	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -25,7 +32,7 @@ public class TrendParams {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TrendParams other = (TrendParams) obj;
+		TrendData other = (TrendData) obj;
 		if (trendIndicator == null) {
 			if (other.trendIndicator != null)
 				return false;
@@ -90,7 +97,7 @@ public class TrendParams {
 	 */
 	@Override
 	public String toString() {
-		return "TrendParams [trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight + "]";
+		return "TrendData [trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight + "]";
 	}
 
 }

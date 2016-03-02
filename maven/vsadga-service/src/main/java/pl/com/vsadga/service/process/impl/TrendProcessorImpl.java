@@ -5,9 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.com.vsadga.data.BarData;
-import pl.com.vsadga.dto.BarStatsData;
-import pl.com.vsadga.dto.IndicatorData;
-import pl.com.vsadga.dto.TrendParams;
+import pl.com.vsadga.dto.process.TrendData;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.process.TrendProcessor;
@@ -18,20 +16,22 @@ public class TrendProcessorImpl implements TrendProcessor {
 
 	private ConfigDataService configDataService;
 
-	private IndicatorData indicatorData;
+	private TrendData prevTrendData;
 
 	@Override
-	public TrendParams getActualTrend(BarData barData) throws BaseServiceException {
+	public void clearTrendData() {
+		this.prevTrendData = new TrendData();
+	}
+
+	@Override
+	public TrendData getActualTrend(BarData barData) throws BaseServiceException {
 		if (!isProcessTrend()) {
 			LOGGER.info("   [TREND] Usluga przetwarzania trendu jest wylaczona.");
 			return null;
 		}
 
-		// pobierz informację o poprzednim barze:
-		BarStatsData prev_bar = indicatorData.getPrevBar();
-
 		// brak jeszcze barów do wyliczenia:
-		if (prev_bar == null)
+		if (trendData. == null)
 			return new TrendParams("S", 0);
 
 		// porównaj AKTUALNY bar - z poprzednim (średnia krocząca):
@@ -122,6 +122,15 @@ public class TrendProcessorImpl implements TrendProcessor {
 		}
 	}
 
+	/**
+	 * @param configDataService
+	 *            the configDataService to set
+	 */
+	public void setConfigDataService(ConfigDataService configDataService) {
+		this.configDataService = configDataService;
+	}
+
+
 	private boolean isProcessTrend() throws BaseServiceException {
 		
 		String param_value = configDataService.getParam("IS_PROCESS_TREND");
@@ -142,22 +151,6 @@ public class TrendProcessorImpl implements TrendProcessor {
 			return true;
 		else
 			return false;
-	}
-
-	/**
-	 * @param configDataService
-	 *            the configDataService to set
-	 */
-	public void setConfigDataService(ConfigDataService configDataService) {
-		this.configDataService = configDataService;
-	}
-
-	/**
-	 * @param indicatorData
-	 *            the indicatorData to set
-	 */
-	public void setIndicatorData(IndicatorData indicatorData) {
-		this.indicatorData = indicatorData;
 	}
 
 }

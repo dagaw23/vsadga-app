@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.dto.BarStatsData;
-import pl.com.vsadga.dto.IndicatorData;
 import pl.com.vsadga.dto.IndicatorInfo;
+import pl.com.vsadga.dto.process.IndicatorData;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.process.IndicatorProcessor;
@@ -20,19 +20,31 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	private ConfigDataService configDataService;
 
 	private IndicatorData indicatorData;
+	
+	/**
+	 * minimalna ilość barów - potrzebna do wyliczenia wskaźników
+	 */
+	private Integer indicatorDataSize;
 
 	public IndicatorProcessorImpl() {
 		super();
 	}
-
+	
 	@Override
 	public void addIndicatorData(BarData barData) throws BaseServiceException {
 		indicatorData.addBarData2Map(barData);
 	}
 
+
+
 	@Override
 	public void addIndicatorData(BarData barData, Boolean isBarToConfirmation) throws BaseServiceException {
 		indicatorData.addBarData2Map(barData, isBarToConfirmation);
+	}
+
+	@Override
+	public void clearIndicatorData() {
+		this.indicatorData = new IndicatorData(indicatorDataSize);
 	}
 
 	@Override
@@ -69,11 +81,10 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	}
 
 	/**
-	 * @param indicatorData
-	 *            the indicatorData to set
+	 * @param indicatorDataSize the indicatorDataSize to set
 	 */
-	public void setIndicatorData(IndicatorData indicatorData) {
-		this.indicatorData = indicatorData;
+	public void setIndicatorDataSize(Integer indicatorDataSize) {
+		this.indicatorDataSize = indicatorDataSize;
 	}
 
 	private Integer getActualBarIndicator(BarData barData) {

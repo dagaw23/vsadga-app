@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.com.vsadga.data.BarData;
-import pl.com.vsadga.dto.VolumeThermometer;
 import pl.com.vsadga.dto.VolumeType;
+import pl.com.vsadga.dto.process.VolumeThermometer;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.process.VolumeProcessor;

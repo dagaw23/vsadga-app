@@ -32,4 +32,6 @@ public interface IndicatorProcessor {
 	 */
 	void addIndicatorData(BarData barData, Boolean isBarToConfirmation) throws BaseServiceException;
 	
+	void clearIndicatorData();
+	
 }
