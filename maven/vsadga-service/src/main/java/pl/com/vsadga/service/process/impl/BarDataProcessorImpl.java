@@ -8,10 +8,8 @@ import org.slf4j.LoggerFactory;
 import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.TimeFrame;
-import pl.com.vsadga.dto.BarType;
 import pl.com.vsadga.dto.IndicatorInfo;
-import pl.com.vsadga.dto.TrendParams;
-import pl.com.vsadga.dto.process.VolumeThermometer;
+import pl.com.vsadga.dto.process.TrendData;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.process.BarDataProcessor;
 import pl.com.vsadga.service.process.IndicatorProcessor;
@@ -89,7 +87,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	 */
 	private void processByPhase(BarData barData, String frameDesc) throws BaseServiceException {
 		int bar_phase = barData.getProcessPhase().intValue();
-		TrendParams trend_pars = null;
+		TrendData trend_data = null;
 		IndicatorInfo ind_info = null;
 		String vol_therm = null;
 
@@ -111,7 +109,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 			// sprawdzenie trendu - tylko dla statusu 1
 			// (0 - jeszcze nie zakończony, 2 - czeka na potwierdzenie, 3 - już zakończony)
-			trend_pars = trendProcessor.getActualTrend(barData);
+			trend_data = trendProcessor.getActualTrend(barData);
 
 			// sprawdzenie wskaźnika:
 			ind_info = indicatorProcessor.getDataIndicator(barData, frameDesc);
@@ -120,7 +118,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			vol_therm = volumeProcessor.checkVolumeThermometer(barData);
 			
 			// wpisanie informacji o barze - do tabeli:
-			updateBarData(trend_pars, ind_info, vol_therm, frameDesc, barData.getId());
+			updateBarData(trend_data, ind_info, vol_therm, frameDesc, barData.getId());
 		}
 
 		// *** status BAR: 2 ***
@@ -139,16 +137,16 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 	}
 
-	private void updateBarData(TrendParams trendParams, IndicatorInfo indyInfo, String volTherm, String frameDesc, Integer id) {
+	private void updateBarData(TrendData trendData, IndicatorInfo indyInfo, String volTherm, String frameDesc, Integer id) {
 		String trend_indy = null;
 		Integer trend_weight = null;
 		Integer indy_nr = null;
 		int process_phase = 3;
 		
 		// jaki jest trend:
-		if (trendParams != null) {
-			trend_indy = trendParams.getTrendIndicator();
-			trend_weight = trendParams.getTrendWeight();
+		if (trendData != null) {
+			trend_indy = trendData.getTrendIndicator();
+			trend_weight = trendData.getTrendWeight();
 		}
 		
 		// jaki jest sygnał:

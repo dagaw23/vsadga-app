@@ -167,6 +167,10 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (5, 'IS_PROCESS_VOLUME', '1');
 insert into fxschema.config_data(id, param_name, param_value)
 values (6, 'IS_PROCESS_INDICATOR', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (7, 'IS_BATCH_ANALYSE', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (8, 'IS_BATCH_REWRITE', '1');
 
 
 alter table fxschema.data_m5  ADD COLUMN volume_thermometer	varchar(1);
