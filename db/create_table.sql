@@ -160,17 +160,20 @@ values (1, 'MT4_PATH', 'c:\Users\dgawinkowski\AppData\Roaming\MetaQuotes\Termina
 insert into fxschema.config_data(id, param_name, param_value)
 values (2, 'HOUR_SHIFT', '1');
 insert into fxschema.config_data(id, param_name, param_value)
-values (3, 'PROCESS_RANGE', '2016/02/01 08:00 - 2016/02/01 23:00');
+values (3, 'ANALYSE_END_DATE', '2016/02/01 08:00');
 insert into fxschema.config_data(id, param_name, param_value)
-values (4, 'IS_PROCESS_TREND', '1');
+values (4, 'ANALYSE_BAR_COUNT', '100');
 insert into fxschema.config_data(id, param_name, param_value)
-values (5, 'IS_PROCESS_VOLUME', '1');
+values (11, 'IS_PROCESS_TREND', '1');
 insert into fxschema.config_data(id, param_name, param_value)
-values (6, 'IS_PROCESS_INDICATOR', '1');
+values (12, 'IS_PROCESS_VOLUME', '1');
 insert into fxschema.config_data(id, param_name, param_value)
-values (7, 'IS_BATCH_ANALYSE', '1');
+values (13, 'IS_PROCESS_INDICATOR', '1');
 insert into fxschema.config_data(id, param_name, param_value)
-values (8, 'IS_BATCH_REWRITE', '1');
+values (14, 'IS_BATCH_ANALYSE', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (15, 'IS_BATCH_REWRITE', '1');
+
 
 
 alter table fxschema.data_m5  ADD COLUMN volume_thermometer	varchar(1);

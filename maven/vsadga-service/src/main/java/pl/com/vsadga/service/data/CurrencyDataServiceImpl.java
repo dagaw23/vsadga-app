@@ -2,6 +2,7 @@ package pl.com.vsadga.service.data;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -27,9 +28,11 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	}
 
 	@Override
-	public List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException {
-		List<BarData> result_list = barDataDao.getLastNbarsData(symbol.getId(), timeFrame.getTimeFrameDesc(), size);
-		
+	public List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame)
+			throws BaseServiceException {
+		List<BarData> result_list = barDataDao
+				.getLastNbarsData(symbol.getId(), timeFrame.getTimeFrameDesc(), size);
+
 		// sortowanie listy wynikowej:
 		Collections.sort(result_list, new Comparator<BarData>() {
 
@@ -43,12 +46,25 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 					return 0;
 			}
 		});
-		
+
 		return result_list;
 	}
 
 	@Override
-	public List<BarData> getNotProcessBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException {
+	public List<BarData> getLastNbarDataFromTime(int size, CurrencySymbol symbol, TimeFrame timeFrame,
+			Date fromTime) throws BaseServiceException {
+		try {
+			return barDataDao.getLastNbarsDataFromTime(symbol.getId(), timeFrame.getTimeFrameDesc(), size,
+					fromTime);
+		} catch (Throwable th) {
+			th.printStackTrace();
+			throw new BaseServiceException("::getLastNbarDataFromTime:: wyjatek " + th.getCause() + "!", th);
+		}
+	}
+
+	@Override
+	public List<BarData> getNotProcessBarDataList(Integer symbolId, String timeFrameDesc)
+			throws BaseServiceException {
 		return barDataDao.getNotProcessBarDataList(symbolId, timeFrameDesc);
 	}
 

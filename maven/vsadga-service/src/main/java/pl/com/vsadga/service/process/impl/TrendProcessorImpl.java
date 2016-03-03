@@ -1,7 +1,5 @@
 package pl.com.vsadga.service.process.impl;
 
-import java.math.BigDecimal;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +32,15 @@ public class TrendProcessorImpl implements TrendProcessor {
 
 		// brak jeszcze barów do wyliczenia:
 		if (prevTrendData == null) {
-			return getUpdated("S", 0, barData.getImaCount());
+			prevTrendData = new TrendData("S", 0, barData.getImaCount());
+			return prevTrendData;
 		}
 
 		// porównaj AKTUALNY bar - z poprzednim (średnia krocząca):
 		int bar_compare = barData.getImaCount().compareTo(prevTrendData.getImaCount());
+
+		// aktualizuj już średnią w poprzednim barze:
+		prevTrendData.setImaCount(barData.getImaCount());
 
 		// trend w poprzednim barze:
 		String trend = prevTrendData.getTrendIndicator();
@@ -49,18 +51,18 @@ public class TrendProcessorImpl implements TrendProcessor {
 			if (bar_compare > 0) {
 				// kontynuacja UP
 				if (weight == 6 || weight == 7)
-					return getUpdated("U", (weight + 1), barData.getImaCount());
+					updatePrev("U", (weight + 1));
 				else
-					return getUpdated("U", weight, barData.getImaCount());
+					updatePrev("U", weight);
 			} else if (bar_compare == 0) {
 				// bez zmiany w średniej:
-				return getUpdated(trend, weight, barData.getImaCount());
+				updatePrev(trend, weight);
 			} else {
 				// zmiana na DOWN
 				if (weight == 6)
-					return getUpdated("S", 1, barData.getImaCount());
+					updatePrev("S", 1);
 				else
-					return getUpdated("U", 6, barData.getImaCount());
+					updatePrev("U", 6);
 			}
 		}
 		// *** poprzedni bar to DOWNTREND ***
@@ -68,18 +70,18 @@ public class TrendProcessorImpl implements TrendProcessor {
 			if (bar_compare < 0) {
 				// kontynuacja DOWN
 				if (weight == 1 || weight == 2)
-					return getUpdated("D", (weight + 1), barData.getImaCount());
+					updatePrev("D", (weight + 1));
 				else
-					return getUpdated("D", weight, barData.getImaCount());
+					updatePrev("D", weight);
 			} else if (bar_compare == 0) {
 				// bez zmiany w średniej:
-				return getUpdated(trend, weight, barData.getImaCount());
+				updatePrev(trend, weight);
 			} else {
 				// zmiana na UP
 				if (weight == 1)
-					return getUpdated("S", 6, barData.getImaCount());
+					updatePrev("S", 6);
 				else
-					return getUpdated("D", 1, barData.getImaCount());
+					updatePrev("D", 1);
 			}
 		}
 		// *** poprzedni bar jest BOCZNY ***
@@ -87,41 +89,43 @@ public class TrendProcessorImpl implements TrendProcessor {
 			if (bar_compare > 0) {
 				// bar UP
 				if (weight == 6)
-					return getUpdated("S", 7, barData.getImaCount());
+					updatePrev("S", 7);
 				else if (weight == 7)
-					return getUpdated("U", 8, barData.getImaCount());
+					updatePrev("U", 8);
 				else if (weight == 0 || weight == 1 || weight == 2)
-					return getUpdated("S", 6, barData.getImaCount());
+					updatePrev("S", 6);
 				else {
 					LOGGER.info("   [ERROR] Unexpected PREV [" + trend + "," + weight + "," + bar_compare
 							+ "], aktualny bar [" + barData + "].");
-					return getUpdated("S", 0, barData.getImaCount());
+					updatePrev("S", 0);
 				}
 
 			} else if (bar_compare == 0) {
 				// bez zmiany w średniej:
-				return getUpdated(trend, weight, barData.getImaCount());
+				updatePrev(trend, weight);
 			} else {
 				// bar DOWN
 				if (weight == 1)
-					return getUpdated("S", 2, barData.getImaCount());
+					updatePrev("S", 2);
 				else if (weight == 2)
-					return getUpdated("D", 3, barData.getImaCount());
+					updatePrev("D", 3);
 				else if (weight == 0 || weight == 6 || weight == 7)
-					return getUpdated("S", 1, barData.getImaCount());
+					updatePrev("S", 1);
 				else {
 					LOGGER.info("   [ERROR] Unexpected PREV [" + trend + "," + weight + "," + bar_compare
 							+ "], aktualny bar [" + barData + "].");
-					return getUpdated("S", 0, barData.getImaCount());
+					updatePrev("S", 0);
 				}
 			}
 		} else {
 			LOGGER.info("   [ERROR] Unexpected situation [" + trend + "," + weight + "," + bar_compare
 					+ "], aktualny bar [" + barData + "].");
-			return getUpdated("S", 0, barData.getImaCount());
+			updatePrev("S", 0);
 		}
+
+		return prevTrendData;
 	}
-	
+
 	/**
 	 * @param configDataService
 	 *            the configDataService to set
@@ -130,33 +134,30 @@ public class TrendProcessorImpl implements TrendProcessor {
 		this.configDataService = configDataService;
 	}
 
-	private TrendData getUpdated(String trendIndy, Integer trendWeight, BigDecimal imaCount) {
-		prevTrendData = new TrendData(trendIndy, trendWeight, imaCount);
-		
-		return prevTrendData;
-	}
-
-
 	private boolean isProcessTrend() throws BaseServiceException {
-		
 		String param_value = configDataService.getParam("IS_PROCESS_TREND");
-		
+
 		if (param_value == null || StringUtils.isBlank(param_value)) {
 			LOGGER.info("   [TREND] Brak parametru IS_PROCESS_TREND [" + param_value + "] w tabeli CONFIG_DATA.");
 			return false;
 		}
-		
+
 		if (!StringUtils.isNumeric(param_value)) {
 			LOGGER.info("   [TREND] Parametr IS_PROCESS_TREND [" + param_value + "] nie jest numeryczny.");
 			return false;
 		}
-		
+
 		int is_proc = Integer.valueOf(param_value);
-		
+
 		if (is_proc == 1)
 			return true;
 		else
 			return false;
+	}
+
+	private void updatePrev(String trendIndy, Integer trendWeight) {
+		prevTrendData.setTrendIndicator(trendIndy);
+		prevTrendData.setTrendWeight(trendWeight);
 	}
 
 }

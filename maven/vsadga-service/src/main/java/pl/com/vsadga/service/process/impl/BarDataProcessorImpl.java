@@ -37,6 +37,11 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 		int bar_count = barDataList.size();
 		BarData bar_data = null;
+		
+		// czyszczenia poprzednich danych:
+		indicatorProcessor.clearIndicatorData();
+		trendProcessor.clearTrendData();
+		volumeProcessor.clearProcessData();
 
 		for (int i = 0; i < bar_count; i++) {
 			// pobierz bar:

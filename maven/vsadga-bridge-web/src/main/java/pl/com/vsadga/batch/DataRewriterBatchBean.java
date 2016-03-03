@@ -49,24 +49,28 @@ public class DataRewriterBatchBean {
 
 		// data formatter:
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-
-		// pobierz listę aktywnych symboli:
-		symbol_list = symbolService.getActiveSymbols();
-		// czy są zdefiniowane aktywne symbole:
-		if (symbol_list.isEmpty()) {
-			LOGGER.info("   ### Brak aktywnych symboli [" + symbol_list.size() + "].");
-			return;
-		}
-
-		// pobierz listę aktywnych timeframe:
-		tmefrm_list = timeFrameService.getAllActive();
-		// czy są zdefiniowane timeFrames:
-		if (tmefrm_list.isEmpty()) {
-			LOGGER.info("   ### Brak aktywnych timeFrame [" + tmefrm_list.size() + "].");
-			return;
-		}
-
+		
 		try {
+			// sprawdzenie, czy BATCH nie jest zatrzymany:
+			if (!isProcessBatch())
+				return;
+			
+			// pobierz listę aktywnych symboli:
+			symbol_list = symbolService.getActiveSymbols();
+			// czy są zdefiniowane aktywne symbole:
+			if (symbol_list.isEmpty()) {
+				LOGGER.info("   ### Brak aktywnych symboli [" + symbol_list.size() + "].");
+				return;
+			}
+			
+			// pobierz listę aktywnych timeframe:
+			tmefrm_list = timeFrameService.getAllActive();
+			// czy są zdefiniowane timeFrames:
+			if (tmefrm_list.isEmpty()) {
+				LOGGER.info("   ### Brak aktywnych timeFrame [" + tmefrm_list.size() + "].");
+				return;
+			}
+
 			// pobierz ścieżkę dostępu do plików z danymi:
 			file_path = configDataService.getParam("MT4_PATH");
 			if (file_path == null || file_path.trim().isEmpty()) {
@@ -145,6 +149,29 @@ public class DataRewriterBatchBean {
 		} catch (ReaderException e) {
 			e.printStackTrace();
 			LOGGER.error("::rewriteFileContent2db:: wyjatek ReaderException!");
+		}
+	}
+	
+	private boolean isProcessBatch() throws BaseServiceException {
+		String param_value = configDataService.getParam("IS_BATCH_REWRITE");
+
+		if (param_value == null || StringUtils.isBlank(param_value)) {
+			LOGGER.info("   [BATCH] Brak parametru IS_BATCH_REWRITE [" + param_value + "] w tabeli CONFIG_DATA.");
+			return false;
+		}
+
+		if (!StringUtils.isNumeric(param_value)) {
+			LOGGER.info("   [BATCH] Parametr IS_BATCH_REWRITE [" + param_value + "] nie jest numeryczny.");
+			return false;
+		}
+
+		int is_proc = Integer.valueOf(param_value);
+
+		if (is_proc == 1) {
+			return true;
+		} else {
+			LOGGER.info("   [BATCH] Wylaczony Batch przepisywania barow [" + is_proc + "].");
+			return false;
 		}
 	}
 }

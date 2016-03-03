@@ -13,6 +13,8 @@ public interface BarDataDao {
 	
 	List<BarData> getLastNbarsData(Integer symbolId, String frameDesc, int size);
 	
+	List<BarData> getLastNbarsDataFromTime(Integer symbolId, String frameDesc, int size, Date fromTime);
+	
 	/**
 	 * Pobiera listę barów dla waloru i ramki czasowej, który jeszcze nie został przetworzony wg kolumny PROCESS_PHASE (z wartością 1).
 	 * 
