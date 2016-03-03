@@ -60,10 +60,26 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		if (downBarVolume.getActualVolumeType() == VolumeType.INCR_VOLUME) {
 			if (upBarVolume.getActualVolumeType() == VolumeType.DECR_VOLUME)
 				return "D";
-			else if (upBarVolume.getActualVolumeType() == VolumeType.SIDE_VOLUME)
-				return "S";
-			else
-				return "S";
+			else if (upBarVolume.getActualVolumeType() == VolumeType.EQUAL_VOLUME) {
+				int d_v = downBarVolume.getBarVolume().intValue();
+				int u_v = upBarVolume.getBarVolume().intValue();
+				if (d_v > u_v)
+					return "D";
+				else if (d_v < u_v)
+					return "U";
+				else
+					return "S";
+			} else {
+				BigDecimal d_v = downBarVolume.getAverage();
+				BigDecimal u_v = upBarVolume.getAverage();
+				
+				if (d_v.compareTo(u_v) < 0)
+					return "U";
+				else if (d_v.compareTo(u_v) > 0)
+					return "D";
+				else
+					return "S";
+			}
 		} else if (downBarVolume.getActualVolumeType() == VolumeType.DECR_VOLUME) {
 			if (upBarVolume.getActualVolumeType() == VolumeType.INCR_VOLUME)
 				return "U";

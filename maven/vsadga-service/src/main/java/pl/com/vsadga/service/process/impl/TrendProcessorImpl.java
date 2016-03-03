@@ -88,10 +88,8 @@ public class TrendProcessorImpl implements TrendProcessor {
 		else if (trend.equals("S")) {
 			if (bar_compare > 0) {
 				// bar UP
-				if (weight == 6)
-					updatePrev("S", 7);
-				else if (weight == 7)
-					updatePrev("U", 8);
+				if (weight == 6 || weight == 7)
+					updatePrev("U", (weight + 1));
 				else if (weight == 0 || weight == 1 || weight == 2)
 					updatePrev("S", 6);
 				else {
@@ -105,10 +103,8 @@ public class TrendProcessorImpl implements TrendProcessor {
 				updatePrev(trend, weight);
 			} else {
 				// bar DOWN
-				if (weight == 1)
-					updatePrev("S", 2);
-				else if (weight == 2)
-					updatePrev("D", 3);
+				if (weight == 1 || weight == 2)
+					updatePrev("D", (weight + 1));
 				else if (weight == 0 || weight == 6 || weight == 7)
 					updatePrev("S", 1);
 				else {

@@ -4,6 +4,6 @@ public enum VolumeType {
 
 	INCR_VOLUME, // rosnący 
 	DECR_VOLUME, // malejący 
-	SIDE_VOLUME, // boczny
+	EQUAL_VOLUME, // równy
 	UNDEF_VOLUME; // nieokreślony
 }
