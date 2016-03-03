@@ -84,6 +84,7 @@
 		<property name="barDataDao" ref="barDataDao" />
 		<property name="indicatorProcessor" ref="indicatorProcessor" />
 		<property name="trendProcessor" ref="trendProcessor" />
+		<property name="volumeProcessor" ref="volumeProcessor" />
 	</bean>
 
 </beans>

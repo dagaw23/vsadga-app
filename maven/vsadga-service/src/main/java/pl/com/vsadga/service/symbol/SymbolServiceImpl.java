@@ -11,8 +11,12 @@ public class SymbolServiceImpl implements SymbolService {
 
 	@Override
 	public List<CurrencySymbol> getActiveSymbols() {
-
 		return symbolListDao.getActiveSymbols();
+	}
+
+	@Override
+	public CurrencySymbol getCurrencySymbolByName(String symbolName) {
+		return symbolListDao.getCurrencySymbolByName(symbolName);
 	}
 
 	/**

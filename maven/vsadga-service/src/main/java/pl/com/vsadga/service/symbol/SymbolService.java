@@ -7,4 +7,6 @@ import pl.com.vsadga.data.CurrencySymbol;
 public interface SymbolService {
 
 	List<CurrencySymbol> getActiveSymbols();
+	
+	CurrencySymbol getCurrencySymbolByName(String symbolName);
 }

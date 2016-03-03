@@ -164,6 +164,10 @@ values (3, 'ANALYSE_END_DATE', '2016/02/01 08:00');
 insert into fxschema.config_data(id, param_name, param_value)
 values (4, 'ANALYSE_BAR_COUNT', '100');
 insert into fxschema.config_data(id, param_name, param_value)
+values (5, 'VISIBILITY_END_DATE', '2016/02/01 08:00');
+insert into fxschema.config_data(id, param_name, param_value)
+values (6, 'VISIBILITY_BAR_COUNT', '25');
+insert into fxschema.config_data(id, param_name, param_value)
 values (11, 'IS_PROCESS_TREND', '1');
 insert into fxschema.config_data(id, param_name, param_value)
 values (12, 'IS_PROCESS_VOLUME', '1');

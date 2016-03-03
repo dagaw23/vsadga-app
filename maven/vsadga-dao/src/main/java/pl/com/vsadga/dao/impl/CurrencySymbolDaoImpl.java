@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
 import pl.com.vsadga.dao.CurrencySymbolDao;
@@ -24,7 +26,8 @@ public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbol
 
 	@Override
 	public List<CurrencySymbol> getActiveSymbols() {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where is_active is true order by symbol_name";
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME
+				+ " where is_active is true order by symbol_name";
 
 		return getJdbcTemplate().query(sql, new RowMapper<CurrencySymbol>() {
 
@@ -34,6 +37,23 @@ public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbol
 			}
 
 		});
+	}
+
+	@Override
+	public CurrencySymbol getCurrencySymbolByName(String symbolName) {
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where symbol_name=?";
+
+		return getJdbcTemplate().query(sql, new ResultSetExtractor<CurrencySymbol>() {
+
+			@Override
+			public CurrencySymbol extractData(ResultSet rs) throws SQLException, DataAccessException {
+				if (rs.next())
+					return rs2SymbolList(rs);
+				else
+					return null;
+			}
+
+		}, symbolName);
 	}
 
 	private CurrencySymbol rs2SymbolList(final ResultSet rs) throws SQLException {
