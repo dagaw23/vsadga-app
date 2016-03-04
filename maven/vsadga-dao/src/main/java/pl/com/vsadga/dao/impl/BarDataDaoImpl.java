@@ -195,6 +195,16 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
+	public int updateIndicatorWithTrend(Integer id, String frameDesc, Integer processPhase, String trendIndicator,
+			Integer trendWeight, String volumeThermometer, Integer indyNr, Boolean isConfirm) {
+		String sql = "update " + getTableName(frameDesc)
+				+ " set process_phase=?, trend_indicator=?, trend_weight=?, volume_thermometer=?, "
+				+ "indicator_nr=?, is_confirm=? where id=?";
+		
+		return getJdbcTemplate().update(sql, processPhase, trendIndicator, trendWeight, volumeThermometer, indyNr, isConfirm, id);
+	}
+
+	@Override
 	public int updateIndyData(Integer barDataId, String frameDesc, Integer nr, Integer weight, Boolean isConfirm,
 			Integer phase) {
 		String sql = "update " + getTableName(frameDesc) + " set indicator_nr=?, indicator_weight=?, "

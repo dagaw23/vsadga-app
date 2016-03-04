@@ -41,6 +41,11 @@ public class VolumeThermometer {
 		return actualVolumeType;
 	}
 
+	public VolumeThermometer(VolumeType actualVolumeType) {
+		super();
+		this.actualVolumeType = actualVolumeType;
+	}
+
 	/**
 	 * @return the barVolume
 	 */
@@ -66,7 +71,7 @@ public class VolumeThermometer {
 		VolumeType result = null;
 
 		// czy już można wyliczyć trend wolumenu:
-		if (!isReadyToCheck(barTime, barVolume))
+		if (!isReadyToCheck(time, volume))
 			return;
 
 		if (barVolume.intValue() < volume.intValue()) {
@@ -77,10 +82,10 @@ public class VolumeThermometer {
 			result = VolumeType.EQUAL_VOLUME;
 		}
 
-		LOGGER.info("   [VOL] Wolumeny [" + barVolume + "," + volume + "], result [" + result + "] dla ["
-				+ getDateDesc(barTime) + "].");
+		//LOGGER.info("   [VOL] Wolumeny [" + barVolume + "," + volume + "], result [" + result + "] dla ["
+		//		+ getDateDesc(barTime) + "].");
 
-		addNextBar(barTime, barVolume, result);
+		addNextBar(time, volume, result);
 	}
 
 	/**
@@ -93,11 +98,11 @@ public class VolumeThermometer {
 	 *            ilość ticków w barze
 	 */
 	private void addNextBar(Date time, Integer volume, VolumeType actVolType) {
-		barTime = time;
-		barVolume = volume;
-
 		prevBarVolume = barVolume;
 		actualVolumeType = actVolType;
+		
+		barTime = time;
+		barVolume = volume;
 	}
 
 	private String getDateDesc(Date inputDate) {
@@ -114,15 +119,6 @@ public class VolumeThermometer {
 	 */
 	private boolean isReadyToCheck(Date time, Integer volume) {
 		if (barVolume == null || barTime == null) {
-			barVolume = volume;
-			barTime = time;
-			actualVolumeType = VolumeType.UNDEF_VOLUME;
-
-			return false;
-		}
-
-		if (prevBarVolume == null) {
-			prevBarVolume = barVolume;
 			barVolume = volume;
 			barTime = time;
 			actualVolumeType = VolumeType.UNDEF_VOLUME;

@@ -32,14 +32,14 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	
 	@Override
 	public void addIndicatorData(BarData barData) throws BaseServiceException {
-		indicatorData.addBarData2Map(barData);
+		indicatorData.addBarData(barData);
 	}
 
 
 
 	@Override
 	public void addIndicatorData(BarData barData, Boolean isBarToConfirmation) throws BaseServiceException {
-		indicatorData.addBarData2Map(barData, isBarToConfirmation);
+		indicatorData.addBarData(barData, isBarToConfirmation);
 	}
 
 	@Override
@@ -49,6 +49,8 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 	@Override
 	public IndicatorInfo getDataIndicator(BarData barData, String frameDesc) throws BaseServiceException {
+		int indy_nr = 0;
+		
 		if (!isProcessIndicator()) {
 			LOGGER.info("   [INDY] Usluga przetwarzania wskaznika jest wylaczona.");
 			return null;
@@ -56,19 +58,21 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 		// jeśli mapa dla wskaźnika nie została wyliczona - tylko wpisz Bar do kolekcji:
 		if (!indicatorData.isReadyIndicatorMap()) {
-			indicatorData.addBarData2Map(barData);
+			indicatorData.addBarData(barData);
 
 			return new IndicatorInfo(false);
 		}
-
-		// wyliczenie wskaźnika:
+		
 		// TODO 1: Dodać sprawdzenie czy poprzedni bar do potwierdzenia
 
-		// TODO
-
 		// zapisz informację o barze do mapy:
-		indicatorData.addBarData2Map(barData);
-
+		indy_nr = getActualBarIndicator(barData);
+		if (indy_nr > 0) {
+			indicatorData.addBarData(barData);
+			return new IndicatorInfo(indy_nr, true);
+		}
+		
+		indicatorData.addBarData(barData);
 		return new IndicatorInfo(0, true);
 	}
 
@@ -88,34 +92,52 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	}
 
 	private Integer getActualBarIndicator(BarData barData) {
-		Integer result = null;
-
 		// TODO 1: dodac wpisywanie czasu bara do BarStatsData
 		// TODO 2: parametry konfigurayjne do pobierania liczby barów do przetworzenia oraz liczby
 		// barów w mapie.
 		// pobierz 2 poprzednie bary:
 		BarStatsData prev_bar = indicatorData.getPrevBar();
 		BarStatsData prev_prev_bar = indicatorData.getPrevPrevBar();
-
-		// czy wolumen jest mniejszy od dwóch poprzednich:
-		if (prev_prev_bar.getBarVolume().intValue() > prev_bar.getBarVolume().intValue()
-				&& prev_bar.getBarVolume().intValue() > barData.getBarVolume().intValue()) {
-			LOGGER.info("   [VOLUME] " + prev_prev_bar.getBarVolume() + "," + prev_bar.getBarVolume() + ","
-					+ barData.getBarVolume() + ", data aktualnego="
-					+ DateConverter.dateToString(barData.getBarTime(), "yy/MM/dd HH:mm") + ".");
-
-			if (isUpBar(barData, prev_bar))
+		
+		// no-demand/no-supply
+		if (isLessThenLast2(prev_prev_bar, prev_bar, barData)) {
+			if (isUpBar(barData, prev_bar)) {
 				LOGGER.info("SPREAD AVG:" + indicatorData.getSpreadAvg() + ",ACT SPREAD:"
 						+ barData.getBarHigh().subtract(barData.getBarLow()) + ": UP BAR.");
-
-			if (isDownBar(barData, prev_bar))
+				return 6;
+			}
+			
+			if (isDownBar(barData, prev_bar)) {
 				LOGGER.info("SPREAD AVG:" + indicatorData.getSpreadAvg() + ",ACT SPREAD:"
 						+ barData.getBarHigh().subtract(barData.getBarLow()) + ": DOWN BAR.");
+				
+				return 81;
+			}
 		}
 
-		// czy aktualny UP BAR:
-
-		return result;
+		return 0;
+	}
+	
+	/**
+	 * Sprawdza, czy wolumen jest mniejszy od dwóch poprzednich barów.
+	 * 
+	 * @param prevPrevBar wartości bara 2 wstecz
+	 * @param prevBar wartości poprzedniego bara
+	 * @param actualBar wartości aktualnego bara
+	 * @return
+	 */
+	private boolean isLessThenLast2(BarStatsData prevPrevBar, BarStatsData prevBar, BarData actualBar) {
+		// czy wolumen jest mniejszy od dwóch poprzednich:
+		if (prevPrevBar.getBarVolume().intValue() > prevBar.getBarVolume().intValue()
+				&& prevBar.getBarVolume().intValue() > actualBar.getBarVolume().intValue()) {
+			LOGGER.info("   [VOLUME] " + prevPrevBar.getBarVolume() + "," + prevBar.getBarVolume() + ","
+					+ actualBar.getBarVolume() + ", data aktualnego="
+					+ DateConverter.dateToString(actualBar.getBarTime(), "yy/MM/dd HH:mm") + ".");
+			
+			return true;
+		}
+		
+		return false;
 	}
 
 	private boolean isDownBar(BarData actualBar, BarStatsData prevBar) {

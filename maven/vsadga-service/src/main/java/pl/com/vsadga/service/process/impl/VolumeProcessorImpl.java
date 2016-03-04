@@ -30,31 +30,60 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 	private VolumeThermometer upBarVolume;
 
 	@Override
+	public int addVolumeThermometerData(BarData actualBar) throws BaseServiceException {
+		if (prevBarClose == null) {
+			prevBarClose = actualBar.getBarClose();
+			LOGGER.info("   [VOL] Brak zamkniecia poprzedniego bara [" + prevBarClose + "] wg bara ["
+					+ DateConverter.dateToString(actualBar.getBarTime(), "yy/MM/dd HH:mm") + "].");
+			return 1;
+		}
+
+		int comp_val = actualBar.getBarClose().compareTo(prevBarClose);
+		// LOGGER.info("   comp_val=" + comp_val);
+
+		// weryfikacja UP/DOWN bara:
+		if (comp_val < 0) {
+			downBarVolume.writeVolumeThermometer(actualBar.getBarTime(), actualBar.getBarVolume());
+			// LOGGER.info("   DOWN:" + downBarVolume.getPrevBarVolume() + "," +
+			// downBarVolume.getBarVolume() + ","
+			// + downBarVolume.getActualVolumeType());
+		} else if (comp_val > 0) {
+			upBarVolume.writeVolumeThermometer(actualBar.getBarTime(), actualBar.getBarVolume());
+			// LOGGER.info("   UP:" + upBarVolume.getPrevBarVolume() + "," +
+			// upBarVolume.getBarVolume() + ","
+			// + upBarVolume.getActualVolumeType());
+		} else {
+			// LOGGER.info("   LEVEL");
+			return 2;
+		}
+
+		// jeśli którykolwiek nieokreślony - zakończ z nieokreślonym:
+		if (downBarVolume.getActualVolumeType() == VolumeType.UNDEF_VOLUME
+				|| upBarVolume.getActualVolumeType() == VolumeType.UNDEF_VOLUME) {
+
+			LOGGER.info("   NOT READY YET: DOWN=" + downBarVolume.getPrevBarVolume() + ","
+					+ downBarVolume.getBarVolume() + "," + downBarVolume.getActualVolumeType() + ", UP="
+					+ upBarVolume.getPrevBarVolume() + "," + upBarVolume.getBarVolume() + ","
+					+ upBarVolume.getActualVolumeType());
+			return 1;
+		}
+
+		return 0;
+	}
+
+	@Override
 	public String checkVolumeThermometer(BarData actualBar) throws BaseServiceException {
 		if (!isProcessVolume()) {
 			LOGGER.info("   [TREND] Usluga przetwarzania trendu wolumenu jest wylaczona.");
 			return null;
 		}
 
-		if (prevBarClose == null) {
-			prevBarClose = actualBar.getBarClose();
-			LOGGER.info("   [VOL] Brak zamkniecia poprzedniego bara [" + prevBarClose + "] wg bara ["
-					+ DateConverter.dateToString(actualBar.getBarTime(), "yy/MM/dd HH:mm") + "].");
-			return "N";
-		}
+		int add_vol = addVolumeThermometerData(actualBar);
 
-		// weryfikacja UP/DOWN bara:
-		if (actualBar.getBarClose().compareTo(prevBarClose) < 0)
-			downBarVolume.writeVolumeThermometer(actualBar.getBarTime(), actualBar.getBarVolume());
-		else if (actualBar.getBarClose().compareTo(prevBarClose) > 0)
-			upBarVolume.writeVolumeThermometer(actualBar.getBarTime(), actualBar.getBarVolume());
-		else
+		if (add_vol == 1)
+			return "N";
+		else if (add_vol == 2)
 			return "L";
-
-		// jeśli którykolwiek nieokreślony - zakończ z nieokreślonym:
-		if (downBarVolume.getActualVolumeType() == VolumeType.UNDEF_VOLUME
-				|| upBarVolume.getActualVolumeType() == VolumeType.UNDEF_VOLUME)
-			return "N";
 
 		// weryfikacja trendu wolumenu:
 		if (downBarVolume.getActualVolumeType() == VolumeType.INCR_VOLUME) {
@@ -70,12 +99,12 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 				else
 					return "S";
 			} else {
-				BigDecimal d_v = downBarVolume.getAverage();
-				BigDecimal u_v = upBarVolume.getAverage();
-				
-				if (d_v.compareTo(u_v) < 0)
+				BigDecimal da_v = downBarVolume.getAverage();
+				BigDecimal ua_v = upBarVolume.getAverage();
+
+				if (da_v.compareTo(ua_v) < 0)
 					return "U";
-				else if (d_v.compareTo(u_v) > 0)
+				else if (da_v.compareTo(ua_v) > 0)
 					return "D";
 				else
 					return "S";
@@ -83,19 +112,44 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		} else if (downBarVolume.getActualVolumeType() == VolumeType.DECR_VOLUME) {
 			if (upBarVolume.getActualVolumeType() == VolumeType.INCR_VOLUME)
 				return "U";
-			else if (upBarVolume.getActualVolumeType() == VolumeType.SIDE_VOLUME)
-				return "S";
+			else if (upBarVolume.getActualVolumeType() == VolumeType.EQUAL_VOLUME) {
+				int d_v = downBarVolume.getBarVolume().intValue();
+				int u_v = upBarVolume.getBarVolume().intValue();
+				if (d_v > u_v)
+					return "D";
+				else if (d_v < u_v)
+					return "U";
+				else
+					return "S";
+			} else {
+				BigDecimal da_v = downBarVolume.getAverage();
+				BigDecimal ua_v = upBarVolume.getAverage();
+
+				if (da_v.compareTo(ua_v) < 0)
+					return "U";
+				else if (da_v.compareTo(ua_v) > 0)
+					return "D";
+				else
+					return "S";
+			}
+		} else {
+			// *** DOWN bary EQUAL ***
+			int d_v = downBarVolume.getBarVolume().intValue();
+			int u_v = upBarVolume.getBarVolume().intValue();
+			if (d_v > u_v)
+				return "D";
+			else if (d_v < u_v)
+				return "U";
 			else
 				return "S";
-		} else
-			return "S";
+		}
 	}
 
 	@Override
 	public void clearProcessData() {
 		this.prevBarClose = null;
-		this.downBarVolume = new VolumeThermometer();
-		this.upBarVolume = new VolumeThermometer();
+		this.downBarVolume = new VolumeThermometer(VolumeType.UNDEF_VOLUME);
+		this.upBarVolume = new VolumeThermometer(VolumeType.UNDEF_VOLUME);
 	}
 
 	/**
@@ -107,7 +161,6 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 	}
 
 	private boolean isProcessVolume() throws BaseServiceException {
-
 		String param_value = configDataService.getParam("IS_PROCESS_VOLUME");
 
 		if (param_value == null || StringUtils.isBlank(param_value)) {

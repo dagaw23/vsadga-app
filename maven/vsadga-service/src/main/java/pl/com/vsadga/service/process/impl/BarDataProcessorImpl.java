@@ -132,12 +132,14 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			// "] do POTWIERDZENIA.");
 
 			indicatorProcessor.addIndicatorData(barData, true);
+			volumeProcessor.addVolumeThermometerData(barData);
 		}
 
 		// *** status BAR: 3 ***
 		if (bar_phase == 3) {
 			// LOGGER.info("   [STATS] Bar wg statusu [" + bar_phase + "] juz ZAKONCZONY.");
 			indicatorProcessor.addIndicatorData(barData);
+			volumeProcessor.addVolumeThermometerData(barData);
 		}
 
 	}
@@ -161,8 +163,12 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			// jeśli został przetworzony i jest większy od zera
 			// - dla części sygnałów jest potrzebne potwierdzenie:
 			// TODO && isIndicatorToConfirm(indy_nr)
-			if (indyInfo.isProcessIndy() && indy_nr.intValue() > 0)
-				process_phase = 2;
+			if (indyInfo.isProcessIndy() && indy_nr.intValue() > 0) {
+				//process_phase = 2;
+				barDataDao.updateIndicatorWithTrend(id, frameDesc, 2, trend_indy, trend_weight, volTherm, indy_nr, false);
+			}
+			
+			
 		}
 		
 		barDataDao.updateProcessPhaseWithTrend(id, frameDesc, process_phase, trend_indy, trend_weight, volTherm);
