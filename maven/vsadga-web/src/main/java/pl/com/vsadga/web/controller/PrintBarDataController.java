@@ -102,6 +102,7 @@ public class PrintBarDataController extends BaseController {
 		StringBuffer vol_trd_row = new StringBuffer();
 
 		result.append("<table>");
+		String vol_thrm = null;
 
 		for (BarData bar_data : dataList) {
 			// pomijamy nie przetworzone jeszcze do minimum 2:
@@ -127,13 +128,17 @@ public class PrintBarDataController extends BaseController {
 
 			// trend wolumenu:
 			vol_trd_row.append("<td width='20' style='background-color:");
-			if (bar_data.getVolumeThermometer().equals("U")) {
+			vol_thrm = bar_data.getVolumeThermometer();
+			
+			if (vol_thrm == null) {
+				vol_trd_row.append("white");
+			} else if (vol_thrm.equals("U")) {
 				vol_trd_row.append("lightgreen");
-			} else if (bar_data.getVolumeThermometer().equals("D")) {
+			} else if (vol_thrm.equals("D")) {
 				vol_trd_row.append("lightcoral");
-			} else if (bar_data.getVolumeThermometer().equals("S")) {
+			} else if (vol_thrm.equals("S")) {
 				vol_trd_row.append("lightgray");
-			} else if (bar_data.getVolumeThermometer().equals("L")) {
+			} else if (vol_thrm.equals("L")) {
 				vol_trd_row.append("black");
 			} else {
 				vol_trd_row.append("white");
