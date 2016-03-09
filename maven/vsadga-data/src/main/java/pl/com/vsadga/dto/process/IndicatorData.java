@@ -1,121 +1,110 @@
 package pl.com.vsadga.dto.process;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.dto.BarStatsData;
 
 public class IndicatorData {
 
-	private int actualMapPosition;
+	/**
+	 * ilość danych dla długiego terminu
+	 */
+	private int longTermLength;
 
 	/**
-	 * mapa zawiera N ostatnich barów
+	 * mapa zawiera N ostatnich barów - tylko wolumen
 	 */
-	private Map<Integer, BarStatsData> barDataMap;
+	private Map<Integer, Integer> longTermMap;
 
-	private IndicatorBarData downBarIndicator;
+	private int longTermPos;
 
 	/**
-	 * minimalna ilość informacji potrzebna do wskaźników
+	 * ilość danych dla średniego terminu
 	 */
-	private int minimumStatsSize;
+	private int mediumTermLength;
 
-	private IndicatorBarData upBarIndicator;
+	/**
+	 * mapa zawiera N ostatnich barów - tylko wolumen
+	 */
+	private Map<Integer, Integer> mediumTermMap;
 
-	public IndicatorData(int minimumStatsSize) {
+	private int mediumTermPos;
+
+	/**
+	 * ilość danych dla krótkiego terminu
+	 */
+	private int shortTermLength;
+
+	/**
+	 * mapa zawiera N ostatnich barów - z pełną informacją
+	 */
+	private Map<Integer, BarStatsData> shortTermMap;
+
+	private int shortTermPos;
+
+	public IndicatorData(int shortTermLength, int mediumTermLength, int longTermLength) {
 		super();
-		this.minimumStatsSize = minimumStatsSize;
-		this.barDataMap = new HashMap<Integer, BarStatsData>();
-		this.actualMapPosition = 1;
-		this.downBarIndicator = new IndicatorBarData();
-		this.upBarIndicator = new IndicatorBarData();
+		this.shortTermLength = shortTermLength;
+		this.mediumTermLength = mediumTermLength;
+		this.longTermLength = longTermLength;
+
+		this.shortTermMap = new HashMap<Integer, BarStatsData>();
+		this.mediumTermMap = new HashMap<Integer, Integer>();
+		this.longTermMap = new HashMap<Integer, Integer>();
+
+		this.shortTermPos = 1;
+		this.mediumTermPos = 1;
+		this.longTermPos = 1;
 	}
 
 	public void addBarData(BarData barData) {
 		// dodaj bar na aktualną pozycję:
-		barDataMap.put(actualMapPosition, getBarStatsData(barData));
+		shortTermMap.put(shortTermPos, getBarStatsData(barData));
+		mediumTermMap.put(mediumTermPos, barData.getBarVolume());
+		longTermMap.put(longTermPos, barData.getBarVolume());
 
 		// czy osiągnięty został ostatni element w mapie:
-		if (actualMapPosition == minimumStatsSize)
-			actualMapPosition = 1;
+		if (shortTermPos == shortTermLength)
+			shortTermPos = 1;
 		else
-			actualMapPosition += 1;
-	}
-
-	public void addBarData(BarData barData, Boolean isBarToConfirmation) {
-		// dodaj bar na aktualną pozycję:
-		barDataMap.put(actualMapPosition, getBarStatsData(barData, isBarToConfirmation));
-
-		// czy osiągnięty został ostatni element w mapie:
-		if (actualMapPosition == minimumStatsSize)
-			actualMapPosition = 1;
+			shortTermPos += 1;
+		if (mediumTermPos == mediumTermLength)
+			mediumTermPos = 1;
 		else
-			actualMapPosition += 1;
+			mediumTermPos += 1;
+		if (longTermPos == longTermLength)
+			longTermPos = 1;
+		else
+			longTermPos += 1;
 	}
 
 	public BarStatsData getPrevBar() {
-		int prev_nr = 0;
-
 		// jeśli mapa jest pusta - zwróć NULL:
-		if (barDataMap.isEmpty())
+		if (shortTermMap.isEmpty())
 			return null;
 
-		if (actualMapPosition == 1)
-			prev_nr = minimumStatsSize;
+		if (shortTermPos == 1)
+			return shortTermMap.get(shortTermLength);
 		else
-			prev_nr = actualMapPosition - 1;
-
-		return barDataMap.get(prev_nr);
+			return shortTermMap.get(shortTermPos - 1);
 	}
 
 	public BarStatsData getPrevPrevBar() {
-		int prev_prev_nr = 0;
-
-		if (actualMapPosition == 1)
-			prev_prev_nr = minimumStatsSize - 1;
-		else if (actualMapPosition == 2)
-			prev_prev_nr = minimumStatsSize;
+		if (shortTermPos == 1)
+			return shortTermMap.get(shortTermLength - 1);
+		else if (shortTermPos == 2)
+			return shortTermMap.get(shortTermLength);
 		else
-			prev_prev_nr = actualMapPosition - 1;
-
-		return barDataMap.get(prev_prev_nr);
+			return shortTermMap.get(shortTermPos - 1);
 	}
 
-	public BigDecimal getSpreadAvg() {
-		BigDecimal result = new BigDecimal(0);
-		Set<Integer> keys = barDataMap.keySet();
-
-		for (Integer key : keys)
-			result = result.add(barDataMap.get(key).getBarSpread());
-
-		return result.divide(new BigDecimal(minimumStatsSize));
-	}
-
-	public boolean isReadyIndicatorMap() {
-		if (barDataMap.size() < minimumStatsSize)
+	public boolean isReadyShortTermData() {
+		if (shortTermMap.size() < shortTermLength)
 			return false;
 		else
 			return true;
-
-	}
-
-	private void addUpOrDownBar(BarData barData) {
-		BarStatsData prev_bar = getPrevBar();
-
-		if (prev_bar == null)
-			return;
-
-		int comp_val = barData.getBarClose().compareTo(prev_bar.getBarClose());
-
-		if (comp_val < 0)
-			downBarIndicator.addVolume(barData.getBarVolume());
-		else if (comp_val > 0)
-			upBarIndicator.addVolume(barData.getBarVolume());
-
 	}
 
 	/**
@@ -129,13 +118,6 @@ public class IndicatorData {
 		return stats;
 	}
 
-	private BarStatsData getBarStatsData(BarData barData, Boolean barToConfirmation) {
-		BarStatsData stats = getBaseBarStatsData(barData);
-
-		stats.setBarToConfirmation(barToConfirmation);
-		return stats;
-	}
-
 	private BarStatsData getBaseBarStatsData(BarData barData) {
 		BarStatsData stats = new BarStatsData();
 
@@ -146,4 +128,5 @@ public class IndicatorData {
 
 		return stats;
 	}
+
 }
