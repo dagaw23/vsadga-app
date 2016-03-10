@@ -6,7 +6,5 @@ import pl.com.vsadga.service.BaseServiceException;
 
 public interface TrendProcessor {
 
-	void clearTrendData();
-	
 	TrendData getActualTrend(BarData barData) throws BaseServiceException;
 }

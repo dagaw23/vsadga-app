@@ -20,6 +20,11 @@ public class BarStatsData implements Serializable {
 	private BigDecimal barSpread;
 
 	/**
+	 * UP, DOWN, LEVEL bar
+	 */
+	private BarType barType;
+
+	/**
 	 * wolumen bara
 	 */
 	private Integer barVolume;
@@ -72,6 +77,8 @@ public class BarStatsData implements Serializable {
 				return false;
 		} else if (!barSpread.equals(other.barSpread))
 			return false;
+		if (barType != other.barType)
+			return false;
 		if (barVolume == null) {
 			if (other.barVolume != null)
 				return false;
@@ -112,6 +119,13 @@ public class BarStatsData implements Serializable {
 	 */
 	public BigDecimal getBarSpread() {
 		return barSpread;
+	}
+
+	/**
+	 * @return the barType
+	 */
+	public BarType getBarType() {
+		return barType;
 	}
 
 	/**
@@ -160,6 +174,7 @@ public class BarStatsData implements Serializable {
 		int result = 1;
 		result = prime * result + ((barClose == null) ? 0 : barClose.hashCode());
 		result = prime * result + ((barSpread == null) ? 0 : barSpread.hashCode());
+		result = prime * result + ((barType == null) ? 0 : barType.hashCode());
 		result = prime * result + ((barVolume == null) ? 0 : barVolume.hashCode());
 		result = prime * result + ((imaCount == null) ? 0 : imaCount.hashCode());
 		result = prime * result + ((trendIndicator == null) ? 0 : trendIndicator.hashCode());
@@ -182,6 +197,14 @@ public class BarStatsData implements Serializable {
 	 */
 	public void setBarSpread(BigDecimal barSpread) {
 		this.barSpread = barSpread;
+	}
+
+	/**
+	 * @param barType
+	 *            the barType to set
+	 */
+	public void setBarType(BarType barType) {
+		this.barType = barType;
 	}
 
 	/**
@@ -233,7 +256,7 @@ public class BarStatsData implements Serializable {
 	public String toString() {
 		return "BarStatsData [barClose=" + barClose + ", barSpread=" + barSpread + ", barVolume=" + barVolume
 				+ ", imaCount=" + imaCount + ", trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight
-				+ ", volumeThermometer=" + volumeThermometer + "]";
+				+ ", volumeThermometer=" + volumeThermometer + ", barType=" + barType + "]";
 	}
 
 }

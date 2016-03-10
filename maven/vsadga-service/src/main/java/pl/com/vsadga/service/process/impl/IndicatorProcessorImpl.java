@@ -20,59 +20,26 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	private ConfigDataService configDataService;
 
 	private IndicatorData indicatorData;
-	
-	/**
-	 * minimalna ilość barów - potrzebna do wyliczenia wskaźników
-	 */
-	private Integer indicatorDataSize;
 
 	public IndicatorProcessorImpl() {
 		super();
-	}
-	
-	@Override
-	public void addIndicatorData(BarData barData) throws BaseServiceException {
-		indicatorData.addBarData(barData);
-	}
-
-
-
-	@Override
-	public void addIndicatorData(BarData barData, Boolean isBarToConfirmation) throws BaseServiceException {
-		indicatorData.addBarData(barData, isBarToConfirmation);
-	}
-
-	@Override
-	public void clearIndicatorData() {
-		this.indicatorData = new IndicatorData(indicatorDataSize);
 	}
 
 	@Override
 	public IndicatorInfo getDataIndicator(BarData barData, String frameDesc) throws BaseServiceException {
 		int indy_nr = 0;
-		
+
 		if (!isProcessIndicator()) {
 			LOGGER.info("   [INDY] Usluga przetwarzania wskaznika jest wylaczona.");
 			return null;
 		}
 
-		// jeśli mapa dla wskaźnika nie została wyliczona - tylko wpisz Bar do kolekcji:
-		if (!indicatorData.isReadyIndicatorMap()) {
-			indicatorData.addBarData(barData);
-
-			return new IndicatorInfo(false);
-		}
-		
-		// TODO 1: Dodać sprawdzenie czy poprzedni bar do potwierdzenia
-
 		// zapisz informację o barze do mapy:
 		indy_nr = getActualBarIndicator(barData);
-		if (indy_nr > 0) {
-			indicatorData.addBarData(barData);
+
+		if (indy_nr > 0)
 			return new IndicatorInfo(indy_nr, true);
-		}
-		
-		indicatorData.addBarData(barData);
+
 		return new IndicatorInfo(0, true);
 	}
 
@@ -85,10 +52,11 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	}
 
 	/**
-	 * @param indicatorDataSize the indicatorDataSize to set
+	 * @param indicatorData
+	 *            the indicatorData to set
 	 */
-	public void setIndicatorDataSize(Integer indicatorDataSize) {
-		this.indicatorDataSize = indicatorDataSize;
+	public void setIndicatorData(IndicatorData indicatorData) {
+		this.indicatorData = indicatorData;
 	}
 
 	private Integer getActualBarIndicator(BarData barData) {
@@ -98,32 +66,37 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 		// pobierz 2 poprzednie bary:
 		BarStatsData prev_bar = indicatorData.getPrevBar();
 		BarStatsData prev_prev_bar = indicatorData.getPrevPrevBar();
-		
+
 		// no-demand/no-supply
 		if (isLessThenLast2(prev_prev_bar, prev_bar, barData)) {
 			if (isUpBar(barData, prev_bar)) {
-				LOGGER.info("SPREAD AVG:" + indicatorData.getSpreadAvg() + ",ACT SPREAD:"
-						+ barData.getBarHigh().subtract(barData.getBarLow()) + ": UP BAR.");
 				return 6;
 			}
-			
+
 			if (isDownBar(barData, prev_bar)) {
-				LOGGER.info("SPREAD AVG:" + indicatorData.getSpreadAvg() + ",ACT SPREAD:"
-						+ barData.getBarHigh().subtract(barData.getBarLow()) + ": DOWN BAR.");
-				
 				return 81;
 			}
 		}
 
 		return 0;
 	}
-	
+
+	private boolean isDownBar(BarData actualBar, BarStatsData prevBar) {
+		if (actualBar.getBarClose().compareTo(prevBar.getBarClose()) < 0)
+			return true;
+		else
+			return false;
+	}
+
 	/**
 	 * Sprawdza, czy wolumen jest mniejszy od dwóch poprzednich barów.
 	 * 
-	 * @param prevPrevBar wartości bara 2 wstecz
-	 * @param prevBar wartości poprzedniego bara
-	 * @param actualBar wartości aktualnego bara
+	 * @param prevPrevBar
+	 *            wartości bara 2 wstecz
+	 * @param prevBar
+	 *            wartości poprzedniego bara
+	 * @param actualBar
+	 *            wartości aktualnego bara
 	 * @return
 	 */
 	private boolean isLessThenLast2(BarStatsData prevPrevBar, BarStatsData prevBar, BarData actualBar) {
@@ -133,18 +106,11 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 			LOGGER.info("   [VOLUME] " + prevPrevBar.getBarVolume() + "," + prevBar.getBarVolume() + ","
 					+ actualBar.getBarVolume() + ", data aktualnego="
 					+ DateConverter.dateToString(actualBar.getBarTime(), "yy/MM/dd HH:mm") + ".");
-			
+
 			return true;
 		}
-		
-		return false;
-	}
 
-	private boolean isDownBar(BarData actualBar, BarStatsData prevBar) {
-		if (actualBar.getBarClose().compareTo(prevBar.getBarClose()) < 0)
-			return true;
-		else
-			return false;
+		return false;
 	}
 
 	private boolean isProcessIndicator() throws BaseServiceException {

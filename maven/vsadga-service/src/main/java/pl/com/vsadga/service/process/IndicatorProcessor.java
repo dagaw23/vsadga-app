@@ -16,22 +16,4 @@ public interface IndicatorProcessor {
 	 */
 	IndicatorInfo getDataIndicator(BarData barData, String frameDesc) throws BaseServiceException;
 	
-	/**
-	 * Dodaje jedynie informację dotyczącą bara - dla wyliczeń następnych barów.
-	 * 
-	 * @param barData
-	 * @throws BaseServiceException
-	 */
-	void addIndicatorData(BarData barData) throws BaseServiceException;
-	
-	/**
-	 * Dodaje jedynie informację dotyczącą bara - dla wyliczeń następnych barów.
-	 * 
-	 * @param barData
-	 * @throws BaseServiceException
-	 */
-	void addIndicatorData(BarData barData, Boolean isBarToConfirmation) throws BaseServiceException;
-	
-	void clearIndicatorData();
-	
 }

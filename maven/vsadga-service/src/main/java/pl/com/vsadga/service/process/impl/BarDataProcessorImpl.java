@@ -9,6 +9,7 @@ import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.dto.IndicatorInfo;
+import pl.com.vsadga.dto.process.IndicatorData;
 import pl.com.vsadga.dto.process.TrendData;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.process.BarDataProcessor;
@@ -28,6 +29,11 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	
 	private VolumeProcessor volumeProcessor;
 	
+	/**
+	 * CACHE z danymi z pewnego zakresu
+	 */
+	private IndicatorData indicatorData;
+	
 	@Override
 	public void processBarsData(List<BarData> barDataList, TimeFrame timeFrame) throws BaseServiceException {
 		if (barDataList == null || barDataList.isEmpty()) {
@@ -38,11 +44,6 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		int bar_count = barDataList.size();
 		BarData bar_data = null;
 		
-		// czyszczenia poprzednich danych:
-		indicatorProcessor.clearIndicatorData();
-		trendProcessor.clearTrendData();
-		volumeProcessor.clearProcessData();
-
 		for (int i = 0; i < bar_count; i++) {
 			// pobierz bar:
 			bar_data = barDataList.get(i);
@@ -120,10 +121,10 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			ind_info = indicatorProcessor.getDataIndicator(barData, frameDesc);
 			
 			// sprawdzenie trendu wolumenu:
-			vol_therm = volumeProcessor.checkVolumeThermometer(barData);
+			vol_therm = volumeProcessor.getVolumeThermometer(barData);
 			
-			// wpisanie informacji o barze - do tabeli:
-			updateBarData(trend_data, ind_info, vol_therm, frameDesc, barData.getId());
+			// wpisanie informacji o barze - do tabeli oraz do CACHE:
+			updateBarData(trend_data, ind_info, vol_therm, frameDesc, barData);
 		}
 
 		// *** status BAR: 2 ***
@@ -131,47 +132,50 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			// LOGGER.info("   [STATS] Bar wg statusu [" + barData.getProcessPhase() +
 			// "] do POTWIERDZENIA.");
 
-			indicatorProcessor.addIndicatorData(barData, true);
-			volumeProcessor.addVolumeThermometerData(barData);
+			// wpisanie bara do CACHE:
+			indicatorData.addBarData(barData);
 		}
 
 		// *** status BAR: 3 ***
 		if (bar_phase == 3) {
 			// LOGGER.info("   [STATS] Bar wg statusu [" + bar_phase + "] juz ZAKONCZONY.");
-			indicatorProcessor.addIndicatorData(barData);
-			volumeProcessor.addVolumeThermometerData(barData);
+			indicatorData.addBarData(barData);
 		}
 
 	}
 
-	private void updateBarData(TrendData trendData, IndicatorInfo indyInfo, String volTherm, String frameDesc, Integer id) {
+	private void updateBarData(TrendData trendData, IndicatorInfo indyInfo, String volTherm, String frameDesc,
+			BarData barData) {
 		String trend_indy = null;
 		Integer trend_weight = null;
 		Integer indy_nr = null;
 		int process_phase = 3;
-		
+
 		// jaki jest trend:
 		if (trendData != null) {
 			trend_indy = trendData.getTrendIndicator();
 			trend_weight = trendData.getTrendWeight();
 		}
-		
+
 		// jaki jest sygnał:
 		if (indyInfo != null) {
 			indy_nr = indyInfo.getIndicatorNr();
-			
+
 			// jeśli został przetworzony i jest większy od zera
 			// - dla części sygnałów jest potrzebne potwierdzenie:
 			// TODO && isIndicatorToConfirm(indy_nr)
 			if (indyInfo.isProcessIndy() && indy_nr.intValue() > 0) {
-				//process_phase = 2;
-				barDataDao.updateIndicatorWithTrend(id, frameDesc, 2, trend_indy, trend_weight, volTherm, indy_nr, false);
+				// process_phase = 2;
+				barDataDao.updateIndicatorWithTrend(barData.getId(), frameDesc, 2, trend_indy, trend_weight,
+						volTherm, indy_nr, false);
 			}
-			
-			
 		}
-		
-		barDataDao.updateProcessPhaseWithTrend(id, frameDesc, process_phase, trend_indy, trend_weight, volTherm);
+
+		barDataDao.updateProcessPhaseWithTrend(barData.getId(), frameDesc, process_phase, trend_indy,
+				trend_weight, volTherm);
+
+		// wpisanie bara do CACHE:
+		indicatorData.addBarData(barData);
 	}
 	
 }

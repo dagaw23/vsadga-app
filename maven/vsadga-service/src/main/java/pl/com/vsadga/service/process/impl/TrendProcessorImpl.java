@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.com.vsadga.data.BarData;
+import pl.com.vsadga.dto.BarStatsData;
+import pl.com.vsadga.dto.process.IndicatorData;
 import pl.com.vsadga.dto.process.TrendData;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
@@ -16,12 +18,7 @@ public class TrendProcessorImpl implements TrendProcessor {
 
 	private ConfigDataService configDataService;
 
-	private TrendData prevTrendData;
-
-	@Override
-	public void clearTrendData() {
-		this.prevTrendData = null;
-	}
+	private IndicatorData indicatorData;
 
 	@Override
 	public TrendData getActualTrend(BarData barData) throws BaseServiceException {
@@ -31,38 +28,36 @@ public class TrendProcessorImpl implements TrendProcessor {
 		}
 
 		// brak jeszcze barów do wyliczenia:
-		if (prevTrendData == null) {
-			prevTrendData = new TrendData("S", 0, barData.getImaCount());
-			return prevTrendData;
+		BarStatsData prev_bar = indicatorData.getPrevBar();
+		if (prev_bar == null) {
+			return new TrendData("S", 0);
 		}
 
 		// porównaj AKTUALNY bar - z poprzednim (średnia krocząca):
-		int bar_compare = barData.getImaCount().compareTo(prevTrendData.getImaCount());
-
-		// aktualizuj już średnią w poprzednim barze:
-		prevTrendData.setImaCount(barData.getImaCount());
+		int bar_compare = barData.getImaCount().compareTo(prev_bar.getImaCount());
+		TrendData result = null;
 
 		// trend w poprzednim barze:
-		String trend = prevTrendData.getTrendIndicator();
-		int weight = prevTrendData.getTrendWeight().intValue();
+		String trend = prev_bar.getTrendIndicator();
+		int weight = prev_bar.getTrendWeight().intValue();
 
 		// *** poprzedni bar to UPTREND ***
 		if (trend.equals("U")) {
 			if (bar_compare > 0) {
 				// kontynuacja UP
 				if (weight == 6 || weight == 7)
-					updatePrev("U", (weight + 1));
+					result = new TrendData("U", (weight + 1));
 				else
-					updatePrev("U", weight);
+					result = new TrendData("U", weight);
 			} else if (bar_compare == 0) {
 				// bez zmiany w średniej:
-				updatePrev(trend, weight);
+				result = new TrendData(trend, weight);
 			} else {
 				// zmiana na DOWN
 				if (weight == 6)
-					updatePrev("S", 1);
+					result = new TrendData("S", 1);
 				else
-					updatePrev("U", 6);
+					result = new TrendData("U", 6);
 			}
 		}
 		// *** poprzedni bar to DOWNTREND ***
@@ -70,18 +65,18 @@ public class TrendProcessorImpl implements TrendProcessor {
 			if (bar_compare < 0) {
 				// kontynuacja DOWN
 				if (weight == 1 || weight == 2)
-					updatePrev("D", (weight + 1));
+					result = new TrendData("D", (weight + 1));
 				else
-					updatePrev("D", weight);
+					result = new TrendData("D", weight);
 			} else if (bar_compare == 0) {
 				// bez zmiany w średniej:
-				updatePrev(trend, weight);
+				result = new TrendData(trend, weight);
 			} else {
 				// zmiana na UP
 				if (weight == 1)
-					updatePrev("S", 6);
+					result = new TrendData("S", 6);
 				else
-					updatePrev("D", 1);
+					result = new TrendData("D", 1);
 			}
 		}
 		// *** poprzedni bar jest BOCZNY ***
@@ -89,37 +84,37 @@ public class TrendProcessorImpl implements TrendProcessor {
 			if (bar_compare > 0) {
 				// bar UP
 				if (weight == 6 || weight == 7)
-					updatePrev("U", (weight + 1));
+					result = new TrendData("U", (weight + 1));
 				else if (weight == 0 || weight == 1 || weight == 2)
-					updatePrev("S", 6);
+					result = new TrendData("S", 6);
 				else {
 					LOGGER.info("   [ERROR] Unexpected PREV [" + trend + "," + weight + "," + bar_compare
 							+ "], aktualny bar [" + barData + "].");
-					updatePrev("S", 0);
+					result = new TrendData("S", 0);
 				}
 
 			} else if (bar_compare == 0) {
 				// bez zmiany w średniej:
-				updatePrev(trend, weight);
+				result = new TrendData(trend, weight);
 			} else {
 				// bar DOWN
 				if (weight == 1 || weight == 2)
-					updatePrev("D", (weight + 1));
+					result = new TrendData("D", (weight + 1));
 				else if (weight == 0 || weight == 6 || weight == 7)
-					updatePrev("S", 1);
+					result = new TrendData("S", 1);
 				else {
 					LOGGER.info("   [ERROR] Unexpected PREV [" + trend + "," + weight + "," + bar_compare
 							+ "], aktualny bar [" + barData + "].");
-					updatePrev("S", 0);
+					result = new TrendData("S", 0);
 				}
 			}
 		} else {
 			LOGGER.info("   [ERROR] Unexpected situation [" + trend + "," + weight + "," + bar_compare
 					+ "], aktualny bar [" + barData + "].");
-			updatePrev("S", 0);
+			result = new TrendData("S", 0);
 		}
 
-		return prevTrendData;
+		return result;
 	}
 
 	/**
@@ -128,6 +123,14 @@ public class TrendProcessorImpl implements TrendProcessor {
 	 */
 	public void setConfigDataService(ConfigDataService configDataService) {
 		this.configDataService = configDataService;
+	}
+
+	/**
+	 * @param indicatorData
+	 *            the indicatorData to set
+	 */
+	public void setIndicatorData(IndicatorData indicatorData) {
+		this.indicatorData = indicatorData;
 	}
 
 	private boolean isProcessTrend() throws BaseServiceException {
@@ -149,11 +152,6 @@ public class TrendProcessorImpl implements TrendProcessor {
 			return true;
 		else
 			return false;
-	}
-
-	private void updatePrev(String trendIndy, Integer trendWeight) {
-		prevTrendData.setTrendIndicator(trendIndy);
-		prevTrendData.setTrendWeight(trendWeight);
 	}
 
 }
