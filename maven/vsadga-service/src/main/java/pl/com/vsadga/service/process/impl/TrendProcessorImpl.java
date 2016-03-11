@@ -27,8 +27,8 @@ public class TrendProcessorImpl implements TrendProcessor {
 			return null;
 		}
 
-		// brak jeszcze barów do wyliczenia:
-		BarStatsData prev_bar = indicatorData.getPrevBar();
+		// czy jest ostatni bar do wyliczenia:
+		BarStatsData prev_bar = indicatorData.getLastBarData();
 		if (prev_bar == null) {
 			return new TrendData("S", 0);
 		}

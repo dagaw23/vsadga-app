@@ -27,7 +27,9 @@
 	
 	<!-- Data -->
 	<bean id="indicatorData" class="pl.com.vsadga.dto.process.IndicatorData">
-		<constructor-arg value="5" />
+		<constructor-arg name="shortTermLength" value="5" />
+		<constructor-arg name="mediumTermLength" value="15" />
+		<constructor-arg name="longTermLength" value="30" />
 	</bean>
 
 	<!-- DAOs -->
@@ -70,18 +72,20 @@
 	<!-- Processors -->
 	<bean id="indicatorProcessor" class="pl.com.vsadga.service.process.impl.IndicatorProcessorImpl">
 		<property name="configDataService" ref="configDataService" />
-		<property name="indicatorDataSize" value="5" />
+		<property name="indicatorData" ref="indicatorData" />
 	</bean>
 	<bean id="trendProcessor" class="pl.com.vsadga.service.process.impl.TrendProcessorImpl">
 		<property name="configDataService" ref="configDataService" />
-		
+		<property name="indicatorData" ref="indicatorData" />
 	</bean>
 	<bean id="volumeProcessor" class="pl.com.vsadga.service.process.impl.VolumeProcessorImpl">
 		<property name="configDataService" ref="configDataService" />
+		<property name="indicatorData" ref="indicatorData" />
 	</bean>
 	
 	<bean id="barDataProcessor" class="pl.com.vsadga.service.process.impl.BarDataProcessorImpl">
 		<property name="barDataDao" ref="barDataDao" />
+		<property name="indicatorData" ref="indicatorData" />
 		<property name="indicatorProcessor" ref="indicatorProcessor" />
 		<property name="trendProcessor" ref="trendProcessor" />
 		<property name="volumeProcessor" ref="volumeProcessor" />

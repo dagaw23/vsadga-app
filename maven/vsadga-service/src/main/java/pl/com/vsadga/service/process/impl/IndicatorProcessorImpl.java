@@ -27,20 +27,13 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 	@Override
 	public IndicatorInfo getDataIndicator(BarData barData, String frameDesc) throws BaseServiceException {
-		int indy_nr = 0;
-
 		if (!isProcessIndicator()) {
 			LOGGER.info("   [INDY] Usluga przetwarzania wskaznika jest wylaczona.");
 			return null;
 		}
 
 		// zapisz informację o barze do mapy:
-		indy_nr = getActualBarIndicator(barData);
-
-		if (indy_nr > 0)
-			return new IndicatorInfo(indy_nr, true);
-
-		return new IndicatorInfo(0, true);
+		return getActualBarIndicator(barData);
 	}
 
 	/**
@@ -59,26 +52,32 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 		this.indicatorData = indicatorData;
 	}
 
-	private Integer getActualBarIndicator(BarData barData) {
+	private IndicatorInfo getActualBarIndicator(BarData barData) {
 		// TODO 1: dodac wpisywanie czasu bara do BarStatsData
 		// TODO 2: parametry konfigurayjne do pobierania liczby barów do przetworzenia oraz liczby
 		// barów w mapie.
 		// pobierz 2 poprzednie bary:
-		BarStatsData prev_bar = indicatorData.getPrevBar();
-		BarStatsData prev_prev_bar = indicatorData.getPrevPrevBar();
+		BarStatsData last_bar = indicatorData.getLastBarData();
+		BarStatsData prev_bar = indicatorData.getPreviousBar();
+		
+		if (last_bar == null || prev_bar == null) {
+			LOGGER.info("   [INDY] Not ready yet.");
+			return new IndicatorInfo(0, false);
+		}
+			
 
 		// no-demand/no-supply
-		if (isLessThenLast2(prev_prev_bar, prev_bar, barData)) {
-			if (isUpBar(barData, prev_bar)) {
-				return 6;
+		if (isLessThenLast2(prev_bar, last_bar, barData)) {
+			if (isUpBar(barData, last_bar)) {
+				return new IndicatorInfo(6, true);
 			}
 
-			if (isDownBar(barData, prev_bar)) {
-				return 81;
+			if (isDownBar(barData, last_bar)) {
+				return new IndicatorInfo(81, true);
 			}
 		}
 
-		return 0;
+		return new IndicatorInfo(0, true);
 	}
 
 	private boolean isDownBar(BarData actualBar, BarStatsData prevBar) {

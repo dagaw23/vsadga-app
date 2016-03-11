@@ -25,13 +25,20 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 			return null;
 		}
 
-		// czy cały CACHE jest wypełniony:
-		if (!indicatorData.isReadyShortTermData()) {
+		// czy CACHE dla UP/DOWN bar jest wypełniony:
+		if (!indicatorData.isReadyVolumeThermoData()) {
 			LOGGER.info("   [VOL] Dane jeszcze nie sa gotowe do wyliczenia trendu wolumenu.");
 			return "N";
 		}
-
-		return indicatorData.getVolumeThermometer(actualBar);
+		
+		int vol_comp = indicatorData.getUpBarAvgVolume(actualBar).compareTo(indicatorData.getDownBarAvgVolume(actualBar));
+		
+		if (vol_comp > 0)
+			return "U";
+		else if (vol_comp < 0)
+			return "D";
+		else
+			return "L";
 	}
 
 	/**

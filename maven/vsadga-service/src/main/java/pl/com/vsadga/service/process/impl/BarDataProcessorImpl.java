@@ -23,17 +23,17 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 	private BarDataDao barDataDao;
 
-	private IndicatorProcessor indicatorProcessor;
-
-	private TrendProcessor trendProcessor;
-	
-	private VolumeProcessor volumeProcessor;
-	
 	/**
 	 * CACHE z danymi z pewnego zakresu
 	 */
 	private IndicatorData indicatorData;
-	
+
+	private IndicatorProcessor indicatorProcessor;
+
+	private TrendProcessor trendProcessor;
+
+	private VolumeProcessor volumeProcessor;
+
 	@Override
 	public void processBarsData(List<BarData> barDataList, TimeFrame timeFrame) throws BaseServiceException {
 		if (barDataList == null || barDataList.isEmpty()) {
@@ -44,6 +44,9 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		int bar_count = barDataList.size();
 		BarData bar_data = null;
 		
+		// wyczyszczenie danych do analizy:
+		indicatorData.cleanDataCache();
+
 		for (int i = 0; i < bar_count; i++) {
 			// pobierz bar:
 			bar_data = barDataList.get(i);
@@ -59,6 +62,14 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	 */
 	public void setBarDataDao(BarDataDao barDataDao) {
 		this.barDataDao = barDataDao;
+	}
+
+	/**
+	 * @param indicatorData
+	 *            the indicatorData to set
+	 */
+	public void setIndicatorData(IndicatorData indicatorData) {
+		this.indicatorData = indicatorData;
 	}
 
 	/**
@@ -78,7 +89,8 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	}
 
 	/**
-	 * @param volumeProcessor the volumeProcessor to set
+	 * @param volumeProcessor
+	 *            the volumeProcessor to set
 	 */
 	public void setVolumeProcessor(VolumeProcessor volumeProcessor) {
 		this.volumeProcessor = volumeProcessor;
@@ -119,12 +131,13 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 			// sprawdzenie wskaźnika:
 			ind_info = indicatorProcessor.getDataIndicator(barData, frameDesc);
-			
+
 			// sprawdzenie trendu wolumenu:
 			vol_therm = volumeProcessor.getVolumeThermometer(barData);
-			
+
 			// wpisanie informacji o barze - do tabeli oraz do CACHE:
 			updateBarData(trend_data, ind_info, vol_therm, frameDesc, barData);
+			
 		}
 
 		// *** status BAR: 2 ***
@@ -144,8 +157,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 	}
 
-	private void updateBarData(TrendData trendData, IndicatorInfo indyInfo, String volTherm, String frameDesc,
-			BarData barData) {
+	private void updateBarData(TrendData trendData, IndicatorInfo indyInfo, String volTherm, String frameDesc, BarData barData) {
 		String trend_indy = null;
 		Integer trend_weight = null;
 		Integer indy_nr = null;
@@ -171,11 +183,11 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			}
 		}
 
-		barDataDao.updateProcessPhaseWithTrend(barData.getId(), frameDesc, process_phase, trend_indy,
-				trend_weight, volTherm);
-
+		barDataDao.updateProcessPhaseWithTrend(barData.getId(), frameDesc, 
+				process_phase, trend_indy, trend_weight, volTherm);
+		
 		// wpisanie bara do CACHE:
-		indicatorData.addBarData(barData);
+		indicatorData.addBarData(barData, trend_indy, trend_weight, volTherm);
 	}
-	
+
 }
