@@ -127,6 +127,21 @@ public class IndicatorData {
 		this.downBarVolPos = 0;
 		this.upBarVolPos = 0;
 	}
+	
+	public BigDecimal getShortVolumeAvg() {
+		
+		return;
+	}
+	
+public BigDecimal getMediumVolumeAvg() {
+		
+		return;
+	}
+
+public BigDecimal getLongVolumeAvg() {
+	
+	return;
+}
 
 	public BigDecimal getDownBarAvgVolume(BarData barData) {
 		int counter = 0;

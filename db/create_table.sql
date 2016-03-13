@@ -20,12 +20,16 @@ create table fxschema.data_m5(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
 	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
 	volume_thermometer	varchar(1)		null,
+	volume_avg_short	numeric(10,4)	null,
+	volume_avg_medium	numeric(10,4)	null,
+	volume_avg_long		numeric(10,4)	null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -40,12 +44,16 @@ create table fxschema.data_m15(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	bar_type			varchar(1)		null,	
 	indicator_nr		integer			null,
 	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
 	volume_thermometer	varchar(1)		null,
+	volume_avg_short	numeric(10,4)	null,
+	volume_avg_medium	numeric(10,4)	null,
+	volume_avg_long		numeric(10,4)	null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -60,12 +68,16 @@ create table fxschema.data_h1(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
 	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
 	volume_thermometer	varchar(1)		null,
+	volume_avg_short	numeric(10,4)	null,
+	volume_avg_medium	numeric(10,4)	null,
+	volume_avg_long		numeric(10,4)	null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -80,12 +92,16 @@ create table fxschema.data_h4(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
 	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
 	volume_thermometer	varchar(1)		null,
+	volume_avg_short	numeric(10,4)	null,
+	volume_avg_medium	numeric(10,4)	null,
+	volume_avg_long		numeric(10,4)	null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -180,8 +196,27 @@ values (15, 'IS_BATCH_REWRITE', '1');
 
 
 
-alter table fxschema.data_m5  ADD COLUMN volume_thermometer	varchar(1);
-alter table fxschema.data_m15 ADD COLUMN volume_thermometer	varchar(1);
-alter table fxschema.data_h1  ADD COLUMN volume_thermometer	varchar(1);
-alter table fxschema.data_h4  ADD COLUMN volume_thermometer	varchar(1);
+alter table fxschema.data_m5
+	ADD COLUMN bar_type varchar(1),
+	ADD COLUMN volume_avg_short numeric(10,4),
+	ADD COLUMN volume_avg_medium numeric(10,4),
+	ADD COLUMN volume_avg_long numeric(10,4);
+
+alter table fxschema.data_m15
+	ADD COLUMN bar_type varchar(1),
+	ADD COLUMN volume_avg_short numeric(10,4),
+	ADD COLUMN volume_avg_medium numeric(10,4),
+	ADD COLUMN volume_avg_long numeric(10,4);
+
+alter table fxschema.data_h1
+	ADD COLUMN bar_type varchar(1),
+	ADD COLUMN volume_avg_short numeric(10,4),
+	ADD COLUMN volume_avg_medium numeric(10,4),
+	ADD COLUMN volume_avg_long numeric(10,4);
+
+alter table fxschema.data_h4
+	ADD COLUMN bar_type varchar(1),
+	ADD COLUMN volume_avg_short numeric(10,4),
+	ADD COLUMN volume_avg_medium numeric(10,4),
+	ADD COLUMN volume_avg_long numeric(10,4);
 

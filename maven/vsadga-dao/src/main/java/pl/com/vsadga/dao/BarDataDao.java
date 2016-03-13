@@ -1,5 +1,6 @@
 package pl.com.vsadga.dao;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +47,8 @@ public interface BarDataDao {
 	int updateProcessPhaseWithTrend(Integer id, String frameDesc, Integer processPhase, String trendIndicator, Integer trendWeight, String volumeThermometer);
 	
 	int updateIndicatorWithTrend(Integer id, String frameDesc, Integer processPhase, String trendIndicator, Integer trendWeight, String volumeThermometer, Integer indyNr, Boolean isConfirm);
+	
+	int updateVolumeAvg(Integer id, String frameDesc, BigDecimal volumeAvgShort, BigDecimal volumeAvgMedium, BigDecimal volumeAvgLong);
 	
 	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
 	

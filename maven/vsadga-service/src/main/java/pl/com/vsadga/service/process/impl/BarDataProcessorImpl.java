@@ -178,16 +178,25 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			// TODO && isIndicatorToConfirm(indy_nr)
 			if (indyInfo.isProcessIndy() && indy_nr.intValue() > 0) {
 				// process_phase = 2;
-				barDataDao.updateIndicatorWithTrend(barData.getId(), frameDesc, 2, trend_indy, trend_weight,
-						volTherm, indy_nr, false);
+				barDataDao.updateIndicatorWithTrend(barData.getId(), frameDesc, 2, 
+						trend_indy, trend_weight, volTherm,
+						indy_nr, false);
+				return;
 			}
 		}
 
-		barDataDao.updateProcessPhaseWithTrend(barData.getId(), frameDesc, 
-				process_phase, trend_indy, trend_weight, volTherm);
+		barDataDao.updateProcessPhaseWithTrend(barData.getId(), frameDesc, process_phase,
+				trend_indy, trend_weight, volTherm);
 		
 		// wpisanie bara do CACHE:
 		indicatorData.addBarData(barData, trend_indy, trend_weight, volTherm);
+		
+		// wpisanie dla bara - średniej wolumenu:
+		barDataDao.updateVolumeAvg(barData.getId(),, frameDesc,
+				indicatorData.getShortVolumeAvg(),
+				indicatorData.getMediumVolumeAvg(),
+				indicatorData.getLongVolumeAvg())
+		
 	}
 
 }
