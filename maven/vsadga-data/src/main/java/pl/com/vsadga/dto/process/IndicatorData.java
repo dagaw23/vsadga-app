@@ -152,6 +152,7 @@ public BigDecimal getLongVolumeAvg() {
 	
 	return;
 }
+<<<<<<< HEAD
 
 	/**
 	 * Wylicza wolumen dla 4 ostatnich barów: 3 już przetworzonych do statusu 3 oraz aktualnego bara
@@ -214,6 +215,8 @@ public BigDecimal getLongVolumeAvg() {
 		else
 			return BarType.LEVEL_BAR;
 	}
+=======
+>>>>>>> branch 'master' of https://github.com/dagaw23/vsadga-app.git
 
 	public BigDecimal getDownBarAvgVolume(BarData barData) {
 		int counter = 0;

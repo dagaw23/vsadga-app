@@ -77,6 +77,11 @@ public interface BarDataDao {
 	int updateIndicatorWithTrend(Integer id, String frameDesc, Integer processPhase, String trendIndicator, Integer trendWeight, String volumeThermometer, Integer indyNr, Boolean isConfirm);
 	
 	int updateVolumeAvg(Integer id, String frameDesc, BigDecimal volumeAvgShort, BigDecimal volumeAvgMedium, BigDecimal volumeAvgLong);
+<<<<<<< HEAD
+=======
+	
+	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
+>>>>>>> branch 'master' of https://github.com/dagaw23/vsadga-app.git
 	
 	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
 

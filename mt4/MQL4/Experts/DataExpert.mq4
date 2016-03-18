@@ -268,7 +268,7 @@ void write_data_to_file(int file_handle, string symbol, int tme_frm, int buff_si
 		low_buff[i],
 		cls_buff[i],
 		vol_buff[i],
-		iMA(symbol, tme_frm, 20, 0, MODE_SMA, PRICE_TYPICAL, i));
+		iMA(symbol, tme_frm, 20, 0, MODE_SMA, PRICE_CLOSE, i));
    }
 }
 
