@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import pl.com.vsadga.dto.BarType;
+
 public class BarData implements Serializable {
 	/**
 	 * wygenerowany UID
@@ -29,6 +31,8 @@ public class BarData implements Serializable {
 	 * czas bara (w milisekundach)
 	 */
 	private Date barTime;
+
+	private BarType barType;
 
 	/**
 	 * ilość ticków w trakcie bara
@@ -93,6 +97,11 @@ public class BarData implements Serializable {
 	private Integer trendWeight;
 
 	/**
+	 * wolumen absorbcyjny - dla ciągu barów
+	 */
+	private Integer volumeAbsorb;
+
+	/**
 	 * trend wolumenu:
 	 * <ul>
 	 * <li>L: aktualny bar jest LEVEL,
@@ -137,6 +146,8 @@ public class BarData implements Serializable {
 			if (other.barTime != null)
 				return false;
 		} else if (!barTime.equals(other.barTime))
+			return false;
+		if (barType != other.barType)
 			return false;
 		if (barVolume == null) {
 			if (other.barVolume != null)
@@ -188,6 +199,11 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!trendWeight.equals(other.trendWeight))
 			return false;
+		if (volumeAbsorb == null) {
+			if (other.volumeAbsorb != null)
+				return false;
+		} else if (!volumeAbsorb.equals(other.volumeAbsorb))
+			return false;
 		if (volumeThermometer == null) {
 			if (other.volumeThermometer != null)
 				return false;
@@ -219,6 +235,13 @@ public class BarData implements Serializable {
 
 	public Date getBarTime() {
 		return barTime;
+	}
+
+	/**
+	 * @return the barType
+	 */
+	public BarType getBarType() {
+		return barType;
 	}
 
 	public Integer getBarVolume() {
@@ -277,6 +300,13 @@ public class BarData implements Serializable {
 	}
 
 	/**
+	 * @return the volumeAbsorb
+	 */
+	public Integer getVolumeAbsorb() {
+		return volumeAbsorb;
+	}
+
+	/**
 	 * @return the volumeThermometer
 	 */
 	public String getVolumeThermometer() {
@@ -296,6 +326,7 @@ public class BarData implements Serializable {
 		result = prime * result + ((barHigh == null) ? 0 : barHigh.hashCode());
 		result = prime * result + ((barLow == null) ? 0 : barLow.hashCode());
 		result = prime * result + ((barTime == null) ? 0 : barTime.hashCode());
+		result = prime * result + ((barType == null) ? 0 : barType.hashCode());
 		result = prime * result + ((barVolume == null) ? 0 : barVolume.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((imaCount == null) ? 0 : imaCount.hashCode());
@@ -306,6 +337,7 @@ public class BarData implements Serializable {
 		result = prime * result + ((symbolId == null) ? 0 : symbolId.hashCode());
 		result = prime * result + ((trendIndicator == null) ? 0 : trendIndicator.hashCode());
 		result = prime * result + ((trendWeight == null) ? 0 : trendWeight.hashCode());
+		result = prime * result + ((volumeAbsorb == null) ? 0 : volumeAbsorb.hashCode());
 		result = prime * result + ((volumeThermometer == null) ? 0 : volumeThermometer.hashCode());
 		return result;
 	}
@@ -336,6 +368,14 @@ public class BarData implements Serializable {
 
 	public void setBarTime(Date barTime) {
 		this.barTime = barTime;
+	}
+
+	/**
+	 * @param barType
+	 *            the barType to set
+	 */
+	public void setBarType(BarType barType) {
+		this.barType = barType;
 	}
 
 	/**
@@ -403,6 +443,14 @@ public class BarData implements Serializable {
 	}
 
 	/**
+	 * @param volumeAbsorb
+	 *            the volumeAbsorb to set
+	 */
+	public void setVolumeAbsorb(Integer volumeAbsorb) {
+		this.volumeAbsorb = volumeAbsorb;
+	}
+
+	/**
 	 * @param volumeThermometer
 	 *            the volumeThermometer to set
 	 */
@@ -418,11 +466,11 @@ public class BarData implements Serializable {
 	@Override
 	public String toString() {
 		return "BarData [barClose=" + barClose + ", barHigh=" + barHigh + ", barLow=" + barLow + ", barTime="
-				+ barTime + ", barVolume=" + barVolume + ", id=" + id + ", imaCount=" + imaCount
-				+ ", indicatorNr=" + indicatorNr + ", indicatorWeight=" + indicatorWeight + ", isConfirm="
-				+ isConfirm + ", processPhase=" + processPhase + ", symbolId=" + symbolId + ", trendIndicator="
-				+ trendIndicator + ", trendWeight=" + trendWeight + ", volumeThermometer=" + volumeThermometer
-				+ "]";
+				+ barTime + ", barType=" + barType + ", barVolume=" + barVolume + ", id=" + id + ", imaCount="
+				+ imaCount + ", indicatorNr=" + indicatorNr + ", indicatorWeight=" + indicatorWeight
+				+ ", isConfirm=" + isConfirm + ", processPhase=" + processPhase + ", symbolId=" + symbolId
+				+ ", trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight + ", volumeAbsorb="
+				+ volumeAbsorb + ", volumeThermometer=" + volumeThermometer + "]";
 	}
 
 }

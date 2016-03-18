@@ -21,7 +21,7 @@ import pl.com.vsadga.data.BarData;
 public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 	private final String ALL_COLUMNS = "id, bar_time, bar_low, bar_high, bar_close, bar_volume, "
-			+ "ima_count, indicator_nr, indicator_weight, is_confirm, "
+			+ "ima_count, bar_type, indicator_nr, indicator_weight, is_confirm, "
 			+ "trend_indicator, trend_weight, volume_thermometer, process_phase, symbol_id";
 
 	private final String SCHM_NME = "fxschema.";
@@ -227,6 +227,15 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				+ " set process_phase=?, trend_indicator=?, trend_weight=?, volume_thermometer=? where id=?";
 
 		return getJdbcTemplate().update(sql, processPhase, trendIndicator, trendWeight, volumeThermometer, id);
+	}
+
+	@Override
+	public int updateVolumeAbsorbtion(Integer symbolId, String frameDesc, Integer id, Integer volumeAbsorb) {
+		String sql = "update " + getTableName(frameDesc) + " set indicator_nr=?, indicator_weight=?, "
+				+ "is_confirm=?, process_phase=? where id=?";
+
+		return getJdbcTemplate().update(sql, nr, weight, isConfirm, phase, barDataId);
+
 	}
 
 	private String getSeqName(String timeFrameDesc) {

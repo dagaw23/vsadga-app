@@ -30,6 +30,11 @@ public class BarStatsData implements Serializable {
 	private Integer barVolume;
 
 	/**
+	 * ID rekordu
+	 */
+	private Integer id;
+
+	/**
 	 * wyliczona średnia krocząca
 	 */
 	private BigDecimal imaCount;
@@ -43,6 +48,11 @@ public class BarStatsData implements Serializable {
 	 * waga trendu
 	 */
 	private Integer trendWeight;
+
+	/**
+	 * wolumen absorbcyjny - dla ciągu barów
+	 */
+	private Integer volumeAbsorb;
 
 	/**
 	 * wskaźnik wolumenu
@@ -84,6 +94,11 @@ public class BarStatsData implements Serializable {
 				return false;
 		} else if (!barVolume.equals(other.barVolume))
 			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
 		if (imaCount == null) {
 			if (other.imaCount != null)
 				return false;
@@ -98,6 +113,11 @@ public class BarStatsData implements Serializable {
 			if (other.trendWeight != null)
 				return false;
 		} else if (!trendWeight.equals(other.trendWeight))
+			return false;
+		if (volumeAbsorb == null) {
+			if (other.volumeAbsorb != null)
+				return false;
+		} else if (!volumeAbsorb.equals(other.volumeAbsorb))
 			return false;
 		if (volumeThermometer == null) {
 			if (other.volumeThermometer != null)
@@ -136,6 +156,13 @@ public class BarStatsData implements Serializable {
 	}
 
 	/**
+	 * @return the id
+	 */
+	public Integer getId() {
+		return id;
+	}
+
+	/**
 	 * @return the imaCount
 	 */
 	public BigDecimal getImaCount() {
@@ -154,6 +181,13 @@ public class BarStatsData implements Serializable {
 	 */
 	public Integer getTrendWeight() {
 		return trendWeight;
+	}
+
+	/**
+	 * @return the volumeAbsorb
+	 */
+	public Integer getVolumeAbsorb() {
+		return volumeAbsorb;
 	}
 
 	/**
@@ -176,9 +210,11 @@ public class BarStatsData implements Serializable {
 		result = prime * result + ((barSpread == null) ? 0 : barSpread.hashCode());
 		result = prime * result + ((barType == null) ? 0 : barType.hashCode());
 		result = prime * result + ((barVolume == null) ? 0 : barVolume.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((imaCount == null) ? 0 : imaCount.hashCode());
 		result = prime * result + ((trendIndicator == null) ? 0 : trendIndicator.hashCode());
 		result = prime * result + ((trendWeight == null) ? 0 : trendWeight.hashCode());
+		result = prime * result + ((volumeAbsorb == null) ? 0 : volumeAbsorb.hashCode());
 		result = prime * result + ((volumeThermometer == null) ? 0 : volumeThermometer.hashCode());
 		return result;
 	}
@@ -216,6 +252,14 @@ public class BarStatsData implements Serializable {
 	}
 
 	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	/**
 	 * @param imaCount
 	 *            the imaCount to set
 	 */
@@ -240,6 +284,14 @@ public class BarStatsData implements Serializable {
 	}
 
 	/**
+	 * @param volumeAbsorb
+	 *            the volumeAbsorb to set
+	 */
+	public void setVolumeAbsorb(Integer volumeAbsorb) {
+		this.volumeAbsorb = volumeAbsorb;
+	}
+
+	/**
 	 * @param volumeThermometer
 	 *            the volumeThermometer to set
 	 */
@@ -254,9 +306,10 @@ public class BarStatsData implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "BarStatsData [barClose=" + barClose + ", barSpread=" + barSpread + ", barVolume=" + barVolume
-				+ ", imaCount=" + imaCount + ", trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight
-				+ ", volumeThermometer=" + volumeThermometer + ", barType=" + barType + "]";
+		return "BarStatsData [barClose=" + barClose + ", barSpread=" + barSpread + ", barType=" + barType
+				+ ", volumeAbsorb=" + volumeAbsorb + ", barVolume=" + barVolume + ", imaCount=" + imaCount
+				+ ", trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight + ", volumeThermometer="
+				+ volumeThermometer + ", id=" + id + "]";
 	}
 
 }

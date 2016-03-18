@@ -26,6 +26,11 @@ public class IndicatorData {
 	private int downBarVolPos;
 
 	/**
+	 * suma wolumenów na DOWN bar (ostatnie 4 bary)
+	 */
+	private int downBarVolumeSum;
+
+	/**
 	 * ilość danych dla długiego terminu
 	 */
 	private int longTermLength;
@@ -85,6 +90,11 @@ public class IndicatorData {
 	 */
 	private int upBarVolPos;
 
+	/**
+	 * suma wolumenów na UP bar (ostatnie 4 bary)
+	 */
+	private int upBarVolumeSum;
+
 	public IndicatorData(int shortTermLength, int mediumTermLength, int longTermLength) {
 		super();
 		this.shortTermLength = shortTermLength;
@@ -127,6 +137,83 @@ public class IndicatorData {
 		this.downBarVolPos = 0;
 		this.upBarVolPos = 0;
 	}
+	
+	public BigDecimal getShortVolumeAvg() {
+		
+		return;
+	}
+	
+public BigDecimal getMediumVolumeAvg() {
+		
+		return;
+	}
+
+public BigDecimal getLongVolumeAvg() {
+	
+	return;
+}
+
+	/**
+	 * Wylicza wolumen dla 4 ostatnich barów: 3 już przetworzonych do statusu 3 oraz aktualnego bara
+	 * przetwarzanego ze statusu 1.
+	 * 
+	 * @param actualBar
+	 *            przetwarzany bar ze statusem 1
+	 * @return 1: wolumen UP, 0: wolumen LEVEL, -1: wolumen DOWN
+	 */
+	public int compareLastVolumeData(BarData actualBar) {
+		BarStatsData proc_bar = null;
+		int up_vol = 0;
+		int down_vol = 0;
+
+		// przetworzenie 3 barów:
+		for (int i = 2; i >= 0; i--) {
+			proc_bar = getPreviousBar(i);
+
+			if (proc_bar.getBarType() == BarType.UP_BAR)
+				up_vol += proc_bar.getBarVolume();
+			else if ((proc_bar.getBarType() == BarType.DOWN_BAR))
+				down_vol += proc_bar.getBarVolume();
+		}
+
+		// dodanie jeszcze aktualnie przetwarzanego bara:
+		if (actualBar.getBarType() == BarType.UP_BAR)
+			up_vol += actualBar.getBarVolume();
+		else if ((actualBar.getBarType() == BarType.DOWN_BAR))
+			down_vol += actualBar.getBarVolume();
+
+		if (up_vol > down_vol)
+			return 1;
+		else if (up_vol < down_vol)
+			return -1;
+		else
+			return 0;
+	}
+
+	/**
+	 * Pobiera ostatni bar zapisany do mapy i sprawdza aktualnie przetwarzany bar {@link BarData} -
+	 * czy jest UP, DOWN czy LEVEL - w porównaniu z ostatnio zapisanym barem.<br/>
+	 * Jeśli brak jest poprzedniego bara w mapie - zwracany jest LEVEL bar.
+	 * 
+	 * @param barData
+	 *            aktualnie przetwarzany bar
+	 * @return UP, DOWN lub LEVEL bar
+	 */
+	public BarType getActualBarType(BarData barData) {
+		BarStatsData prev_bar = getLastBarData();
+
+		// brak zapisanych jeszcze barów:
+		if (prev_bar == null)
+			return BarType.LEVEL_BAR;
+
+		int comp_val = barData.getBarClose().compareTo(prev_bar.getBarClose());
+		if (comp_val > 0)
+			return BarType.UP_BAR;
+		else if (comp_val < 0)
+			return BarType.DOWN_BAR;
+		else
+			return BarType.LEVEL_BAR;
+	}
 
 	public BigDecimal getDownBarAvgVolume(BarData barData) {
 		int counter = 0;
@@ -147,9 +234,11 @@ public class IndicatorData {
 	}
 
 	/**
-	 * Pobiera ostatni bar, jaki został wpisany do mapy krótkoterminowej.
+	 * Pobiera ostatni bar, jaki został wpisany do mapy krótkoterminowej.<br/>
+	 * Jeśli mapa jeszcze jest pusta - zwraca wartość <code>NULL</code>.
 	 * 
-	 * @return
+	 * @return ostatni bar, jaki został wpisany do mapy krótkoterminowej <br/>
+	 *         lub wartość <code>NULL</code> w przypadku pustej mapy
 	 */
 	public BarStatsData getLastBarData() {
 		// jeśli mapa jest pusta - zwróć NULL:
@@ -160,19 +249,27 @@ public class IndicatorData {
 	}
 
 	/**
-	 * Pobiera przedostatni bar, jaki został wpisany do mapy krótkoterminowej.
+	 * Pobiera pojedynczy bar z mapy krótkoterminowej, który jest wstecz N barów w porównaniu z
+	 * ostatnim barem.<br/>
 	 * 
-	 * @return
+	 * 
+	 * @param prevNr
+	 *            liczba barów wstecz, jaki jest pobierany, <br/>
+	 *            np.: 0: ostatnio wpisany bar do mapy, 1: czyli 2 bary wstecz, 2: czyli 3 bary
+	 *            wstecz, itd
+	 * @return pojedynczy bar z mapy krótkoterminowej <br/>
+	 *         lub wartość <code>NULL</code> w przypadku mapy nie posiadającej odpowiednią liczbę
+	 *         elementów
 	 */
-	public BarStatsData getPreviousBar() {
-		// jeśli mapa jeszcze nie ma 2 elementów - zwróć NULL:
-		if (shortTermMap.size() < 2)
+	public BarStatsData getPreviousBar(int prevNr) {
+		// czy mapa ma już elementy do pobrania:
+		if (shortTermMap.size() <= prevNr)
 			return null;
 
-		if (shortTermPos == 1)
-			return shortTermMap.get(shortTermLength);
+		if (shortTermPos <= prevNr)
+			return shortTermMap.get(shortTermLength + shortTermPos - prevNr);
 		else
-			return shortTermMap.get(shortTermPos - 1);
+			return shortTermMap.get(shortTermPos - prevNr);
 	}
 
 	public BigDecimal getUpBarAvgVolume(BarData barData) {
@@ -200,8 +297,16 @@ public class IndicatorData {
 			return true;
 	}
 
-	public boolean isReadyVolumeThermoData() {
-		if (upBarVolMap.size() == 0 || downBarVolMap.size() == 0)
+	/**
+	 * Sprawdza, czy do mapy barów w krótkim terminie - już zostało wpisanych N barów, jaka została
+	 * podana w parametrze metody.
+	 * 
+	 * @param barCount
+	 *            ile barów wymagamy, aby zostało już wpisane
+	 * @return
+	 */
+	public boolean isWritedShortTermBars(int barCount) {
+		if (shortTermMap.size() < barCount)
 			return false;
 		else
 			return true;

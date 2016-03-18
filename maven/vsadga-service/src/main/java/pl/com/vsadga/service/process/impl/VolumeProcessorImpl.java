@@ -4,7 +4,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.data.BarData;
+import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.process.IndicatorData;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
@@ -17,6 +19,43 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 	private ConfigDataService configDataService;
 
 	private IndicatorData indicatorData;
+	
+	private BarDataDao barDataDao;
+
+	@Override
+	public int getAbsorptionVolume(BarData actualBar, String frameDesc) throws BaseServiceException {
+		if (!isProcessVolume()) {
+			LOGGER.info("   [VOL] Usluga przetwarzania wolumenu absorbcyjnego jest wylaczona.");
+			return 0;
+		}
+
+		// czy jest już chociaż 1 bar do porównania:
+		if (indicatorData.isWritedShortTermBars(1)) {
+			LOGGER.info("   [VOL] Dane jeszcze nie sa gotowe do wyliczenia wolumenu absorbcyjnego.");
+			return 0;
+		}
+
+		// pobierz poprzedni bar:
+		BarStatsData prev_bar = indicatorData.getLastBarData();
+		int prev_vol = 0;
+		int result_vol = 0;
+		
+		// jaki jest poprzedni wolumen:
+		if (prev_bar.getVolumeAbsorb() != null)
+			prev_vol = prev_bar.getVolumeAbsorb().intValue();
+		
+		if (actualBar.getBarType() == prev_bar.getBarType()) {
+			// typ bara nie zmienił się
+			result_vol = prev_vol + actualBar.getBarVolume();
+			
+			// usunąć z poprzedniego bara:
+			barDataDao.
+		} else {
+			result_vol = actualBar.getBarVolume();
+		}
+
+		return result_vol;
+	}
 
 	@Override
 	public String getVolumeThermometer(BarData actualBar) throws BaseServiceException {
@@ -26,13 +65,14 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		}
 
 		// czy CACHE dla UP/DOWN bar jest wypełniony:
-		if (!indicatorData.isReadyVolumeThermoData()) {
+		if (!indicatorData.isReadyShortTermData()) {
 			LOGGER.info("   [VOL] Dane jeszcze nie sa gotowe do wyliczenia trendu wolumenu.");
 			return "N";
 		}
-		
-		int vol_comp = indicatorData.getUpBarAvgVolume(actualBar).compareTo(indicatorData.getDownBarAvgVolume(actualBar));
-		
+
+		// sprawdzenie, który wolumen jest większy:
+		int vol_comp = indicatorData.compareLastVolumeData(actualBar);
+
 		if (vol_comp > 0)
 			return "U";
 		else if (vol_comp < 0)

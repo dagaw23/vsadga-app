@@ -58,7 +58,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 		// barów w mapie.
 		// pobierz 2 poprzednie bary:
 		BarStatsData last_bar = indicatorData.getLastBarData();
-		BarStatsData prev_bar = indicatorData.getPreviousBar();
+		BarStatsData prev_bar = indicatorData.getPreviousBar(1);
 		
 		if (last_bar == null || prev_bar == null) {
 			LOGGER.info("   [INDY] Not ready yet.");

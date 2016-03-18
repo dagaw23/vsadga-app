@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.dto.BarType;
 import pl.com.vsadga.dto.IndicatorInfo;
 import pl.com.vsadga.dto.process.IndicatorData;
 import pl.com.vsadga.dto.process.TrendData;
@@ -108,6 +109,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		TrendData trend_data = null;
 		IndicatorInfo ind_info = null;
 		String vol_therm = null;
+		BarType bar_typ = null;
 
 		// *** status BAR: 0 ***
 		if (bar_phase == 0) {
@@ -120,13 +122,17 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		if (bar_phase == 1) {
 			// LOGGER.info("   [STATS] Bar ze statusem [" + bar_phase +
 			// "] - KOMPLETNE wyliczanie.");
-
 			// status 0: niekompletny, nie sprawdzamy trendu
 			// status 1: wylicz trend
 			// status 2,3: trend już wyliczony
+			
+			// sprawdzenie typu przetwarzanego bara:
+			bar_typ = indicatorData.getActualBarType(barData);
+			barData.setBarType(bar_typ);
 
 			// sprawdzenie trendu - tylko dla statusu 1
 			// (0 - jeszcze nie zakończony, 2 - czeka na potwierdzenie, 3 - już zakończony)
+			
 			trend_data = trendProcessor.getActualTrend(barData);
 
 			// sprawdzenie wskaźnika:
@@ -178,16 +184,25 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			// TODO && isIndicatorToConfirm(indy_nr)
 			if (indyInfo.isProcessIndy() && indy_nr.intValue() > 0) {
 				// process_phase = 2;
-				barDataDao.updateIndicatorWithTrend(barData.getId(), frameDesc, 2, trend_indy, trend_weight,
-						volTherm, indy_nr, false);
+				barDataDao.updateIndicatorWithTrend(barData.getId(), frameDesc, 2, 
+						trend_indy, trend_weight, volTherm,
+						indy_nr, false);
+				return;
 			}
 		}
 
-		barDataDao.updateProcessPhaseWithTrend(barData.getId(), frameDesc, 
-				process_phase, trend_indy, trend_weight, volTherm);
+		barDataDao.updateProcessPhaseWithTrend(barData.getId(), frameDesc, process_phase,
+				trend_indy, trend_weight, volTherm);
 		
 		// wpisanie bara do CACHE:
 		indicatorData.addBarData(barData, trend_indy, trend_weight, volTherm);
+		
+		// wpisanie dla bara - średniej wolumenu:
+		barDataDao.updateVolumeAvg(barData.getId(),, frameDesc,
+				indicatorData.getShortVolumeAvg(),
+				indicatorData.getMediumVolumeAvg(),
+				indicatorData.getLongVolumeAvg())
+		
 	}
 
 }
