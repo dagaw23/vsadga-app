@@ -65,7 +65,7 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		}
 
 		// czy CACHE dla UP/DOWN bar jest wypełniony:
-		if (!indicatorData.isReadyShortTermData()) {
+		if (!indicatorData.isReadyBarDataCache()) {
 			LOGGER.info("   [VOL] Dane jeszcze nie sa gotowe do wyliczenia trendu wolumenu.");
 			return "N";
 		}

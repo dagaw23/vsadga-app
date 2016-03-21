@@ -227,12 +227,12 @@ public class IndicatorData {
 		}
 
 		result = new BigDecimal(vol_sum);
-		return result.divide(new BigDecimal(longTermLength));
+		BigDecimal divisor = new BigDecimal(longTermLength);
+		divisor.setScale(4);
+		return result.divide(divisor);
 	}
 
 	public BigDecimal getMediumVolumeAvg() {
-		BigDecimal result = new BigDecimal(0);
-		result.setScale(4);
 		int vol_sum = 0;
 
 		if (mediumTermMap.size() < mediumTermLength)
@@ -242,8 +242,11 @@ public class IndicatorData {
 				vol_sum += mediumTermMap.get(key);
 		}
 
-		result = new BigDecimal(vol_sum);
-		return result.divide(new BigDecimal(mediumTermLength));
+		BigDecimal result = new BigDecimal(0);
+		result.setScale(4); = new BigDecimal(vol_sum).divide();
+		BigDecimal divisor = new BigDecimal(mediumTermLength);
+		divisor.setScale(4);
+		return result.divide(divisor);
 	}
 
 	/**
@@ -264,7 +267,7 @@ public class IndicatorData {
 		if (barDataCacheMap.size() <= prevNr)
 			return null;
 
-		if (shortTermPos <= prevNr)
+		if (barDataCachePos <= prevNr)
 			return barDataCacheMap.get(barDataCacheLength + barDataCachePos - prevNr);
 		else
 			return barDataCacheMap.get(barDataCachePos - prevNr);
@@ -283,11 +286,13 @@ public class IndicatorData {
 		}
 
 		result = new BigDecimal(vol_sum);
-		return result.divide(new BigDecimal(shortTermLength));
+		BigDecimal divisor = new BigDecimal(shortTermLength);
+		divisor.setScale(4);
+		return result.divide(divisor);
 	}
 
-	public boolean isReadyShortTermData() {
-		if (shortTermMap.size() < shortTermLength)
+	public boolean isReadyBarDataCache() {
+		if (barDataCacheMap.size() < barDataCacheLength)
 			return false;
 		else
 			return true;

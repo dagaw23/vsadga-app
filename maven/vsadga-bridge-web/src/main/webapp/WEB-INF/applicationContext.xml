@@ -30,6 +30,7 @@
 		<constructor-arg name="shortTermLength" value="5" />
 		<constructor-arg name="mediumTermLength" value="15" />
 		<constructor-arg name="longTermLength" value="30" />
+		<constructor-arg name="barDataCacheLength" value="5" />
 	</bean>
 
 	<!-- DAOs -->
