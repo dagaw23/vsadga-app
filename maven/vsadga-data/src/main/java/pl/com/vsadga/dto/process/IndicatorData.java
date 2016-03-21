@@ -1,7 +1,6 @@
 package pl.com.vsadga.dto.process;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,25 +9,26 @@ import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.BarType;
 
 public class IndicatorData {
-	/**
-	 * ilość danych dla DOWN barów
-	 */
-	private int downBarVolLength;
-
-	/**
-	 * wolumen dla DOWN barów
-	 */
-	private Map<Integer, Integer> downBarVolMap;
-
-	/**
-	 * aktualna pozycja dla wolumenu DOWN bar
-	 */
-	private int downBarVolPos;
 
 	/**
 	 * suma wolumenów na DOWN bar (ostatnie 4 bary)
 	 */
-	private int downBarVolumeSum;
+	// private int downBarVolumeSum;
+
+	/**
+	 * ilość barów wpisywanych do CACHE
+	 */
+	private int barDataCacheLength;
+
+	/**
+	 * pełna informacja - dla N ostatnich barów
+	 */
+	private Map<Integer, BarStatsData> barDataCacheMap;
+
+	/**
+	 * aktualna pozycja w mapie z barami
+	 */
+	private int barDataCachePos;
 
 	/**
 	 * ilość danych dla długiego terminu
@@ -68,7 +68,7 @@ public class IndicatorData {
 	/**
 	 * pełna informacja - dla N ostatnich barów (krótki termin)
 	 */
-	private Map<Integer, BarStatsData> shortTermMap;
+	private Map<Integer, Integer> shortTermMap;
 
 	/**
 	 * aktualna pozycja w mapie krótkiego terminu
@@ -78,31 +78,19 @@ public class IndicatorData {
 	/**
 	 * ilość danych dla UP barów
 	 */
-	private int upBarVolLength;
-
-	/**
-	 * wolumen dla UP barów
-	 */
-	private Map<Integer, Integer> upBarVolMap;
-
-	/**
-	 * aktualna pozycja dla wolumenu UP bar
-	 */
-	private int upBarVolPos;
+	// private int upBarVolLength;
 
 	/**
 	 * suma wolumenów na UP bar (ostatnie 4 bary)
 	 */
-	private int upBarVolumeSum;
+	// private int upBarVolumeSum;
 
-	public IndicatorData(int shortTermLength, int mediumTermLength, int longTermLength) {
+	public IndicatorData(int shortTermLength, int mediumTermLength, int longTermLength, int barDataCacheLength) {
 		super();
 		this.shortTermLength = shortTermLength;
 		this.mediumTermLength = mediumTermLength;
 		this.longTermLength = longTermLength;
-		this.upBarVolLength = 3;
-		this.downBarVolLength = 3;
-
+		this.barDataCacheLength = barDataCacheLength;
 		cleanDataCache();
 	}
 
@@ -113,46 +101,41 @@ public class IndicatorData {
 		addBarDataToCache(bar_stats_data);
 	}
 
-	public void addBarData(BarData barData, String trendIndy, Integer trendWeight, String volumeThermo) {
-		// utwórz obiekt krótkoterminowy:
-		BarStatsData bar_stats_data = getBarStatsData(barData, trendIndy, trendWeight, volumeThermo);
+//	public void addBarData(BarData barData, String trendIndy, Integer trendWeight, String volumeThermo) {
+//		// utwórz obiekt krótkoterminowy:
+//		BarStatsData bar_stats_data = getBarStatsData(barData, trendIndy, trendWeight, volumeThermo);
+//
+//		addBarDataToCache(bar_stats_data);
+//	}
 
-		addBarDataToCache(bar_stats_data);
+	public void addVolumeData(Integer barVolume) {
+		// przesuń aktualny wskaźnik w mapach:
+		moveVolumePositions();
+
+		// dodaj bar na aktualną pozycję:
+		shortTermMap.put(shortTermPos, barVolume);
+		mediumTermMap.put(mediumTermPos, barVolume);
+		longTermMap.put(longTermPos, barVolume);
 	}
 
 	/**
 	 * Czyści wykorzystywane obiekty CACHE oraz wskaźniki pozycji w mapach.
 	 */
 	public void cleanDataCache() {
-		this.shortTermMap = new HashMap<Integer, BarStatsData>();
+		// bar:
+		this.barDataCacheMap = new HashMap<Integer, BarStatsData>();
+		// wolumen:
+		this.shortTermMap = new HashMap<Integer, Integer>();
 		this.mediumTermMap = new HashMap<Integer, Integer>();
 		this.longTermMap = new HashMap<Integer, Integer>();
 
-		this.downBarVolMap = new HashMap<Integer, Integer>();
-		this.upBarVolMap = new HashMap<Integer, Integer>();
-
+		// bar:
+		this.barDataCachePos = 0;
+		// wolumen:
 		this.shortTermPos = 0;
 		this.mediumTermPos = 0;
 		this.longTermPos = 0;
-		this.downBarVolPos = 0;
-		this.upBarVolPos = 0;
 	}
-	
-	public BigDecimal getShortVolumeAvg() {
-		
-		return;
-	}
-	
-public BigDecimal getMediumVolumeAvg() {
-		
-		return;
-	}
-
-public BigDecimal getLongVolumeAvg() {
-	
-	return;
-}
-<<<<<<< HEAD
 
 	/**
 	 * Wylicza wolumen dla 4 ostatnich barów: 3 już przetworzonych do statusu 3 oraz aktualnego bara
@@ -215,26 +198,6 @@ public BigDecimal getLongVolumeAvg() {
 		else
 			return BarType.LEVEL_BAR;
 	}
-=======
->>>>>>> branch 'master' of https://github.com/dagaw23/vsadga-app.git
-
-	public BigDecimal getDownBarAvgVolume(BarData barData) {
-		int counter = 0;
-		BigDecimal sum_val = new BigDecimal(0);
-
-		for (Integer key : downBarVolMap.keySet()) {
-			sum_val = sum_val.add(new BigDecimal(downBarVolMap.get(key)));
-			counter++;
-		}
-
-		// jeśli aktualny jest DOWN bar: dodaj go jeszcze
-		if (getActualBarType(barData) == BarType.DOWN_BAR) {
-			sum_val.add(new BigDecimal(barData.getBarVolume()));
-			counter++;
-		}
-
-		return sum_val.divide(new BigDecimal(counter), 4, RoundingMode.HALF_UP);
-	}
 
 	/**
 	 * Pobiera ostatni bar, jaki został wpisany do mapy krótkoterminowej.<br/>
@@ -245,10 +208,42 @@ public BigDecimal getLongVolumeAvg() {
 	 */
 	public BarStatsData getLastBarData() {
 		// jeśli mapa jest pusta - zwróć NULL:
-		if (shortTermMap.isEmpty())
+		if (barDataCacheMap.isEmpty())
 			return null;
 
-		return shortTermMap.get(shortTermPos);
+		return barDataCacheMap.get(barDataCachePos);
+	}
+
+	public BigDecimal getLongVolumeAvg() {
+		BigDecimal result = new BigDecimal(0);
+		result.setScale(4);
+		int vol_sum = 0;
+
+		if (longTermMap.size() < longTermLength)
+			return new BigDecimal(0);
+		else {
+			for (Integer key : longTermMap.keySet())
+				vol_sum += longTermMap.get(key);
+		}
+
+		result = new BigDecimal(vol_sum);
+		return result.divide(new BigDecimal(longTermLength));
+	}
+
+	public BigDecimal getMediumVolumeAvg() {
+		BigDecimal result = new BigDecimal(0);
+		result.setScale(4);
+		int vol_sum = 0;
+
+		if (mediumTermMap.size() < mediumTermLength)
+			return new BigDecimal(0);
+		else {
+			for (Integer key : mediumTermMap.keySet())
+				vol_sum += mediumTermMap.get(key);
+		}
+
+		result = new BigDecimal(vol_sum);
+		return result.divide(new BigDecimal(mediumTermLength));
 	}
 
 	/**
@@ -266,31 +261,29 @@ public BigDecimal getLongVolumeAvg() {
 	 */
 	public BarStatsData getPreviousBar(int prevNr) {
 		// czy mapa ma już elementy do pobrania:
-		if (shortTermMap.size() <= prevNr)
+		if (barDataCacheMap.size() <= prevNr)
 			return null;
 
 		if (shortTermPos <= prevNr)
-			return shortTermMap.get(shortTermLength + shortTermPos - prevNr);
+			return barDataCacheMap.get(barDataCacheLength + barDataCachePos - prevNr);
 		else
-			return shortTermMap.get(shortTermPos - prevNr);
+			return barDataCacheMap.get(barDataCachePos - prevNr);
 	}
 
-	public BigDecimal getUpBarAvgVolume(BarData barData) {
-		int counter = 0;
-		BigDecimal sum_val = new BigDecimal(0);
+	public BigDecimal getShortVolumeAvg() {
+		BigDecimal result = new BigDecimal(0);
+		result.setScale(4);
+		int vol_sum = 0;
 
-		for (Integer key : upBarVolMap.keySet()) {
-			sum_val = sum_val.add(new BigDecimal(upBarVolMap.get(key)));
-			counter++;
+		if (shortTermMap.size() < shortTermLength)
+			return new BigDecimal(0);
+		else {
+			for (Integer key : shortTermMap.keySet())
+				vol_sum += shortTermMap.get(key);
 		}
 
-		// jeśli aktualny jest UP bar: dodaj go jeszcze
-		if (getActualBarType(barData) == BarType.UP_BAR) {
-			sum_val = sum_val.add(new BigDecimal(barData.getBarVolume()));
-			counter++;
-		}
-
-		return sum_val.divide(new BigDecimal(counter), 4, RoundingMode.HALF_UP);
+		result = new BigDecimal(vol_sum);
+		return result.divide(new BigDecimal(shortTermLength));
 	}
 
 	public boolean isReadyShortTermData() {
@@ -317,46 +310,20 @@ public BigDecimal getLongVolumeAvg() {
 
 	private void addBarDataToCache(BarStatsData barStatsData) {
 		// przesuń aktualny wskaźnik w mapach:
-		moveMapPositions();
+		moveCachePositions();
 
 		// dodaj bar na aktualną pozycję:
-		shortTermMap.put(shortTermPos, barStatsData);
-		mediumTermMap.put(mediumTermPos, barStatsData.getBarVolume());
-		longTermMap.put(longTermPos, barStatsData.getBarVolume());
-
-		// dane dla UP/DOWN barów:
-		if (barStatsData.getBarType() == BarType.UP_BAR)
-			upBarVolMap.put(upBarVolPos, barStatsData.getBarVolume());
-		else if (barStatsData.getBarType() == BarType.DOWN_BAR)
-			downBarVolMap.put(downBarVolPos, barStatsData.getBarVolume());
-		// LEVEL bar jest pomijany
-	}
-
-	/**
-	 * Pobiera ostatni bar zapisany do mapy i sprawdza aktualnie przetwarzany bar {@link BarData} -
-	 * czy jest UP, DOWN czy LEVEL - w porównaniu z ostatnio zapisanym barem.
-	 * 
-	 * @param barData
-	 * @return
-	 */
-	private BarType getActualBarType(BarData barData) {
-		BarStatsData prev_bar = getLastBarData();
-
-		// brak zapisanych jeszcze barów:
-		if (prev_bar == null)
-			return BarType.LEVEL_BAR;
-
-		int comp_val = barData.getBarClose().compareTo(prev_bar.getBarClose());
-		if (comp_val > 0)
-			return BarType.UP_BAR;
-		else if (comp_val < 0)
-			return BarType.DOWN_BAR;
-		else
-			return BarType.LEVEL_BAR;
+		barDataCacheMap.put(barDataCachePos, barStatsData);
 	}
 
 	private BarStatsData getBarStatsData(BarData barData) {
-		BarStatsData stats = getBaseBarStatsData(barData);
+		BarStatsData stats = new BarStatsData();
+
+		stats.setBarClose(barData.getBarClose());
+		stats.setBarSpread(barData.getBarHigh().subtract(barData.getBarLow()));
+		stats.setBarVolume(barData.getBarVolume());
+		stats.setImaCount(barData.getImaCount());
+		stats.setBarType(barData.getBarType());
 
 		stats.setTrendIndicator(barData.getTrendIndicator());
 		stats.setTrendWeight(barData.getTrendWeight());
@@ -365,39 +332,23 @@ public BigDecimal getLongVolumeAvg() {
 		return stats;
 	}
 
+
 	/**
-	 * 
-	 * @param barData
-	 * @return
+	 * Sprawdza, czy poszczególne wskaźniki pozycji w mapach osiągnęły maksymalną pozycję. Jeśli tak
+	 * - przesuwa wskaźnik na początek kolekcji.
 	 */
-	private BarStatsData getBarStatsData(BarData barData, String trendIndicator, Integer trendWeight,
-			String volumeThermo) {
-		BarStatsData stats = getBaseBarStatsData(barData);
-
-		stats.setTrendIndicator(trendIndicator);
-		stats.setTrendWeight(trendWeight);
-		stats.setVolumeThermometer(volumeThermo);
-
-		return stats;
-	}
-
-	private BarStatsData getBaseBarStatsData(BarData barData) {
-		BarStatsData stats = new BarStatsData();
-
-		stats.setBarClose(barData.getBarClose());
-		stats.setBarSpread(barData.getBarHigh().subtract(barData.getBarLow()));
-		stats.setBarVolume(barData.getBarVolume());
-		stats.setImaCount(barData.getImaCount());
-		stats.setBarType(getActualBarType(barData));
-
-		return stats;
+	private void moveCachePositions() {
+		if (barDataCachePos == barDataCacheLength)
+			barDataCachePos = 1;
+		else
+			barDataCachePos += 1;
 	}
 
 	/**
 	 * Sprawdza, czy poszczególne wskaźniki pozycji w mapach osiągnęły maksymalną pozycję. Jeśli tak
 	 * - przesuwa wskaźnik na początek kolekcji.
 	 */
-	private void moveMapPositions() {
+	private void moveVolumePositions() {
 		if (shortTermPos == shortTermLength)
 			shortTermPos = 1;
 		else
@@ -412,16 +363,6 @@ public BigDecimal getLongVolumeAvg() {
 			longTermPos = 1;
 		else
 			longTermPos += 1;
-
-		if (upBarVolPos == upBarVolLength)
-			upBarVolPos = 1;
-		else
-			upBarVolPos += 1;
-
-		if (downBarVolPos == downBarVolLength)
-			downBarVolPos = 1;
-		else
-			downBarVolPos += 1;
 	}
 
 }

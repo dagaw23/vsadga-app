@@ -106,10 +106,14 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	 */
 	private void processByPhase(BarData barData, String frameDesc) throws BaseServiceException {
 		int bar_phase = barData.getProcessPhase().intValue();
-		TrendData trend_data = null;
-		IndicatorInfo ind_info = null;
-		String vol_therm = null;
+		
 		BarType bar_typ = null;
+		TrendData trend_data = null;
+		String vol_therm = null;
+		int vol_absorb = 0;
+		
+		
+		IndicatorInfo ind_info = null;
 
 		// *** status BAR: 0 ***
 		if (bar_phase == 0) {
@@ -125,24 +129,33 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			// status 0: niekompletny, nie sprawdzamy trendu
 			// status 1: wylicz trend
 			// status 2,3: trend już wyliczony
+			// sprawdzenie trendu - tylko dla statusu 1
+			// (0 - jeszcze nie zakończony, 2 - czeka na potwierdzenie, 3 - już zakończony)
 			
 			// sprawdzenie typu przetwarzanego bara:
 			bar_typ = indicatorData.getActualBarType(barData);
 			barData.setBarType(bar_typ);
-
-			// sprawdzenie trendu - tylko dla statusu 1
-			// (0 - jeszcze nie zakończony, 2 - czeka na potwierdzenie, 3 - już zakończony)
 			
-			trend_data = trendProcessor.getActualTrend(barData);
+			// wpisanie wolumenu do wyliczenia średnich:
+			indicatorData.addVolumeData(barData.getBarVolume());
+			barData.setVolumeAvgShort(indicatorData.getShortVolumeAvg());
+			barData.setVolumeAvgMedium(indicatorData.getMediumVolumeAvg());
+			barData.setVolumeAvgLong(indicatorData.getLongVolumeAvg());
 
+			// sprawdzenie trendu cenowego:
+			trend_data = trendProcessor.getActualTrend(barData);
+			
+			// oraz trendu wolumenowego:
+			vol_therm = volumeProcessor.getVolumeThermometer(barData);
+			barData.setVolumeThermometer(vol_therm);
+			vol_absorb = volumeProcessor.getAbsorptionVolume(barData, frameDesc);
+			barData.setVolumeAbsorb(vol_absorb);
+			
 			// sprawdzenie wskaźnika:
 			ind_info = indicatorProcessor.getDataIndicator(barData, frameDesc);
 
-			// sprawdzenie trendu wolumenu:
-			vol_therm = volumeProcessor.getVolumeThermometer(barData);
-
 			// wpisanie informacji o barze - do tabeli oraz do CACHE:
-			updateBarData(trend_data, ind_info, vol_therm, frameDesc, barData);
+			updateBarData(trend_data, ind_info, frameDesc, barData);
 			
 		}
 
@@ -163,46 +176,37 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 	}
 
-	private void updateBarData(TrendData trendData, IndicatorInfo indyInfo, String volTherm, String frameDesc, BarData barData) {
-		String trend_indy = null;
-		Integer trend_weight = null;
-		Integer indy_nr = null;
+	private void updateBarData(TrendData trendData, IndicatorInfo indyInfo, String frameDesc, BarData barData) {
 		int process_phase = 3;
 
-		// jaki jest trend:
+		// trend cenowy:
 		if (trendData != null) {
-			trend_indy = trendData.getTrendIndicator();
-			trend_weight = trendData.getTrendWeight();
+			barData.setTrendIndicator(trendData.getTrendIndicator());
+			barData.setTrendWeight(trendData.getTrendWeight());
+		} else {
+			barData.setTrendIndicator(null);
+			barData.setTrendWeight(null);
 		}
-
+		
 		// jaki jest sygnał:
 		if (indyInfo != null) {
-			indy_nr = indyInfo.getIndicatorNr();
+			int indy_nr = indyInfo.getIndicatorNr();
+			barData.setIndicatorNr(indy_nr);
 
 			// jeśli został przetworzony i jest większy od zera
 			// - dla części sygnałów jest potrzebne potwierdzenie:
 			// TODO && isIndicatorToConfirm(indy_nr)
-			if (indyInfo.isProcessIndy() && indy_nr.intValue() > 0) {
-				// process_phase = 2;
-				barDataDao.updateIndicatorWithTrend(barData.getId(), frameDesc, 2, 
-						trend_indy, trend_weight, volTherm,
-						indy_nr, false);
-				return;
+			if (indyInfo.isProcessIndy() && indy_nr > 0) {
+				process_phase = 2;
+				barData.setIsConfirm(false);
 			}
 		}
 
-		barDataDao.updateProcessPhaseWithTrend(barData.getId(), frameDesc, process_phase,
-				trend_indy, trend_weight, volTherm);
-		
 		// wpisanie bara do CACHE:
-		indicatorData.addBarData(barData, trend_indy, trend_weight, volTherm);
+		indicatorData.addBarData(barData);
 		
 		// wpisanie dla bara - średniej wolumenu:
-		barDataDao.updateVolumeAvg(barData.getId(),, frameDesc,
-				indicatorData.getShortVolumeAvg(),
-				indicatorData.getMediumVolumeAvg(),
-				indicatorData.getLongVolumeAvg())
-		
+		barDataDao.updateIndicatorData(barData, process_phase, frameDesc);
 	}
 
 }

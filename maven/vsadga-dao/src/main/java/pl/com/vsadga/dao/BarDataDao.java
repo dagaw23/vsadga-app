@@ -12,24 +12,13 @@ public interface BarDataDao {
 
 	boolean existBarData(Integer symbolId, String frameDesc, Date barDate);
 
+	List<BarData> getBarDataList(Integer symbolId, String frameDesc);
+
+	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
+
 	List<BarData> getLastNbarsData(Integer symbolId, String frameDesc, int size);
 
 	List<BarData> getLastNbarsDataFromTime(Integer symbolId, String frameDesc, int size, Date fromTime);
-
-	/**
-	 * Modyfikuje wolumen absorbcyjny w podanym barze.
-	 * 
-	 * @param symbolId
-	 *            ID symbolu
-	 * @param frameDesc
-	 *            rodzaj ramy czasowej
-	 * @param id
-	 *            identyfikator pojedynczego bara
-	 * @param volumeAbsorb
-	 *            nowa wartość wolumenu absorbcyjnego
-	 * @return liczba zmodyfikowanych wierszy w tabeli
-	 */
-	int updateVolumeAbsorbtion(Integer symbolId, String frameDesc, Integer id, Integer volumeAbsorb);
 
 	/**
 	 * Pobiera listę barów dla waloru i ramki czasowej, który jeszcze nie został przetworzony wg
@@ -40,8 +29,6 @@ public interface BarDataDao {
 	 * @return
 	 */
 	List<BarData> getNotProcessBarDataList(Integer symbolId, String frameDesc);
-
-	List<BarData> getBarDataList(Integer symbolId, String frameDesc);
 
 	int insert(String frameDesc, BarData data);
 
@@ -59,6 +46,11 @@ public interface BarDataDao {
 	 */
 	int update(String frameDesc, Integer id, BarData barData);
 
+	int updateIndicatorData(BarData barData, Integer processPhase, String frameDesc);
+
+	int updateIndicatorWithTrend(Integer id, String frameDesc, Integer processPhase, String trendIndicator,
+			Integer trendWeight, String volumeThermometer, Integer indyNr, Boolean isConfirm);
+
 	int updateIndyData(Integer barDataId, String frameDesc, Integer nr, Integer weight, Boolean isConfirm,
 			Integer phase);
 
@@ -67,22 +59,20 @@ public interface BarDataDao {
 	int updateProcessPhaseWithTrend(Integer id, String frameDesc, Integer processPhase, String trendIndicator,
 			Integer trendWeight, String volumeThermometer);
 
-	int updateIndicatorWithTrend(Integer id, String frameDesc, Integer processPhase, String trendIndicator,
-			Integer trendWeight, String volumeThermometer, Integer indyNr, Boolean isConfirm);
+	/**
+	 * Modyfikuje wolumen absorbcyjny w podanym barze.
+	 * 
+	 * @param frameDesc
+	 *            rodzaj ramy czasowej
+	 * @param id
+	 *            identyfikator pojedynczego bara
+	 * @param volumeAbsorb
+	 *            nowa wartość wolumenu absorbcyjnego
+	 * @return liczba zmodyfikowanych wierszy w tabeli
+	 */
+	int updateVolumeAbsorbtion(String frameDesc, Integer id, Integer volumeAbsorb);
 
-	int updateVolumeAvg(Integer id, String frameDesc, BigDecimal volumeAvgShort, BigDecimal volumeAvgMedium, BigDecimal volumeAvgLong);
-	
-	int updateProcessPhaseWithTrend(Integer id, String frameDesc, Integer processPhase, String trendIndicator, Integer trendWeight, String volumeThermometer);
-	
-	int updateIndicatorWithTrend(Integer id, String frameDesc, Integer processPhase, String trendIndicator, Integer trendWeight, String volumeThermometer, Integer indyNr, Boolean isConfirm);
-	
-	int updateVolumeAvg(Integer id, String frameDesc, BigDecimal volumeAvgShort, BigDecimal volumeAvgMedium, BigDecimal volumeAvgLong);
-<<<<<<< HEAD
-=======
-	
-	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
->>>>>>> branch 'master' of https://github.com/dagaw23/vsadga-app.git
-	
-	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
+	int updateVolumeAvg(Integer id, String frameDesc, BigDecimal volumeAvgShort, BigDecimal volumeAvgMedium,
+			BigDecimal volumeAvgLong);
 
 }

@@ -49,7 +49,7 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 			result_vol = prev_vol + actualBar.getBarVolume();
 			
 			// usunąć z poprzedniego bara:
-			barDataDao.
+			barDataDao.updateVolumeAbsorbtion(frameDesc, actualBar.getId(), null);
 		} else {
 			result_vol = actualBar.getBarVolume();
 		}

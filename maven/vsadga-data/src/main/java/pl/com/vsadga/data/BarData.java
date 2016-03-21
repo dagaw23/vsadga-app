@@ -101,6 +101,12 @@ public class BarData implements Serializable {
 	 */
 	private Integer volumeAbsorb;
 
+	private BigDecimal volumeAvgLong;
+
+	private BigDecimal volumeAvgMedium;
+
+	private BigDecimal volumeAvgShort;
+
 	/**
 	 * trend wolumenu:
 	 * <ul>
@@ -203,6 +209,21 @@ public class BarData implements Serializable {
 			if (other.volumeAbsorb != null)
 				return false;
 		} else if (!volumeAbsorb.equals(other.volumeAbsorb))
+			return false;
+		if (volumeAvgLong == null) {
+			if (other.volumeAvgLong != null)
+				return false;
+		} else if (!volumeAvgLong.equals(other.volumeAvgLong))
+			return false;
+		if (volumeAvgMedium == null) {
+			if (other.volumeAvgMedium != null)
+				return false;
+		} else if (!volumeAvgMedium.equals(other.volumeAvgMedium))
+			return false;
+		if (volumeAvgShort == null) {
+			if (other.volumeAvgShort != null)
+				return false;
+		} else if (!volumeAvgShort.equals(other.volumeAvgShort))
 			return false;
 		if (volumeThermometer == null) {
 			if (other.volumeThermometer != null)
@@ -307,6 +328,27 @@ public class BarData implements Serializable {
 	}
 
 	/**
+	 * @return the volumeAvgLong
+	 */
+	public BigDecimal getVolumeAvgLong() {
+		return volumeAvgLong;
+	}
+
+	/**
+	 * @return the volumeAvgMedium
+	 */
+	public BigDecimal getVolumeAvgMedium() {
+		return volumeAvgMedium;
+	}
+
+	/**
+	 * @return the volumeAvgShort
+	 */
+	public BigDecimal getVolumeAvgShort() {
+		return volumeAvgShort;
+	}
+
+	/**
 	 * @return the volumeThermometer
 	 */
 	public String getVolumeThermometer() {
@@ -338,6 +380,9 @@ public class BarData implements Serializable {
 		result = prime * result + ((trendIndicator == null) ? 0 : trendIndicator.hashCode());
 		result = prime * result + ((trendWeight == null) ? 0 : trendWeight.hashCode());
 		result = prime * result + ((volumeAbsorb == null) ? 0 : volumeAbsorb.hashCode());
+		result = prime * result + ((volumeAvgLong == null) ? 0 : volumeAvgLong.hashCode());
+		result = prime * result + ((volumeAvgMedium == null) ? 0 : volumeAvgMedium.hashCode());
+		result = prime * result + ((volumeAvgShort == null) ? 0 : volumeAvgShort.hashCode());
 		result = prime * result + ((volumeThermometer == null) ? 0 : volumeThermometer.hashCode());
 		return result;
 	}
@@ -451,6 +496,30 @@ public class BarData implements Serializable {
 	}
 
 	/**
+	 * @param volumeAvgLong
+	 *            the volumeAvgLong to set
+	 */
+	public void setVolumeAvgLong(BigDecimal volumeAvgLong) {
+		this.volumeAvgLong = volumeAvgLong;
+	}
+
+	/**
+	 * @param volumeAvgMedium
+	 *            the volumeAvgMedium to set
+	 */
+	public void setVolumeAvgMedium(BigDecimal volumeAvgMedium) {
+		this.volumeAvgMedium = volumeAvgMedium;
+	}
+
+	/**
+	 * @param volumeAvgShort
+	 *            the volumeAvgShort to set
+	 */
+	public void setVolumeAvgShort(BigDecimal volumeAvgShort) {
+		this.volumeAvgShort = volumeAvgShort;
+	}
+
+	/**
 	 * @param volumeThermometer
 	 *            the volumeThermometer to set
 	 */
@@ -470,7 +539,8 @@ public class BarData implements Serializable {
 				+ imaCount + ", indicatorNr=" + indicatorNr + ", indicatorWeight=" + indicatorWeight
 				+ ", isConfirm=" + isConfirm + ", processPhase=" + processPhase + ", symbolId=" + symbolId
 				+ ", trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight + ", volumeAbsorb="
-				+ volumeAbsorb + ", volumeThermometer=" + volumeThermometer + "]";
+				+ volumeAbsorb + ", volumeThermometer=" + volumeThermometer + ", volumeAvgShort=" + volumeAvgShort
+				+ ", volumeAvgMedium=" + volumeAvgMedium + ", volumeAvgLong=" + volumeAvgLong + "]";
 	}
 
 }

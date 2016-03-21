@@ -1,5 +1,6 @@
 package pl.com.vsadga.dao.impl;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,12 +18,14 @@ import org.springframework.jdbc.core.RowMapper;
 import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.dao.JdbcDaoBase;
 import pl.com.vsadga.data.BarData;
+import pl.com.vsadga.dto.BarType;
 
 public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 	private final String ALL_COLUMNS = "id, bar_time, bar_low, bar_high, bar_close, bar_volume, "
 			+ "ima_count, bar_type, indicator_nr, indicator_weight, is_confirm, "
-			+ "trend_indicator, trend_weight, volume_thermometer, process_phase, symbol_id";
+			+ "trend_indicator, trend_weight, volume_thermometer, volume_absorb, volume_avg_short, "
+			+ "volume_avg_medium, volume_avg_long, process_phase, symbol_id";
 
 	private final String SCHM_NME = "fxschema.";
 
@@ -195,13 +198,26 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
+	public int updateIndicatorData(BarData barData, Integer processPhase, String frameDesc) {
+		String sql = "update " + getTableName(frameDesc)
+				+ " set bar_type=?, indicator_nr=?, indicator_weight=?, is_confirm=?, "
+				+ "trend_indicator=?, trend_weight=?, volume_thermometer=?, volume_absorb=?, "
+				+ "volume_avg_short=?, volume_avg_medium=?, volume_avg_long=?, process_phase=? where id=?";
+		
+		return getJdbcTemplate().update(sql, barData.getBarType(), barData.getIndicatorNr(), barData.getIndicatorWeight(), barData.getIsConfirm(), 
+				barData.getTrendIndicator(), barData.getTrendWeight(), barData.getVolumeThermometer(), barData.getVolumeAbsorb(), 
+				barData.getVolumeAvgShort(), barData.getVolumeAvgMedium(), barData.getVolumeAvgLong(), processPhase, barData.getId());
+	}
+
+	@Override
 	public int updateIndicatorWithTrend(Integer id, String frameDesc, Integer processPhase, String trendIndicator,
 			Integer trendWeight, String volumeThermometer, Integer indyNr, Boolean isConfirm) {
 		String sql = "update " + getTableName(frameDesc)
 				+ " set process_phase=?, trend_indicator=?, trend_weight=?, volume_thermometer=?, "
 				+ "indicator_nr=?, is_confirm=? where id=?";
-		
-		return getJdbcTemplate().update(sql, processPhase, trendIndicator, trendWeight, volumeThermometer, indyNr, isConfirm, id);
+
+		return getJdbcTemplate().update(sql, processPhase, trendIndicator, trendWeight, volumeThermometer, indyNr,
+				isConfirm, id);
 	}
 
 	@Override
@@ -230,18 +246,40 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
-	public int updateVolumeAbsorbtion(Integer symbolId, String frameDesc, Integer id, Integer volumeAbsorb) {
-		String sql = "update " + getTableName(frameDesc) + " set indicator_nr=?, indicator_weight=?, "
-				+ "is_confirm=?, process_phase=? where id=?";
+	public int updateVolumeAbsorbtion(String frameDesc, Integer id, Integer volumeAbsorb) {
+		String sql = "update " + getTableName(frameDesc) + " set volume_absorb=? where id=?";
 
-		return getJdbcTemplate().update(sql, nr, weight, isConfirm, phase, barDataId);
+		return getJdbcTemplate().update(sql, volumeAbsorb, id);
 
+	}
+
+	@Override
+	public int updateVolumeAvg(Integer id, String frameDesc, BigDecimal volumeAvgShort,
+			BigDecimal volumeAvgMedium, BigDecimal volumeAvgLong) {
+
+		String sql = "update " + getTableName(frameDesc)
+				+ " set volume_avg_short=?, volume_avg_medium=?, volume_avg_long=? where id=?";
+
+		return getJdbcTemplate().update(sql, volumeAvgShort, volumeAvgMedium, volumeAvgLong, id);
+	}
+
+	private BarType getBarType(String barType) {
+		if (barType == null)
+			return null;
+		else if (barType.equals("U"))
+			return BarType.UP_BAR;
+		else if (barType.equals("D"))
+			return BarType.DOWN_BAR;
+		else if (barType.equals("L"))
+			return BarType.LEVEL_BAR;
+		else
+			return null;
 	}
 
 	private String getSeqName(String timeFrameDesc) {
 		return getTableName(timeFrameDesc) + "_seq";
 	}
-
+	
 	private String getTableName(String timeFrameDesc) {
 		return SCHM_NME + "data_" + timeFrameDesc.toLowerCase();
 	}
@@ -258,6 +296,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		data.setBarVolume(rs.getInt("bar_volume"));
 
 		data.setImaCount(rs.getBigDecimal("ima_count"));
+		data.setBarType(getBarType(rs.getString("bar_type")));
 		data.setIndicatorNr(rs.getInt("indicator_nr"));
 		data.setIndicatorWeight(rs.getInt("indicator_weight"));
 		data.setIsConfirm(rs.getBoolean("is_confirm"));
@@ -265,6 +304,11 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		data.setTrendIndicator(rs.getString("trend_indicator"));
 		data.setTrendWeight(rs.getInt("trend_weight"));
 		data.setVolumeThermometer(rs.getString("volume_thermometer"));
+		data.setVolumeAbsorb(rs.getInt("volume_absorb"));
+		data.setVolumeAvgShort(rs.getBigDecimal("volume_avg_short"));
+		
+		data.setVolumeAvgMedium(rs.getBigDecimal("volume_avg_medium"));
+		data.setVolumeAvgLong(rs.getBigDecimal("volume_avg_long"));
 		data.setProcessPhase(rs.getInt("process_phase"));
 		data.setSymbolId(rs.getInt("symbol_id"));
 
