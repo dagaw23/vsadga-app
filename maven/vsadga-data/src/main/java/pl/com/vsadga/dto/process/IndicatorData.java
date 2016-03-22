@@ -1,6 +1,7 @@
 package pl.com.vsadga.dto.process;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,12 +102,13 @@ public class IndicatorData {
 		addBarDataToCache(bar_stats_data);
 	}
 
-//	public void addBarData(BarData barData, String trendIndy, Integer trendWeight, String volumeThermo) {
-//		// utwórz obiekt krótkoterminowy:
-//		BarStatsData bar_stats_data = getBarStatsData(barData, trendIndy, trendWeight, volumeThermo);
-//
-//		addBarDataToCache(bar_stats_data);
-//	}
+	// public void addBarData(BarData barData, String trendIndy, Integer trendWeight, String
+	// volumeThermo) {
+	// // utwórz obiekt krótkoterminowy:
+	// BarStatsData bar_stats_data = getBarStatsData(barData, trendIndy, trendWeight, volumeThermo);
+	//
+	// addBarDataToCache(bar_stats_data);
+	// }
 
 	public void addVolumeData(Integer barVolume) {
 		// przesuń aktualny wskaźnik w mapach:
@@ -215,8 +217,6 @@ public class IndicatorData {
 	}
 
 	public BigDecimal getLongVolumeAvg() {
-		BigDecimal result = new BigDecimal(0);
-		result.setScale(4);
 		int vol_sum = 0;
 
 		if (longTermMap.size() < longTermLength)
@@ -226,10 +226,7 @@ public class IndicatorData {
 				vol_sum += longTermMap.get(key);
 		}
 
-		result = new BigDecimal(vol_sum);
-		BigDecimal divisor = new BigDecimal(longTermLength);
-		divisor.setScale(4);
-		return result.divide(divisor);
+		return new BigDecimal(vol_sum).divide(new BigDecimal(longTermLength), 4, RoundingMode.HALF_UP);
 	}
 
 	public BigDecimal getMediumVolumeAvg() {
@@ -242,11 +239,7 @@ public class IndicatorData {
 				vol_sum += mediumTermMap.get(key);
 		}
 
-		BigDecimal result = new BigDecimal(0);
-		result.setScale(4); = new BigDecimal(vol_sum).divide();
-		BigDecimal divisor = new BigDecimal(mediumTermLength);
-		divisor.setScale(4);
-		return result.divide(divisor);
+		return new BigDecimal(vol_sum).divide(new BigDecimal(mediumTermLength), 4, RoundingMode.HALF_UP);
 	}
 
 	/**
@@ -274,8 +267,6 @@ public class IndicatorData {
 	}
 
 	public BigDecimal getShortVolumeAvg() {
-		BigDecimal result = new BigDecimal(0);
-		result.setScale(4);
 		int vol_sum = 0;
 
 		if (shortTermMap.size() < shortTermLength)
@@ -285,10 +276,7 @@ public class IndicatorData {
 				vol_sum += shortTermMap.get(key);
 		}
 
-		result = new BigDecimal(vol_sum);
-		BigDecimal divisor = new BigDecimal(shortTermLength);
-		divisor.setScale(4);
-		return result.divide(divisor);
+		return new BigDecimal(vol_sum).divide(new BigDecimal(shortTermLength), 4, RoundingMode.HALF_UP);
 	}
 
 	public boolean isReadyBarDataCache() {
@@ -336,7 +324,6 @@ public class IndicatorData {
 
 		return stats;
 	}
-
 
 	/**
 	 * Sprawdza, czy poszczególne wskaźniki pozycji w mapach osiągnęły maksymalną pozycję. Jeśli tak
