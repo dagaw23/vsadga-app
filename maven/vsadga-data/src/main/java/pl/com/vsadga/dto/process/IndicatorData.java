@@ -10,12 +10,6 @@ import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.BarType;
 
 public class IndicatorData {
-
-	/**
-	 * suma wolumenów na DOWN bar (ostatnie 4 bary)
-	 */
-	// private int downBarVolumeSum;
-
 	/**
 	 * ilość barów wpisywanych do CACHE
 	 */
@@ -75,17 +69,7 @@ public class IndicatorData {
 	 * aktualna pozycja w mapie krótkiego terminu
 	 */
 	private int shortTermPos;
-
-	/**
-	 * ilość danych dla UP barów
-	 */
-	// private int upBarVolLength;
-
-	/**
-	 * suma wolumenów na UP bar (ostatnie 4 bary)
-	 */
-	// private int upBarVolumeSum;
-
+	
 	public IndicatorData(int shortTermLength, int mediumTermLength, int longTermLength, int barDataCacheLength) {
 		super();
 		this.shortTermLength = shortTermLength;
@@ -101,14 +85,6 @@ public class IndicatorData {
 
 		addBarDataToCache(bar_stats_data);
 	}
-
-	// public void addBarData(BarData barData, String trendIndy, Integer trendWeight, String
-	// volumeThermo) {
-	// // utwórz obiekt krótkoterminowy:
-	// BarStatsData bar_stats_data = getBarStatsData(barData, trendIndy, trendWeight, volumeThermo);
-	//
-	// addBarDataToCache(bar_stats_data);
-	// }
 
 	public void addVolumeData(Integer barVolume) {
 		// przesuń aktualny wskaźnik w mapach:
@@ -295,7 +271,7 @@ public class IndicatorData {
 	 * @return
 	 */
 	public boolean isWritedShortTermBars(int barCount) {
-		if (shortTermMap.size() < barCount)
+		if (barDataCacheMap.size() < barCount)
 			return false;
 		else
 			return true;
@@ -320,7 +296,9 @@ public class IndicatorData {
 
 		stats.setTrendIndicator(barData.getTrendIndicator());
 		stats.setTrendWeight(barData.getTrendWeight());
+		stats.setVolumeAbsorb(barData.getVolumeAbsorb());
 		stats.setVolumeThermometer(barData.getVolumeThermometer());
+		stats.setId(barData.getId());
 
 		return stats;
 	}

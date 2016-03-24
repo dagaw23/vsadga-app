@@ -16,11 +16,11 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(VolumeProcessorImpl.class);
 
+	private BarDataDao barDataDao;
+
 	private ConfigDataService configDataService;
 
 	private IndicatorData indicatorData;
-	
-	private BarDataDao barDataDao;
 
 	@Override
 	public int getAbsorptionVolume(BarData actualBar, String frameDesc) throws BaseServiceException {
@@ -30,26 +30,28 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		}
 
 		// czy jest już chociaż 1 bar do porównania:
-		if (indicatorData.isWritedShortTermBars(1)) {
+		if (!indicatorData.isWritedShortTermBars(1)) {
 			LOGGER.info("   [VOL] Dane jeszcze nie sa gotowe do wyliczenia wolumenu absorbcyjnego.");
 			return 0;
 		}
 
 		// pobierz poprzedni bar:
 		BarStatsData prev_bar = indicatorData.getLastBarData();
+		LOGGER.info("   [ABS] " + prev_bar.getBarVolume() + "-" + prev_bar.getBarType() + "-" + prev_bar.getVolumeAbsorb());
+		LOGGER.info("         " + actualBar.getBarVolume() + "-" + actualBar.getBarType() + ".");
 		int prev_vol = 0;
 		int result_vol = 0;
-		
+
 		// jaki jest poprzedni wolumen:
 		if (prev_bar.getVolumeAbsorb() != null)
 			prev_vol = prev_bar.getVolumeAbsorb().intValue();
-		
+
 		if (actualBar.getBarType() == prev_bar.getBarType()) {
 			// typ bara nie zmienił się
 			result_vol = prev_vol + actualBar.getBarVolume();
-			
+
 			// usunąć z poprzedniego bara:
-			barDataDao.updateVolumeAbsorbtion(frameDesc, actualBar.getId(), null);
+			barDataDao.updateVolumeAbsorbtion(frameDesc, prev_bar.getId(), null);
 		} else {
 			result_vol = actualBar.getBarVolume();
 		}
@@ -65,7 +67,7 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		}
 
 		// czy CACHE dla UP/DOWN bar jest wypełniony:
-		if (!indicatorData.isReadyBarDataCache()) {
+		if (!indicatorData.isWritedShortTermBars(3)) {
 			LOGGER.info("   [VOL] Dane jeszcze nie sa gotowe do wyliczenia trendu wolumenu.");
 			return "N";
 		}
@@ -79,6 +81,14 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 			return "D";
 		else
 			return "L";
+	}
+
+	/**
+	 * @param barDataDao
+	 *            the barDataDao to set
+	 */
+	public void setBarDataDao(BarDataDao barDataDao) {
+		this.barDataDao = barDataDao;
 	}
 
 	/**

@@ -80,6 +80,7 @@
 		<property name="indicatorData" ref="indicatorData" />
 	</bean>
 	<bean id="volumeProcessor" class="pl.com.vsadga.service.process.impl.VolumeProcessorImpl">
+		<property name="barDataDao" ref="barDataDao" />
 		<property name="configDataService" ref="configDataService" />
 		<property name="indicatorData" ref="indicatorData" />
 	</bean>
