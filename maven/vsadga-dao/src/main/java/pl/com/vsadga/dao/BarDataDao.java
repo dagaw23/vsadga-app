@@ -8,8 +8,6 @@ import pl.com.vsadga.data.BarData;
 
 public interface BarDataDao {
 
-	void batchInsert(String frameDesc, final List<BarData> dataList);
-
 	boolean existBarData(Integer symbolId, String frameDesc, Date barDate);
 
 	List<BarData> getBarDataList(Integer symbolId, String frameDesc);

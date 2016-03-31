@@ -28,9 +28,8 @@ create table fxschema.data_m5(
 	trend_weight		integer			null,
 	volume_thermometer	varchar(1)		null,
 	volume_absorb		integer			null,
-	volume_avg_short	numeric(10,4)	null,
-	volume_avg_medium	numeric(10,4)	null,
-	volume_avg_long		numeric(10,4)	null,
+	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -53,9 +52,8 @@ create table fxschema.data_m15(
 	trend_weight		integer			null,
 	volume_thermometer	varchar(1)		null,
 	volume_absorb		integer			null,
-	volume_avg_short	numeric(10,4)	null,
-	volume_avg_medium	numeric(10,4)	null,
-	volume_avg_long		numeric(10,4)	null,
+	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -78,9 +76,8 @@ create table fxschema.data_h1(
 	trend_weight		integer			null,
 	volume_thermometer	varchar(1)		null,
 	volume_absorb		integer			null,
-	volume_avg_short	numeric(10,4)	null,
-	volume_avg_medium	numeric(10,4)	null,
-	volume_avg_long		numeric(10,4)	null,
+	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -103,9 +100,8 @@ create table fxschema.data_h4(
 	trend_weight		integer			null,
 	volume_thermometer	varchar(1)		null,
 	volume_absorb		integer			null,
-	volume_avg_short	numeric(10,4)	null,
-	volume_avg_medium	numeric(10,4)	null,
-	volume_avg_long		numeric(10,4)	null,
+	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -203,28 +199,24 @@ values (15, 'IS_BATCH_REWRITE', '1');
 alter table fxschema.data_m5
 	ADD COLUMN bar_type varchar(1),
 	ADD COLUMN volume_absorb integer,
-	ADD COLUMN volume_avg_short numeric(10,4),
-	ADD COLUMN volume_avg_medium numeric(10,4),
-	ADD COLUMN volume_avg_long numeric(10,4);
+	ADD COLUMN volume_size varchar(2),
+	ADD COLUMN spread_size varchar(2);
 
 alter table fxschema.data_m15
 	ADD COLUMN bar_type varchar(1),
 	ADD COLUMN volume_absorb integer,
-	ADD COLUMN volume_avg_short numeric(10,4),
-	ADD COLUMN volume_avg_medium numeric(10,4),
-	ADD COLUMN volume_avg_long numeric(10,4);
+	ADD COLUMN volume_size varchar(2),
+	ADD COLUMN spread_size varchar(2);
 
 alter table fxschema.data_h1
 	ADD COLUMN bar_type varchar(1),
 	ADD COLUMN volume_absorb integer,
-	ADD COLUMN volume_avg_short numeric(10,4),
-	ADD COLUMN volume_avg_medium numeric(10,4),
-	ADD COLUMN volume_avg_long numeric(10,4);
+	ADD COLUMN volume_size varchar(2),
+	ADD COLUMN spread_size varchar(2);
 
 alter table fxschema.data_h4
 	ADD COLUMN bar_type varchar(1),
 	ADD COLUMN volume_absorb integer,
-	ADD COLUMN volume_avg_short numeric(10,4),
-	ADD COLUMN volume_avg_medium numeric(10,4),
-	ADD COLUMN volume_avg_long numeric(10,4);
+	ADD COLUMN volume_size varchar(2),
+	ADD COLUMN spread_size varchar(2);
 

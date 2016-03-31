@@ -77,6 +77,18 @@ public class BarData implements Serializable {
 	private Integer processPhase;
 
 	/**
+	 * wielkość bara - w porównaniu ze średnią wielkością:
+	 * <ul>
+	 * <li>VH - bardzo duży,
+	 * <li>Hi - duży,
+	 * <li>Av - średni
+	 * <li>Lo - mały,
+	 * <li>VL - bardzo mały.
+	 * </ul>
+	 */
+	private String spreadSize;
+
+	/**
 	 * odwołanie do symbolu, którego dotyczy bar
 	 */
 	private Integer symbolId;
@@ -101,11 +113,18 @@ public class BarData implements Serializable {
 	 */
 	private Integer volumeAbsorb;
 
-	private BigDecimal volumeAvgLong;
-
-	private BigDecimal volumeAvgMedium;
-
-	private BigDecimal volumeAvgShort;
+	/**
+	 * wielkość wolumenu - w porównaniu ze średnim wolumenem:
+	 * <ul>
+	 * <li>UH - Yao Ming
+	 * <li>VH - bardzo wysoki,
+	 * <li>Hi - wysoki,
+	 * <li>Av - średni
+	 * <li>Lo - mały,
+	 * <li>VL - bardzo mały.
+	 * </ul>
+	 */
+	private String volumeSize;
 
 	/**
 	 * trend wolumenu:
@@ -190,6 +209,11 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!processPhase.equals(other.processPhase))
 			return false;
+		if (spreadSize == null) {
+			if (other.spreadSize != null)
+				return false;
+		} else if (!spreadSize.equals(other.spreadSize))
+			return false;
 		if (symbolId == null) {
 			if (other.symbolId != null)
 				return false;
@@ -210,20 +234,10 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!volumeAbsorb.equals(other.volumeAbsorb))
 			return false;
-		if (volumeAvgLong == null) {
-			if (other.volumeAvgLong != null)
+		if (volumeSize == null) {
+			if (other.volumeSize != null)
 				return false;
-		} else if (!volumeAvgLong.equals(other.volumeAvgLong))
-			return false;
-		if (volumeAvgMedium == null) {
-			if (other.volumeAvgMedium != null)
-				return false;
-		} else if (!volumeAvgMedium.equals(other.volumeAvgMedium))
-			return false;
-		if (volumeAvgShort == null) {
-			if (other.volumeAvgShort != null)
-				return false;
-		} else if (!volumeAvgShort.equals(other.volumeAvgShort))
+		} else if (!volumeSize.equals(other.volumeSize))
 			return false;
 		if (volumeThermometer == null) {
 			if (other.volumeThermometer != null)
@@ -300,6 +314,13 @@ public class BarData implements Serializable {
 	}
 
 	/**
+	 * @return the spreadSize
+	 */
+	public String getSpreadSize() {
+		return spreadSize;
+	}
+
+	/**
 	 * @return the symbolId
 	 */
 	public Integer getSymbolId() {
@@ -328,24 +349,10 @@ public class BarData implements Serializable {
 	}
 
 	/**
-	 * @return the volumeAvgLong
+	 * @return the volumeSize
 	 */
-	public BigDecimal getVolumeAvgLong() {
-		return volumeAvgLong;
-	}
-
-	/**
-	 * @return the volumeAvgMedium
-	 */
-	public BigDecimal getVolumeAvgMedium() {
-		return volumeAvgMedium;
-	}
-
-	/**
-	 * @return the volumeAvgShort
-	 */
-	public BigDecimal getVolumeAvgShort() {
-		return volumeAvgShort;
+	public String getVolumeSize() {
+		return volumeSize;
 	}
 
 	/**
@@ -376,13 +383,12 @@ public class BarData implements Serializable {
 		result = prime * result + ((indicatorWeight == null) ? 0 : indicatorWeight.hashCode());
 		result = prime * result + ((isConfirm == null) ? 0 : isConfirm.hashCode());
 		result = prime * result + ((processPhase == null) ? 0 : processPhase.hashCode());
+		result = prime * result + ((spreadSize == null) ? 0 : spreadSize.hashCode());
 		result = prime * result + ((symbolId == null) ? 0 : symbolId.hashCode());
 		result = prime * result + ((trendIndicator == null) ? 0 : trendIndicator.hashCode());
 		result = prime * result + ((trendWeight == null) ? 0 : trendWeight.hashCode());
 		result = prime * result + ((volumeAbsorb == null) ? 0 : volumeAbsorb.hashCode());
-		result = prime * result + ((volumeAvgLong == null) ? 0 : volumeAvgLong.hashCode());
-		result = prime * result + ((volumeAvgMedium == null) ? 0 : volumeAvgMedium.hashCode());
-		result = prime * result + ((volumeAvgShort == null) ? 0 : volumeAvgShort.hashCode());
+		result = prime * result + ((volumeSize == null) ? 0 : volumeSize.hashCode());
 		result = prime * result + ((volumeThermometer == null) ? 0 : volumeThermometer.hashCode());
 		return result;
 	}
@@ -464,6 +470,14 @@ public class BarData implements Serializable {
 	}
 
 	/**
+	 * @param spreadSize
+	 *            the spreadSize to set
+	 */
+	public void setSpreadSize(String spreadSize) {
+		this.spreadSize = spreadSize;
+	}
+
+	/**
 	 * @param symbolId
 	 *            the symbolId to set
 	 */
@@ -496,27 +510,11 @@ public class BarData implements Serializable {
 	}
 
 	/**
-	 * @param volumeAvgLong
-	 *            the volumeAvgLong to set
+	 * @param volumeSize
+	 *            the volumeSize to set
 	 */
-	public void setVolumeAvgLong(BigDecimal volumeAvgLong) {
-		this.volumeAvgLong = volumeAvgLong;
-	}
-
-	/**
-	 * @param volumeAvgMedium
-	 *            the volumeAvgMedium to set
-	 */
-	public void setVolumeAvgMedium(BigDecimal volumeAvgMedium) {
-		this.volumeAvgMedium = volumeAvgMedium;
-	}
-
-	/**
-	 * @param volumeAvgShort
-	 *            the volumeAvgShort to set
-	 */
-	public void setVolumeAvgShort(BigDecimal volumeAvgShort) {
-		this.volumeAvgShort = volumeAvgShort;
+	public void setVolumeSize(String volumeSize) {
+		this.volumeSize = volumeSize;
 	}
 
 	/**
@@ -534,13 +532,13 @@ public class BarData implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "BarData [barClose=" + barClose + ", barHigh=" + barHigh + ", barLow=" + barLow + ", barTime="
-				+ barTime + ", barType=" + barType + ", barVolume=" + barVolume + ", id=" + id + ", imaCount="
-				+ imaCount + ", indicatorNr=" + indicatorNr + ", indicatorWeight=" + indicatorWeight
-				+ ", isConfirm=" + isConfirm + ", processPhase=" + processPhase + ", symbolId=" + symbolId
-				+ ", trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight + ", volumeAbsorb="
-				+ volumeAbsorb + ", volumeThermometer=" + volumeThermometer + ", volumeAvgShort=" + volumeAvgShort
-				+ ", volumeAvgMedium=" + volumeAvgMedium + ", volumeAvgLong=" + volumeAvgLong + "]";
+		return "BarData [id=" + id + ", barTime=" + barTime + ", barClose=" + barClose + ", barHigh=" + barHigh
+				+ ", barLow=" + barLow + ", barVolume=" + barVolume + ", imaCount=" + imaCount + ", barType="
+				+ barType + ", indicatorNr=" + indicatorNr + ", indicatorWeight=" + indicatorWeight
+				+ ", isConfirm=" + isConfirm + ", trendIndicator=" + trendIndicator + ", trendWeight="
+				+ trendWeight + ", volumeThermometer=" + volumeThermometer + ", volumeAbsorb=" + volumeAbsorb
+				+ ", volumeSize=" + volumeSize + ", spreadSize=" + spreadSize + ", processPhase=" + processPhase
+				+ ", symbolId=" + symbolId + "]";
 	}
 
 }

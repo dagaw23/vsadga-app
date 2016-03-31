@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.dto.BarStatsData;
-import pl.com.vsadga.dto.process.IndicatorData;
+import pl.com.vsadga.dto.process.DataCache;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.process.VolumeProcessor;
@@ -20,7 +20,7 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 
 	private ConfigDataService configDataService;
 
-	private IndicatorData indicatorData;
+	private DataCache indicatorData;
 
 	@Override
 	public int getAbsorptionVolume(BarData actualBar, String frameDesc) throws BaseServiceException {
@@ -103,7 +103,7 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 	 * @param indicatorData
 	 *            the indicatorData to set
 	 */
-	public void setIndicatorData(IndicatorData indicatorData) {
+	public void setIndicatorData(DataCache indicatorData) {
 		this.indicatorData = indicatorData;
 	}
 

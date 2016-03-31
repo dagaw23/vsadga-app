@@ -2,14 +2,19 @@ package pl.com.vsadga.dto.process;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.BarType;
+import pl.com.vsadga.dto.cache.IndicatorData;
 
-public class IndicatorData {
+public class DataCache {
 	/**
 	 * ilość barów wpisywanych do CACHE
 	 */
@@ -26,56 +31,24 @@ public class IndicatorData {
 	private int barDataCachePos;
 
 	/**
-	 * ilość danych dla długiego terminu
+	 * ilość danych do wyliczenia wskaźników
 	 */
-	private int longTermLength;
+	private int indyDataLength;
 
 	/**
-	 * wolumen - dla N ostatnich barów (długi termin)
+	 * mapa z danymi do wyliczenia wskaźników
 	 */
-	private Map<Integer, Integer> longTermMap;
+	private Map<Integer, IndicatorData> indyDataMap;
 
 	/**
-	 * aktualna pozycja w mapie średniego terminu
+	 * aktualna pozycja w mapie z danymi dla wskaźników
 	 */
-	private int longTermPos;
+	private int indyDataPos;
 
-	/**
-	 * ilość danych dla średniego terminu
-	 */
-	private int mediumTermLength;
-
-	/**
-	 * wolumen - dla N ostatnich barów (średni termin)
-	 */
-	private Map<Integer, Integer> mediumTermMap;
-
-	/**
-	 * aktualna pozycja w mapie średniego terminu
-	 */
-	private int mediumTermPos;
-
-	/**
-	 * ilość danych dla krótkiego terminu
-	 */
-	private int shortTermLength;
-
-	/**
-	 * pełna informacja - dla N ostatnich barów (krótki termin)
-	 */
-	private Map<Integer, Integer> shortTermMap;
-
-	/**
-	 * aktualna pozycja w mapie krótkiego terminu
-	 */
-	private int shortTermPos;
-	
-	public IndicatorData(int shortTermLength, int mediumTermLength, int longTermLength, int barDataCacheLength) {
+	public DataCache(int indyDataLength, int barDataCacheLength) {
 		super();
-		this.shortTermLength = shortTermLength;
-		this.mediumTermLength = mediumTermLength;
-		this.longTermLength = longTermLength;
 		this.barDataCacheLength = barDataCacheLength;
+		this.indyDataLength = indyDataLength;
 		cleanDataCache();
 	}
 
@@ -86,33 +59,22 @@ public class IndicatorData {
 		addBarDataToCache(bar_stats_data);
 	}
 
-	public void addVolumeData(Integer barVolume) {
+	public void addIndicatorData(Integer barVolume, BigDecimal barHigh, BigDecimal barLow) {
 		// przesuń aktualny wskaźnik w mapach:
-		moveVolumePositions();
+		moveIndicatorPositions();
 
-		// dodaj bar na aktualną pozycję:
-		shortTermMap.put(shortTermPos, barVolume);
-		mediumTermMap.put(mediumTermPos, barVolume);
-		longTermMap.put(longTermPos, barVolume);
+		indyDataMap.put(indyDataPos, new IndicatorData(barVolume, barHigh, barLow));
 	}
 
 	/**
 	 * Czyści wykorzystywane obiekty CACHE oraz wskaźniki pozycji w mapach.
 	 */
 	public void cleanDataCache() {
-		// bar:
 		this.barDataCacheMap = new HashMap<Integer, BarStatsData>();
-		// wolumen:
-		this.shortTermMap = new HashMap<Integer, Integer>();
-		this.mediumTermMap = new HashMap<Integer, Integer>();
-		this.longTermMap = new HashMap<Integer, Integer>();
+		this.indyDataMap = new HashMap<Integer, IndicatorData>();
 
-		// bar:
 		this.barDataCachePos = 0;
-		// wolumen:
-		this.shortTermPos = 0;
-		this.mediumTermPos = 0;
-		this.longTermPos = 0;
+		this.indyDataPos = 0;
 	}
 
 	/**
@@ -192,32 +154,6 @@ public class IndicatorData {
 		return barDataCacheMap.get(barDataCachePos);
 	}
 
-	public BigDecimal getLongVolumeAvg() {
-		int vol_sum = 0;
-
-		if (longTermMap.size() < longTermLength)
-			return new BigDecimal(0);
-		else {
-			for (Integer key : longTermMap.keySet())
-				vol_sum += longTermMap.get(key);
-		}
-
-		return new BigDecimal(vol_sum).divide(new BigDecimal(longTermLength), 4, RoundingMode.HALF_UP);
-	}
-
-	public BigDecimal getMediumVolumeAvg() {
-		int vol_sum = 0;
-
-		if (mediumTermMap.size() < mediumTermLength)
-			return new BigDecimal(0);
-		else {
-			for (Integer key : mediumTermMap.keySet())
-				vol_sum += mediumTermMap.get(key);
-		}
-
-		return new BigDecimal(vol_sum).divide(new BigDecimal(mediumTermLength), 4, RoundingMode.HALF_UP);
-	}
-
 	/**
 	 * Pobiera pojedynczy bar z mapy krótkoterminowej, który jest wstecz N barów w porównaniu z
 	 * ostatnim barem.<br/>
@@ -242,17 +178,111 @@ public class IndicatorData {
 			return barDataCacheMap.get(barDataCachePos - prevNr);
 	}
 
-	public BigDecimal getShortVolumeAvg() {
-		int vol_sum = 0;
+	public String getVolumeSize() {
+		// czy mapa jest już wypełniona w pełni:
+		if (indyDataMap.size() < indyDataLength)
+			return "N";
 
-		if (shortTermMap.size() < shortTermLength)
-			return new BigDecimal(0);
-		else {
-			for (Integer key : shortTermMap.keySet())
-				vol_sum += shortTermMap.get(key);
+		Set<IndicatorData> vol_set = new TreeSet<IndicatorData>(new Comparator<IndicatorData>() {
+
+			@Override
+			public int compare(IndicatorData data1, IndicatorData data2) {
+
+				if (data1.getBarVolume().intValue() < data2.getBarVolume().intValue())
+					return 1;
+				else if (data1.getBarVolume().intValue() > data2.getBarVolume().intValue())
+					return -1;
+				else
+					return 1;
+			}
+		});
+
+		vol_set.addAll(indyDataMap.values());
+		
+		
+		// max
+		
+		for (IndicatorData data : vol_set)
+			System.out.println("   >" + data.getBarVolume());
+		
+		System.out.println(getUltraHigh(vol_set));
+		System.out.println(getVeryHigh(vol_set));
+		System.out.println(getAvg(vol_set));
+
+		return "S";
+	}
+	
+	public static void main(String[] args) {
+		DataCache cache = new DataCache(14, 10);
+		
+		cache.addIndicatorData(100, BigDecimal.valueOf(1.12), BigDecimal.valueOf(1.11));
+		cache.addIndicatorData(10, BigDecimal.valueOf(1.15), BigDecimal.valueOf(1.11));
+		cache.addIndicatorData(500, BigDecimal.valueOf(1.20), BigDecimal.valueOf(1.18));
+		cache.addIndicatorData(1000, BigDecimal.valueOf(1.30), BigDecimal.valueOf(1.01));
+		cache.addIndicatorData(212, BigDecimal.valueOf(1.40), BigDecimal.valueOf(1.18));
+		cache.addIndicatorData(212, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.21));
+		cache.addIndicatorData(213, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
+		cache.addIndicatorData(312, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
+		cache.addIndicatorData(3000, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
+		cache.addIndicatorData(3400, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
+		cache.addIndicatorData(3401, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
+		cache.addIndicatorData(9890, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
+		cache.addIndicatorData(890, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
+		cache.addIndicatorData(21, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
+		
+		
+		cache.getVolumeSize();
+	}
+	
+	private BigDecimal getUltraHigh(Set<IndicatorData> indySet) {
+		int i = 0;
+		long sum = 0; 
+		
+		for (IndicatorData data : indySet) {
+			sum += data.getBarVolume();
+			i++;
+			
+			if (i >= 4)
+				break;
 		}
-
-		return new BigDecimal(vol_sum).divide(new BigDecimal(shortTermLength), 4, RoundingMode.HALF_UP);
+		
+		return BigDecimal.valueOf(sum).divide(new BigDecimal(4), 2, RoundingMode.HALF_UP);
+	}
+	
+	private BigDecimal getVeryHigh(Set<IndicatorData> indySet) {
+		int i = 0;
+		long sum = 0; 
+		
+		for (IndicatorData data : indySet) {
+			// pierwszy bar pomiń:
+			if (i != 0)
+				sum += data.getBarVolume();
+			
+			i++;
+			
+			if (i >= 5)
+				break;
+		}
+		
+		return BigDecimal.valueOf(sum).divide(new BigDecimal(4), 2, RoundingMode.HALF_UP);
+	}
+	
+	private BigDecimal getAvg(Set<IndicatorData> indySet) {
+		int i = 0;
+		long sum = 0;
+		
+		for (IndicatorData data : indySet) {
+			// pierwszy bar pomiń:
+			if (i > 3)
+				sum += data.getBarVolume();
+			
+			i++;
+			
+			if (i >= 8)
+				break;
+		}
+		
+		return BigDecimal.valueOf(sum).divide(new BigDecimal(4), 2, RoundingMode.HALF_UP);
 	}
 
 	public boolean isReadyBarDataCache() {
@@ -318,21 +348,11 @@ public class IndicatorData {
 	 * Sprawdza, czy poszczególne wskaźniki pozycji w mapach osiągnęły maksymalną pozycję. Jeśli tak
 	 * - przesuwa wskaźnik na początek kolekcji.
 	 */
-	private void moveVolumePositions() {
-		if (shortTermPos == shortTermLength)
-			shortTermPos = 1;
+	private void moveIndicatorPositions() {
+		if (indyDataPos == indyDataLength)
+			indyDataPos = 1;
 		else
-			shortTermPos += 1;
-
-		if (mediumTermPos == mediumTermLength)
-			mediumTermPos = 1;
-		else
-			mediumTermPos += 1;
-
-		if (longTermPos == longTermLength)
-			longTermPos = 1;
-		else
-			longTermPos += 1;
+			indyDataPos += 1;
 	}
 
 }

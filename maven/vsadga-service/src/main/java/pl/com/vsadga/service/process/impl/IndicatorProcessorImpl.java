@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.IndicatorInfo;
-import pl.com.vsadga.dto.process.IndicatorData;
+import pl.com.vsadga.dto.process.DataCache;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.process.IndicatorProcessor;
@@ -19,7 +19,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 	private ConfigDataService configDataService;
 
-	private IndicatorData indicatorData;
+	private DataCache indicatorData;
 
 	public IndicatorProcessorImpl() {
 		super();
@@ -48,7 +48,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	 * @param indicatorData
 	 *            the indicatorData to set
 	 */
-	public void setIndicatorData(IndicatorData indicatorData) {
+	public void setIndicatorData(DataCache indicatorData) {
 		this.indicatorData = indicatorData;
 	}
 

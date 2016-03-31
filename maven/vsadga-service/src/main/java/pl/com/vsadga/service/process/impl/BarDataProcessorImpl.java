@@ -10,7 +10,7 @@ import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.dto.BarType;
 import pl.com.vsadga.dto.IndicatorInfo;
-import pl.com.vsadga.dto.process.IndicatorData;
+import pl.com.vsadga.dto.process.DataCache;
 import pl.com.vsadga.dto.process.TrendData;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.process.BarDataProcessor;
@@ -27,7 +27,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	/**
 	 * CACHE z danymi z pewnego zakresu
 	 */
-	private IndicatorData indicatorData;
+	private DataCache indicatorData;
 
 	private IndicatorProcessor indicatorProcessor;
 
@@ -69,7 +69,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	 * @param indicatorData
 	 *            the indicatorData to set
 	 */
-	public void setIndicatorData(IndicatorData indicatorData) {
+	public void setIndicatorData(DataCache indicatorData) {
 		this.indicatorData = indicatorData;
 	}
 

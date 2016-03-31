@@ -2,7 +2,6 @@ package pl.com.vsadga.service.writer;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -90,35 +89,6 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 		} catch (ParseException e) {
 			e.printStackTrace();
 			throw new BaseServiceException("::write:: wyjatek ParseException!", e);
-		}
-	}
-
-	@Override
-	public void writeAll(List<String> recordList, CurrencySymbol symbol, TimeFrame timeFrame)
-			throws BaseServiceException {
-		List<BarData> bar_data_list = new ArrayList<BarData>();
-		BarData bar_data = null;
-
-		try {
-			// jeśli lista jest pusta: zakończenie metody
-			if (recordList.isEmpty()) {
-				LOGGER.info("   #NOT WRITED# " + symbol.getSymbolName() + "-" + timeFrame.getTimeFrameDesc()
-						+ " [" + bar_data_list.size() + "].");
-				return;
-			}
-
-			// przepisz na listę obiektów:
-			for (String rec : recordList) {
-				bar_data = getBarData(rec, symbol.getId(), 1);
-				bar_data_list.add(bar_data);
-			}
-
-			// wstawienie wszystkiech barów:
-			barDataDao.batchInsert(timeFrame.getTimeFrameDesc(), bar_data_list);
-
-		} catch (ParseException e) {
-			e.printStackTrace();
-			throw new BaseServiceException("::writeAll:: wyjatek ParseException!", e);
 		}
 	}
 
