@@ -93,12 +93,8 @@ public class PrintBarDataController extends BaseController {
 
 		StringBuffer indy_row = new StringBuffer();
 		StringBuffer trend_row = new StringBuffer();
-
-		StringBuffer cls_row = new StringBuffer();
-		StringBuffer vol_row = new StringBuffer();
-		StringBuffer ima_row = new StringBuffer();
-
-		StringBuffer time_row = new StringBuffer();
+		
+		StringBuffer vol_size_row = new StringBuffer();
 		StringBuffer vol_trd_row = new StringBuffer();
 
 		result.append("<table>");
@@ -145,26 +141,15 @@ public class PrintBarDataController extends BaseController {
 			}
 			vol_trd_row.append("'/>");
 
-			cls_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getBarClose())
-					.append("</td>");
-			vol_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getBarVolume())
-					.append("</td>");
-			time_row.append("<td style='font-size:4px, font-family:Arial'>")
-					.append(DateConverter.dateToString(bar_data.getBarTime(), "dd HH:mm")).append("</td>");
-			ima_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getImaCount())
-					.append("</td>");
+			vol_size_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getVolumeSize()).append("</td>");
 		}
 
 		// indicators:
 		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(indy_row.toString()).append("</tr>");
 		// trend cen:
 		result.append("<tr height='20'>").append(trend_row.toString()).append("</tr>");
-		// zamknięcie, wolumen, ima:
-		result.append("<tr height='10'>").append(cls_row.toString()).append("</tr>");
-		result.append("<tr height='10'>").append(vol_row.toString()).append("</tr>");
-		result.append("<tr height='10'>").append(ima_row.toString()).append("</tr>");
-		// godzina:
-		result.append("<tr height='10'>").append(time_row.toString()).append("</tr>");
+		// wolumeny:
+		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(vol_size_row.toString()).append("</tr>");
 		result.append("<tr height='20'>").append(vol_trd_row.toString()).append("</tr>");
 
 		result.append("</table>");
