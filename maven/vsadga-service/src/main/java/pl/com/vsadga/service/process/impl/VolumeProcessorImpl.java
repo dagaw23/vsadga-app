@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.dto.BarStatsData;
-import pl.com.vsadga.dto.process.DataCache;
+import pl.com.vsadga.dto.cache.DataCache;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.process.VolumeProcessor;
@@ -20,7 +20,7 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 
 	private ConfigDataService configDataService;
 
-	private DataCache indicatorData;
+	private DataCache dataCache;
 
 	@Override
 	public int getAbsorptionVolume(BarData actualBar, String frameDesc) throws BaseServiceException {
@@ -30,13 +30,13 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		}
 
 		// czy jest już chociaż 1 bar do porównania:
-		if (!indicatorData.isWritedShortTermBars(1)) {
+		if (!dataCache.isWritedShortTermBars(1)) {
 			LOGGER.info("   [VOL] Dane jeszcze nie sa gotowe do wyliczenia wolumenu absorbcyjnego.");
 			return 0;
 		}
 
 		// pobierz poprzedni bar:
-		BarStatsData prev_bar = indicatorData.getLastBarData();
+		BarStatsData prev_bar = dataCache.getLastBarData();
 		LOGGER.info("   [ABS] " + prev_bar.getBarVolume() + "-" + prev_bar.getBarType() + "-" + prev_bar.getVolumeAbsorb());
 		LOGGER.info("         " + actualBar.getBarVolume() + "-" + actualBar.getBarType() + ".");
 		int prev_vol = 0;
@@ -67,13 +67,13 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		}
 
 		// czy CACHE dla UP/DOWN bar jest wypełniony:
-		if (!indicatorData.isWritedShortTermBars(3)) {
+		if (!dataCache.isWritedShortTermBars(3)) {
 			LOGGER.info("   [VOL] Dane jeszcze nie sa gotowe do wyliczenia trendu wolumenu.");
 			return "N";
 		}
 
 		// sprawdzenie, który wolumen jest większy:
-		int vol_comp = indicatorData.compareLastVolumeData(actualBar);
+		int vol_comp = dataCache.compareLastVolumeData(actualBar);
 
 		if (vol_comp > 0)
 			return "U";
@@ -100,11 +100,10 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 	}
 
 	/**
-	 * @param indicatorData
-	 *            the indicatorData to set
+	 * @param dataCache
 	 */
-	public void setIndicatorData(DataCache indicatorData) {
-		this.indicatorData = indicatorData;
+	public void setDataCache(DataCache dataCache) {
+		this.dataCache = dataCache;
 	}
 
 	private boolean isProcessVolume() throws BaseServiceException {

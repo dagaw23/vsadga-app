@@ -1,10 +1,9 @@
-package pl.com.vsadga.dto.process;
+package pl.com.vsadga.dto.cache;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -12,9 +11,58 @@ import java.util.TreeSet;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.BarType;
-import pl.com.vsadga.dto.cache.IndicatorData;
 
 public class DataCache {
+
+	private class SpreadDescComparator implements Comparator<IndicatorData> {
+		@Override
+		public int compare(IndicatorData data1, IndicatorData data2) {
+			if (data1.getBarSpread().compareTo(data2.getBarSpread()) < 0)
+				return 1;
+			else if (data1.getBarSpread().compareTo(data2.getBarSpread()) > 0)
+				return -1;
+			else
+				return 1;
+		}
+	}
+
+	private class VolumeDescComparator implements Comparator<IndicatorData> {
+
+		@Override
+		public int compare(IndicatorData data1, IndicatorData data2) {
+			if (data1.getBarVolume().intValue() < data2.getBarVolume().intValue())
+				return 1;
+			else if (data1.getBarVolume().intValue() > data2.getBarVolume().intValue())
+				return -1;
+			else
+				return 1;
+		}
+
+	}
+
+	public static void main(String[] args) {
+		DataCache cache = new DataCache(14, 10);
+
+		cache.addIndicatorData(100, BigDecimal.valueOf(1.12), BigDecimal.valueOf(1.11));
+		cache.addIndicatorData(10, BigDecimal.valueOf(1.15), BigDecimal.valueOf(1.11));
+		cache.addIndicatorData(500, BigDecimal.valueOf(1.20), BigDecimal.valueOf(1.18));
+		cache.addIndicatorData(1000, BigDecimal.valueOf(1.30), BigDecimal.valueOf(1.01));
+		cache.addIndicatorData(212, BigDecimal.valueOf(1.40), BigDecimal.valueOf(1.18));
+		cache.addIndicatorData(212, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.21));
+		cache.addIndicatorData(213, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
+		cache.addIndicatorData(312, BigDecimal.valueOf(1.90), BigDecimal.valueOf(1.52));
+		cache.addIndicatorData(3000, BigDecimal.valueOf(1.86), BigDecimal.valueOf(1.61));
+		cache.addIndicatorData(3400, BigDecimal.valueOf(1.99), BigDecimal.valueOf(1.88));
+		cache.addIndicatorData(3401, BigDecimal.valueOf(2.10), BigDecimal.valueOf(1.90));
+		cache.addIndicatorData(9890, BigDecimal.valueOf(2.22), BigDecimal.valueOf(2.10));
+		cache.addIndicatorData(890, BigDecimal.valueOf(2.44), BigDecimal.valueOf(2.02));
+		cache.addIndicatorData(21, BigDecimal.valueOf(2.55), BigDecimal.valueOf(2.01));
+
+		// System.out.println(cache.getVolumeSize(9));
+		// System.out.println(cache.getSpreadSize(BigDecimal.valueOf(1.52),
+		// BigDecimal.valueOf(1.02)));
+	}
+
 	/**
 	 * ilość barów wpisywanych do CACHE
 	 */
@@ -55,8 +103,19 @@ public class DataCache {
 	public void addBarData(BarData barData) {
 		// utwórz obiekt krótkoterminowy:
 		BarStatsData bar_stats_data = getBarStatsData(barData);
-
 		addBarDataToCache(bar_stats_data);
+	}
+	
+	public void addBarDataWithIndy(BarData barData) {
+		// utwórz obiekt krótkoterminowy:
+		BarStatsData bar_stats_data = getBarStatsData(barData);
+		addBarDataToCache(bar_stats_data);
+		
+		addIndicatorData(barData);
+	}
+
+	public void addIndicatorData(BarData barData) {
+		addIndicatorData(barData.getBarVolume(), barData.getBarHigh(), barData.getBarLow());
 	}
 
 	public void addIndicatorData(Integer barVolume, BigDecimal barHigh, BigDecimal barLow) {
@@ -178,111 +237,136 @@ public class DataCache {
 			return barDataCacheMap.get(barDataCachePos - prevNr);
 	}
 
-	public String getVolumeSize() {
+	public String getSpreadSize(BigDecimal barHigh, BigDecimal barLow) {
 		// czy mapa jest już wypełniona w pełni:
 		if (indyDataMap.size() < indyDataLength)
 			return "N";
 
-		Set<IndicatorData> vol_set = new TreeSet<IndicatorData>(new Comparator<IndicatorData>() {
+		// posortuj wg wolumenu:
+		Set<IndicatorData> spr_set = new TreeSet<IndicatorData>(new SpreadDescComparator());
+		spr_set.addAll(indyDataMap.values());
 
-			@Override
-			public int compare(IndicatorData data1, IndicatorData data2) {
+		// spread aktualnego bara:
+		BigDecimal act_spread = barHigh.subtract(barLow);
 
-				if (data1.getBarVolume().intValue() < data2.getBarVolume().intValue())
-					return 1;
-				else if (data1.getBarVolume().intValue() > data2.getBarVolume().intValue())
-					return -1;
-				else
-					return 1;
-			}
-		});
+		int i = 0;
+		BigDecimal hi_sum = new BigDecimal(0);
+		BigDecimal hi_spr = null;
+		BigDecimal avg_sum = new BigDecimal(0);
+		BigDecimal avg_spr = null;
+		BigDecimal lo_sum = new BigDecimal(0);
+		BigDecimal lo_spr = null;
+		BigDecimal vl_sum = new BigDecimal(0);
+		BigDecimal vl_spr = null;
 
+		for (IndicatorData data : spr_set) {
+
+			if (i < 4)
+				hi_sum = hi_sum.add(data.getBarSpread());
+
+			if (i > 2 && i < 7)
+				avg_sum = avg_sum.add(data.getBarSpread());
+
+			if (i > 6 && i < 11)
+				lo_sum = lo_sum.add(data.getBarSpread());
+
+			if (i > 9)
+				vl_sum = vl_sum.add(data.getBarSpread());
+
+			i++;
+		}
+
+		hi_spr = hi_sum.divide(new BigDecimal(4), 6, RoundingMode.HALF_UP);
+		avg_spr = avg_sum.divide(new BigDecimal(4), 6, RoundingMode.HALF_UP);
+		lo_spr = lo_sum.divide(new BigDecimal(4), 6, RoundingMode.HALF_UP);
+		vl_spr = vl_sum.divide(new BigDecimal(4), 6, RoundingMode.HALF_UP);
+
+		// for (IndicatorData data : spr_set)
+		// System.out.println("   >" + data.getBarSpread());
+		// System.out.println(hi_spr);
+		// System.out.println(avg_spr);
+		// System.out.println(lo_spr);
+		// System.out.println(vl_spr);
+
+		if (act_spread.compareTo(hi_spr) > 0)
+			return "VH";
+		else if (act_spread.compareTo(avg_spr) > 0)
+			return "Hi";
+		else if (act_spread.compareTo(lo_spr) > 0)
+			return "AV";
+		else if (act_spread.compareTo(vl_spr) > 0)
+			return "Lo";
+		else
+			return "VL";
+	}
+
+	public String getVolumeSize(Integer barVolume) {
+		// czy mapa jest już wypełniona w pełni:
+		if (indyDataMap.size() < indyDataLength)
+			return "N";
+
+		// posortuj wg wolumenu:
+		Set<IndicatorData> vol_set = new TreeSet<IndicatorData>(new VolumeDescComparator());
 		vol_set.addAll(indyDataMap.values());
-		
-		
-		// max
-		
-		for (IndicatorData data : vol_set)
-			System.out.println("   >" + data.getBarVolume());
-		
-		System.out.println(getUltraHigh(vol_set));
-		System.out.println(getVeryHigh(vol_set));
-		System.out.println(getAvg(vol_set));
 
-		return "S";
-	}
-	
-	public static void main(String[] args) {
-		DataCache cache = new DataCache(14, 10);
-		
-		cache.addIndicatorData(100, BigDecimal.valueOf(1.12), BigDecimal.valueOf(1.11));
-		cache.addIndicatorData(10, BigDecimal.valueOf(1.15), BigDecimal.valueOf(1.11));
-		cache.addIndicatorData(500, BigDecimal.valueOf(1.20), BigDecimal.valueOf(1.18));
-		cache.addIndicatorData(1000, BigDecimal.valueOf(1.30), BigDecimal.valueOf(1.01));
-		cache.addIndicatorData(212, BigDecimal.valueOf(1.40), BigDecimal.valueOf(1.18));
-		cache.addIndicatorData(212, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.21));
-		cache.addIndicatorData(213, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
-		cache.addIndicatorData(312, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
-		cache.addIndicatorData(3000, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
-		cache.addIndicatorData(3400, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
-		cache.addIndicatorData(3401, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
-		cache.addIndicatorData(9890, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
-		cache.addIndicatorData(890, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
-		cache.addIndicatorData(21, BigDecimal.valueOf(1.70), BigDecimal.valueOf(1.22));
-		
-		
-		cache.getVolumeSize();
-	}
-	
-	private BigDecimal getUltraHigh(Set<IndicatorData> indySet) {
 		int i = 0;
-		long sum = 0; 
-		
-		for (IndicatorData data : indySet) {
-			sum += data.getBarVolume();
+		long uh_sum = 0;
+		BigDecimal uh_vol = null;
+		long hi_sum = 0;
+		BigDecimal hi_vol = null;
+		long avg_sum = 0;
+		BigDecimal avg_vol = null;
+		long lo_sum = 0;
+		BigDecimal lo_vol = null;
+		long vl_sum = 0;
+		BigDecimal vl_vol = null;
+
+		for (IndicatorData data : vol_set) {
+
+			if (i < 4)
+				uh_sum += data.getBarVolume();
+
+			if (i > 0 && i < 5)
+				hi_sum += data.getBarVolume();
+
+			if (i > 3 && i < 8)
+				avg_sum += data.getBarVolume();
+
+			if (i > 5 && i < 10)
+				lo_sum += data.getBarVolume();
+
+			if (i > 9)
+				vl_sum += data.getBarVolume();
+
 			i++;
-			
-			if (i >= 4)
-				break;
 		}
-		
-		return BigDecimal.valueOf(sum).divide(new BigDecimal(4), 2, RoundingMode.HALF_UP);
-	}
-	
-	private BigDecimal getVeryHigh(Set<IndicatorData> indySet) {
-		int i = 0;
-		long sum = 0; 
-		
-		for (IndicatorData data : indySet) {
-			// pierwszy bar pomiń:
-			if (i != 0)
-				sum += data.getBarVolume();
-			
-			i++;
-			
-			if (i >= 5)
-				break;
-		}
-		
-		return BigDecimal.valueOf(sum).divide(new BigDecimal(4), 2, RoundingMode.HALF_UP);
-	}
-	
-	private BigDecimal getAvg(Set<IndicatorData> indySet) {
-		int i = 0;
-		long sum = 0;
-		
-		for (IndicatorData data : indySet) {
-			// pierwszy bar pomiń:
-			if (i > 3)
-				sum += data.getBarVolume();
-			
-			i++;
-			
-			if (i >= 8)
-				break;
-		}
-		
-		return BigDecimal.valueOf(sum).divide(new BigDecimal(4), 2, RoundingMode.HALF_UP);
+
+		uh_vol = BigDecimal.valueOf(uh_sum).divide(new BigDecimal(4), 0, RoundingMode.HALF_UP);
+		hi_vol = BigDecimal.valueOf(hi_sum).divide(new BigDecimal(4), 0, RoundingMode.HALF_UP);
+		avg_vol = BigDecimal.valueOf(avg_sum).divide(new BigDecimal(4), 0, RoundingMode.HALF_UP);
+		lo_vol = BigDecimal.valueOf(lo_sum).divide(new BigDecimal(4), 0, RoundingMode.HALF_UP);
+		vl_vol = BigDecimal.valueOf(vl_sum).divide(new BigDecimal(4), 0, RoundingMode.HALF_UP);
+
+		// for (IndicatorData data : vol_set)
+		// System.out.println("   >" + data.getBarVolume());
+		// System.out.println(uh_vol);
+		// System.out.println(hi_vol);
+		// System.out.println(avg_vol);
+		// System.out.println(lo_vol);
+		// System.out.println(vl_vol);
+
+		if (barVolume.intValue() > uh_vol.intValue())
+			return "UH";
+		else if (barVolume.intValue() > hi_vol.intValue())
+			return "VH";
+		else if (barVolume.intValue() > avg_vol.intValue())
+			return "Hi";
+		else if (barVolume.intValue() > lo_vol.intValue())
+			return "AV";
+		else if (barVolume.intValue() > vl_vol.intValue())
+			return "Lo";
+		else
+			return "VL";
 	}
 
 	public boolean isReadyBarDataCache() {

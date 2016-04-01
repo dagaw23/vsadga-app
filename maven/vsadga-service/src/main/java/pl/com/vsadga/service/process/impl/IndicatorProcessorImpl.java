@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.IndicatorInfo;
-import pl.com.vsadga.dto.process.DataCache;
+import pl.com.vsadga.dto.cache.DataCache;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.process.IndicatorProcessor;
@@ -19,7 +19,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 	private ConfigDataService configDataService;
 
-	private DataCache indicatorData;
+	private DataCache dataCache;
 
 	public IndicatorProcessorImpl() {
 		super();
@@ -45,11 +45,10 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	}
 
 	/**
-	 * @param indicatorData
-	 *            the indicatorData to set
+	 * @param dataCache
 	 */
-	public void setIndicatorData(DataCache indicatorData) {
-		this.indicatorData = indicatorData;
+	public void setDataCache(DataCache dataCache) {
+		this.dataCache = dataCache;
 	}
 
 	private IndicatorInfo getActualBarIndicator(BarData barData) {
@@ -57,8 +56,8 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 		// TODO 2: parametry konfigurayjne do pobierania liczby barów do przetworzenia oraz liczby
 		// barów w mapie.
 		// pobierz 2 poprzednie bary:
-		BarStatsData last_bar = indicatorData.getLastBarData();
-		BarStatsData prev_bar = indicatorData.getPreviousBar(1);
+		BarStatsData last_bar = dataCache.getLastBarData();
+		BarStatsData prev_bar = dataCache.getPreviousBar(1);
 		
 		if (last_bar == null || prev_bar == null) {
 			LOGGER.info("   [INDY] Not ready yet.");

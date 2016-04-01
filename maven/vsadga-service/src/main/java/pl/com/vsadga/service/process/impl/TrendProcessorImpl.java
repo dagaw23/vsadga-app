@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.dto.BarStatsData;
-import pl.com.vsadga.dto.process.DataCache;
+import pl.com.vsadga.dto.cache.DataCache;
 import pl.com.vsadga.dto.process.TrendData;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
@@ -18,7 +18,7 @@ public class TrendProcessorImpl implements TrendProcessor {
 
 	private ConfigDataService configDataService;
 
-	private DataCache indicatorData;
+	private DataCache dataCache;
 
 	@Override
 	public TrendData getActualTrend(BarData barData) throws BaseServiceException {
@@ -28,7 +28,7 @@ public class TrendProcessorImpl implements TrendProcessor {
 		}
 
 		// czy jest ostatni bar do wyliczenia:
-		BarStatsData prev_bar = indicatorData.getLastBarData();
+		BarStatsData prev_bar = dataCache.getLastBarData();
 		if (prev_bar == null) {
 			return new TrendData("S", 0);
 		}
@@ -126,11 +126,10 @@ public class TrendProcessorImpl implements TrendProcessor {
 	}
 
 	/**
-	 * @param indicatorData
-	 *            the indicatorData to set
+	 * @param dataCache
 	 */
-	public void setIndicatorData(DataCache indicatorData) {
-		this.indicatorData = indicatorData;
+	public void setDataCache(DataCache dataCache) {
+		this.dataCache = dataCache;
 	}
 
 	private boolean isProcessTrend() throws BaseServiceException {

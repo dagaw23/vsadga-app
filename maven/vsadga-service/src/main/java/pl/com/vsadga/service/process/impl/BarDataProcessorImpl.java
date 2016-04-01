@@ -10,7 +10,7 @@ import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.dto.BarType;
 import pl.com.vsadga.dto.IndicatorInfo;
-import pl.com.vsadga.dto.process.DataCache;
+import pl.com.vsadga.dto.cache.DataCache;
 import pl.com.vsadga.dto.process.TrendData;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.process.BarDataProcessor;
@@ -27,7 +27,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	/**
 	 * CACHE z danymi z pewnego zakresu
 	 */
-	private DataCache indicatorData;
+	private DataCache dataCache;
 
 	private IndicatorProcessor indicatorProcessor;
 
@@ -46,7 +46,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		BarData bar_data = null;
 		
 		// wyczyszczenie danych do analizy:
-		indicatorData.cleanDataCache();
+		dataCache.cleanDataCache();
 
 		for (int i = 0; i < bar_count; i++) {
 			// pobierz bar:
@@ -66,11 +66,10 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	}
 
 	/**
-	 * @param indicatorData
-	 *            the indicatorData to set
+	 * @param dataCache
 	 */
-	public void setIndicatorData(DataCache indicatorData) {
-		this.indicatorData = indicatorData;
+	public void setDataCache(DataCache dataCache) {
+		this.dataCache = dataCache;
 	}
 
 	/**
@@ -100,6 +99,11 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	/**
 	 * Przetwarza pojedynczy bar - w porównaniu z poprzednim barem.
 	 * 
+	 * status 0: niekompletny, nie sprawdzamy trendu,
+	 * status 1: wylicz trend
+	 * status 2,3: trend już wyliczony
+	 * (0 - jeszcze nie zakończony, 2 - czeka na potwierdzenie, 3 - już zakończony)
+	 * 
 	 * @param barData
 	 * @param frameDesc
 	 * @throws BaseServiceException
@@ -124,32 +128,27 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 		// *** status BAR: 1 ***
 		if (bar_phase == 1) {
-			// LOGGER.info("   [STATS] Bar ze statusem [" + bar_phase +
-			// "] - KOMPLETNE wyliczanie.");
-			// status 0: niekompletny, nie sprawdzamy trendu
-			// status 1: wylicz trend
-			// status 2,3: trend już wyliczony
-			// sprawdzenie trendu - tylko dla statusu 1
-			// (0 - jeszcze nie zakończony, 2 - czeka na potwierdzenie, 3 - już zakończony)
+			// dodanie do CACHE z wolumenem i spread - aktualnego bara:
+			dataCache.addIndicatorData(barData);
 			
 			// sprawdzenie typu przetwarzanego bara:
-			bar_typ = indicatorData.getActualBarType(barData);
+			bar_typ = dataCache.getActualBarType(barData);
 			barData.setBarType(bar_typ);
 			
-			// wpisanie wolumenu do wyliczenia średnich:
-			indicatorData.addVolumeData(barData.getBarVolume());
-			barData.setVolumeAvgShort(indicatorData.getShortVolumeAvg());
-			barData.setVolumeAvgMedium(indicatorData.getMediumVolumeAvg());
-			barData.setVolumeAvgLong(indicatorData.getLongVolumeAvg());
-
 			// sprawdzenie trendu cenowego:
 			trend_data = trendProcessor.getActualTrend(barData);
-			
 			// oraz trendu wolumenowego:
 			vol_therm = volumeProcessor.getVolumeThermometer(barData);
 			barData.setVolumeThermometer(vol_therm);
+			
+			// wolumen obsorbcyjny:
 			vol_absorb = volumeProcessor.getAbsorptionVolume(barData, frameDesc);
 			barData.setVolumeAbsorb(vol_absorb);
+			
+			// wielkość wolumenu:
+			barData.setVolumeSize(dataCache.getVolumeSize(barData.getBarVolume()));
+			// oraz spreadu:
+			barData.setSpreadSize(dataCache.getSpreadSize(barData.getBarHigh(), barData.getBarLow()));
 			
 			// sprawdzenie wskaźnika:
 			ind_info = indicatorProcessor.getDataIndicator(barData, frameDesc);
@@ -165,13 +164,13 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			// "] do POTWIERDZENIA.");
 
 			// wpisanie bara do CACHE:
-			indicatorData.addBarData(barData);
+			dataCache.addBarDataWithIndy(barData);
 		}
 
 		// *** status BAR: 3 ***
 		if (bar_phase == 3) {
 			// LOGGER.info("   [STATS] Bar wg statusu [" + bar_phase + "] juz ZAKONCZONY.");
-			indicatorData.addBarData(barData);
+			dataCache.addBarDataWithIndy(barData);
 		}
 
 	}
@@ -203,7 +202,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		}
 
 		// wpisanie bara do CACHE:
-		indicatorData.addBarData(barData);
+		dataCache.addBarData(barData);
 		
 		// wpisanie dla bara - średniej wolumenu:
 		barDataDao.updateIndicatorData(barData, process_phase, frameDesc);
