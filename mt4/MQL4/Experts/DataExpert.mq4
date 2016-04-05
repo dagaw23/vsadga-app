@@ -13,7 +13,7 @@ input string   SYMBOL_1="EURUSD";
 input string   SYMBOL_2="AUDUSD";
 input string   SYMBOL_3="GBPUSD";
 input string   SYMBOL_4="GOLD";
-input string   SYMBOL_5="OIL-APR16";
+input string   SYMBOL_5="OIL-MAY16";
 
 input string   FILE_DIR_PATH="Actual";
 input int      ARRAY_WRITE_SIZE=5;

@@ -10,6 +10,17 @@ public interface BarDataDao {
 
 	boolean existBarData(Integer symbolId, String frameDesc, Date barDate);
 
+	/**
+	 * Pobiera listę wszystkich barów od początku do wskazanej daty (z wyłączeniem tego bara).
+	 * 
+	 * @param frameDesc
+	 *            opis dotyczący ramki czasowej
+	 * @param barDate
+	 *            data graniczna, do której są pobierane bary
+	 * @return
+	 */
+	List<BarData> getAllToMaxDate(String frameDesc, Date barDate);
+
 	List<BarData> getBarDataList(Integer symbolId, String frameDesc);
 
 	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
@@ -72,5 +83,15 @@ public interface BarDataDao {
 
 	int updateVolumeAvg(Integer id, String frameDesc, BigDecimal volumeAvgShort, BigDecimal volumeAvgMedium,
 			BigDecimal volumeAvgLong);
+
+	/**
+	 * Wpisuje listę przesłanych barów - do tabeli archiwalnej.
+	 * 
+	 * @param dataList
+	 * @param frameDesc
+	 * @param tableNr
+	 * @return
+	 */
+	int[] writeAllToArchive(List<BarData> dataList, String frameDesc, Integer tableNr);
 
 }

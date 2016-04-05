@@ -10,10 +10,9 @@ public interface IndicatorProcessor {
 	 * Wylicza wskaźnik dla statusu bara 1.
 	 * 
 	 * @param barData
-	 * @param frameDesc
 	 * @return
 	 * @throws BaseServiceException
 	 */
-	IndicatorInfo getDataIndicator(BarData barData, String frameDesc) throws BaseServiceException;
+	IndicatorInfo getDataIndicator(BarData barData) throws BaseServiceException;
 	
 }

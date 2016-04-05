@@ -9,8 +9,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import pl.com.vsadga.data.BarData;
+import pl.com.vsadga.data.SpreadSize;
+import pl.com.vsadga.data.VolumeSize;
 import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.BarType;
+
+import static pl.com.vsadga.data.SpreadSize.*;
+import static pl.com.vsadga.data.VolumeSize.*;
 
 public class DataCache {
 
@@ -236,11 +241,21 @@ public class DataCache {
 		else
 			return barDataCacheMap.get(barDataCachePos - prevNr);
 	}
+	
+	public boolean isVolumeLessThen2(BarData barData, BarStatsData lastBar, BarStatsData prevBar) {
+		int bar_vol = barData.getBarVolume();
+		
+		if (bar_vol < lastBar.getBarVolume().intValue() 
+				&& lastBar.getBarVolume().intValue() < prevBar.getBarVolume().intValue())
+			return true;
+		else
+			return false;
+	}
 
-	public String getSpreadSize(BigDecimal barHigh, BigDecimal barLow) {
+	public SpreadSize getSpreadSize(BigDecimal barHigh, BigDecimal barLow) {
 		// czy mapa jest już wypełniona w pełni:
 		if (indyDataMap.size() < indyDataLength)
-			return "N";
+			return SpreadSize.N;
 
 		// posortuj wg wolumenu:
 		Set<IndicatorData> spr_set = new TreeSet<IndicatorData>(new SpreadDescComparator());
@@ -289,21 +304,21 @@ public class DataCache {
 		// System.out.println(vl_spr);
 
 		if (act_spread.compareTo(hi_spr) > 0)
-			return "VH";
+			return SpreadSize.VH;
 		else if (act_spread.compareTo(avg_spr) > 0)
-			return "Hi";
+			return SpreadSize.Hi;
 		else if (act_spread.compareTo(lo_spr) > 0)
-			return "AV";
+			return SpreadSize.AV;
 		else if (act_spread.compareTo(vl_spr) > 0)
-			return "Lo";
+			return SpreadSize.Lo;
 		else
-			return "VL";
+			return SpreadSize.VL;
 	}
 
-	public String getVolumeSize(Integer barVolume) {
+	public VolumeSize getVolumeSize(Integer barVolume) {
 		// czy mapa jest już wypełniona w pełni:
 		if (indyDataMap.size() < indyDataLength)
-			return "N";
+			return VolumeSize.N;
 
 		// posortuj wg wolumenu:
 		Set<IndicatorData> vol_set = new TreeSet<IndicatorData>(new VolumeDescComparator());
@@ -356,17 +371,17 @@ public class DataCache {
 		// System.out.println(vl_vol);
 
 		if (barVolume.intValue() > uh_vol.intValue())
-			return "UH";
+			return VolumeSize.UH;
 		else if (barVolume.intValue() > hi_vol.intValue())
-			return "VH";
+			return VolumeSize.VH;
 		else if (barVolume.intValue() > avg_vol.intValue())
-			return "Hi";
+			return VolumeSize.Hi;
 		else if (barVolume.intValue() > lo_vol.intValue())
-			return "AV";
+			return VolumeSize.AV;
 		else if (barVolume.intValue() > vl_vol.intValue())
-			return "Lo";
+			return VolumeSize.Lo;
 		else
-			return "VL";
+			return VolumeSize.VL;
 	}
 
 	public boolean isReadyBarDataCache() {
@@ -403,16 +418,18 @@ public class DataCache {
 		BarStatsData stats = new BarStatsData();
 
 		stats.setBarClose(barData.getBarClose());
-		stats.setBarSpread(barData.getBarHigh().subtract(barData.getBarLow()));
-		stats.setBarVolume(barData.getBarVolume());
-		stats.setImaCount(barData.getImaCount());
+		stats.setBarHigh(barData.getBarHigh());
+		stats.setBarLow(barData.getBarLow());
 		stats.setBarType(barData.getBarType());
-
+		
+		stats.setBarVolume(barData.getBarVolume());
+		stats.setId(barData.getId());
+		stats.setImaCount(barData.getImaCount());
+		
 		stats.setTrendIndicator(barData.getTrendIndicator());
 		stats.setTrendWeight(barData.getTrendWeight());
 		stats.setVolumeAbsorb(barData.getVolumeAbsorb());
 		stats.setVolumeThermometer(barData.getVolumeThermometer());
-		stats.setId(barData.getId());
 
 		return stats;
 	}

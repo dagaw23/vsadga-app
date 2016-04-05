@@ -86,7 +86,7 @@ public class BarData implements Serializable {
 	 * <li>VL - bardzo mały.
 	 * </ul>
 	 */
-	private String spreadSize;
+	private SpreadSize spreadSize;
 
 	/**
 	 * odwołanie do symbolu, którego dotyczy bar
@@ -124,7 +124,7 @@ public class BarData implements Serializable {
 	 * <li>VL - bardzo mały.
 	 * </ul>
 	 */
-	private String volumeSize;
+	private VolumeSize volumeSize;
 
 	/**
 	 * trend wolumenu:
@@ -209,10 +209,7 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!processPhase.equals(other.processPhase))
 			return false;
-		if (spreadSize == null) {
-			if (other.spreadSize != null)
-				return false;
-		} else if (!spreadSize.equals(other.spreadSize))
+		if (spreadSize != other.spreadSize)
 			return false;
 		if (symbolId == null) {
 			if (other.symbolId != null)
@@ -234,10 +231,7 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!volumeAbsorb.equals(other.volumeAbsorb))
 			return false;
-		if (volumeSize == null) {
-			if (other.volumeSize != null)
-				return false;
-		} else if (!volumeSize.equals(other.volumeSize))
+		if (volumeSize != other.volumeSize)
 			return false;
 		if (volumeThermometer == null) {
 			if (other.volumeThermometer != null)
@@ -316,7 +310,7 @@ public class BarData implements Serializable {
 	/**
 	 * @return the spreadSize
 	 */
-	public String getSpreadSize() {
+	public SpreadSize getSpreadSize() {
 		return spreadSize;
 	}
 
@@ -351,7 +345,7 @@ public class BarData implements Serializable {
 	/**
 	 * @return the volumeSize
 	 */
-	public String getVolumeSize() {
+	public VolumeSize getVolumeSize() {
 		return volumeSize;
 	}
 
@@ -473,7 +467,7 @@ public class BarData implements Serializable {
 	 * @param spreadSize
 	 *            the spreadSize to set
 	 */
-	public void setSpreadSize(String spreadSize) {
+	public void setSpreadSize(SpreadSize spreadSize) {
 		this.spreadSize = spreadSize;
 	}
 
@@ -513,7 +507,7 @@ public class BarData implements Serializable {
 	 * @param volumeSize
 	 *            the volumeSize to set
 	 */
-	public void setVolumeSize(String volumeSize) {
+	public void setVolumeSize(VolumeSize volumeSize) {
 		this.volumeSize = volumeSize;
 	}
 
@@ -532,13 +526,13 @@ public class BarData implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "BarData [id=" + id + ", barTime=" + barTime + ", barClose=" + barClose + ", barHigh=" + barHigh
-				+ ", barLow=" + barLow + ", barVolume=" + barVolume + ", imaCount=" + imaCount + ", barType="
-				+ barType + ", indicatorNr=" + indicatorNr + ", indicatorWeight=" + indicatorWeight
-				+ ", isConfirm=" + isConfirm + ", trendIndicator=" + trendIndicator + ", trendWeight="
-				+ trendWeight + ", volumeThermometer=" + volumeThermometer + ", volumeAbsorb=" + volumeAbsorb
-				+ ", volumeSize=" + volumeSize + ", spreadSize=" + spreadSize + ", processPhase=" + processPhase
-				+ ", symbolId=" + symbolId + "]";
+		return "BarData [barClose=" + barClose + ", barHigh=" + barHigh + ", barLow=" + barLow + ", barTime="
+				+ barTime + ", barType=" + barType + ", barVolume=" + barVolume + ", id=" + id + ", imaCount="
+				+ imaCount + ", indicatorNr=" + indicatorNr + ", indicatorWeight=" + indicatorWeight
+				+ ", isConfirm=" + isConfirm + ", processPhase=" + processPhase + ", spreadSize=" + spreadSize
+				+ ", symbolId=" + symbolId + ", trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight
+				+ ", volumeAbsorb=" + volumeAbsorb + ", volumeSize=" + volumeSize + ", volumeThermometer="
+				+ volumeThermometer + "]";
 	}
 
 }

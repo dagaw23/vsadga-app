@@ -20,6 +20,7 @@ import pl.com.vsadga.service.data.CurrencyDataService;
 import pl.com.vsadga.service.symbol.SymbolService;
 import pl.com.vsadga.service.timeframe.TimeFrameService;
 import pl.com.vsadga.utils.DateConverter;
+import pl.com.vsadga.web.utils.FormatUtils;
 
 @Controller
 public class PrintBarDataController extends BaseController {
@@ -175,11 +176,14 @@ public class PrintBarDataController extends BaseController {
 		try {
 			// przetworzenie dla każdej ramki aktywnej:
 			for (TimeFrame tme_frm : frm_list) {
-				html_tab += "<br><br> Time:" + tme_frm.getTimeFrameDesc() + ": <br>";
-
 				// pobierz listę barów:
 				bar_list = getBarDataList(symbol, tme_frm);
 
+				// wpisz zakres data:
+				html_tab += "<br><br> Time: " + tme_frm.getTimeFrameDesc() + " [" 
+						+ FormatUtils.formatSimpleDate(bar_list.get(0).getBarTime()) + " - "
+						+ FormatUtils.formatSimpleDate(bar_list.get(bar_list.size()-1).getBarTime()) + "] <br>";
+				
 				html_tab += getTableContent(bar_list);
 			}
 		} catch (BaseServiceException e) {
@@ -190,4 +194,5 @@ public class PrintBarDataController extends BaseController {
 
 		return new ModelAndView("print-data", "html_tab", html_tab);
 	}
+	
 }

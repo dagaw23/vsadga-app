@@ -1,21 +1,26 @@
 package pl.com.vsadga.dao.impl;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Date;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
 import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.dao.JdbcDaoBase;
 import pl.com.vsadga.data.BarData;
+import pl.com.vsadga.data.SpreadSize;
+import pl.com.vsadga.data.VolumeSize;
 import pl.com.vsadga.dto.BarType;
 
 public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
@@ -50,6 +55,23 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 			return true;
 		else
 			return false;
+	}
+
+	@Override
+	public List<BarData> getAllToMaxDate(String frameDesc, Date barDate) {
+		String sql = "select " +
+				"id, bar_time, bar_low, bar_high, bar_close, bar_volume, ima_count, indicator_nr, indicator_weight, is_confirm, " +
+				"trend_indicator, trend_weight, volume_thermometer, process_phase, symbol_id from " 
+				+ getTableName(frameDesc) + " where bar_time < ? order by bar_time asc";
+		
+		return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+			@Override
+			public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2BarData2(rs);
+			}
+
+		}, new Timestamp(barDate.getTime()));
 	}
 
 	@Override
@@ -168,10 +190,10 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				+ "trend_indicator=?, trend_weight=?, volume_thermometer=?, volume_absorb=?, "
 				+ "volume_size=?, spread_size=?, process_phase=? where id=?";
 
-		return getJdbcTemplate().update(sql, getBarType(barData.getBarType()), barData.getIndicatorNr(),
+		return getJdbcTemplate().update(sql, convert(barData.getBarType()), barData.getIndicatorNr(),
 				barData.getIndicatorWeight(), barData.getIsConfirm(), barData.getTrendIndicator(),
 				barData.getTrendWeight(), barData.getVolumeThermometer(), barData.getVolumeAbsorb(),
-				barData.getVolumeSize(), barData.getSpreadSize(), processPhase, barData.getId());
+				convert(barData.getVolumeSize()), convert(barData.getSpreadSize()), processPhase, barData.getId());
 	}
 
 	@Override
@@ -228,7 +250,48 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		return getJdbcTemplate().update(sql, volumeAvgShort, volumeAvgMedium, volumeAvgLong, id);
 	}
 
-	private String getBarType(BarType barType) {
+	@Override
+	public int[] writeAllToArchive(final List<BarData> dataList, String frameDesc, Integer tableNr) {
+		String sql = "insert into " + getArchTableName(frameDesc, tableNr) + " (" + ALL_COLUMNS 
+				+ ") values (?,?,?,?,?,?, ?,?,?,?,?, ?,?,?,?, ?,?,?,?)";
+		
+		return getJdbcTemplate().batchUpdate(sql, new BatchPreparedStatementSetter() {
+			
+			@Override
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				ps.setInt(1, dataList.get(i).getId());
+				ps.setTimestamp(2, new Timestamp(dataList.get(i).getBarTime().getTime()));
+				ps.setBigDecimal(3, dataList.get(i).getBarLow());
+				ps.setBigDecimal(4, dataList.get(i).getBarHigh());
+				ps.setBigDecimal(5, dataList.get(i).getBarClose());
+				ps.setInt(6, dataList.get(i).getBarVolume());
+				
+				ps.setBigDecimal(7, dataList.get(i).getImaCount());
+				ps.setNull(8, Types.VARCHAR);
+				ps.setInt(9, dataList.get(i).getIndicatorNr());
+				ps.setInt(10, dataList.get(i).getIndicatorWeight());
+				ps.setBoolean(11, dataList.get(i).getIsConfirm());
+				
+				ps.setString(12, dataList.get(i).getTrendIndicator());
+				ps.setInt(13, dataList.get(i).getTrendWeight());
+				ps.setString(14, dataList.get(i).getVolumeThermometer());
+				ps.setNull(15, Types.NUMERIC);
+				
+				ps.setNull(16, Types.VARCHAR);
+				ps.setNull(17, Types.VARCHAR);
+				ps.setInt(18, dataList.get(i).getProcessPhase());
+				ps.setInt(19, dataList.get(i).getSymbolId());
+				
+			}
+			
+			@Override
+			public int getBatchSize() {
+				return dataList.size();
+			}
+		});
+	}
+
+	private String convert(BarType barType) {
 		if (barType == null)
 			return null;
 		else if (barType == BarType.UP_BAR)
@@ -241,7 +304,43 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 			return null;
 	}
 
-	private BarType getBarType(String barType) {
+	private String convert(SpreadSize spreadSize) {
+		if (spreadSize == null)
+			return null;
+		else if (spreadSize == SpreadSize.VH)
+			return "VH";
+		else if (spreadSize == SpreadSize.Hi)
+			return "Hi";
+		else if (spreadSize == SpreadSize.AV)
+			return "AV";
+		else if (spreadSize == SpreadSize.Lo)
+			return "Lo";
+		else if (spreadSize == SpreadSize.VL)
+			return "VL";
+		else
+			return "N";
+	}
+
+	private String convert(VolumeSize volumeSize) {
+		if (volumeSize == null)
+			return null;
+		else if (volumeSize == VolumeSize.UH)
+			return "UH";
+		else if (volumeSize == VolumeSize.VH)
+			return "VH";
+		else if (volumeSize == VolumeSize.Hi)
+			return "Hi";
+		else if (volumeSize == VolumeSize.AV)
+			return "AV";
+		else if (volumeSize == VolumeSize.Lo)
+			return "Lo";
+		else if (volumeSize == VolumeSize.VL)
+			return "VL";
+		else
+			return "N";
+	}
+
+	private BarType convertBarType(String barType) {
 		if (barType == null)
 			return null;
 		else if (barType.equals("U"))
@@ -254,12 +353,52 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 			return null;
 	}
 
+	private SpreadSize convertSpreadSize(String spreadSize) {
+		if (spreadSize == null)
+			return null;
+		else if (spreadSize.equals("VH"))
+			return SpreadSize.VH;
+		else if (spreadSize.equals("Hi"))
+			return SpreadSize.Hi;
+		else if (spreadSize.equals("AV"))
+			return SpreadSize.AV;
+		else if (spreadSize.equals("Lo"))
+			return SpreadSize.Lo;
+		else if (spreadSize.equals("VL"))
+			return SpreadSize.VL;
+		else
+			return SpreadSize.N;
+	}
+
+	private VolumeSize convertVolumeSize(String volumeSize) {
+		if (volumeSize == null)
+			return null;
+		else if (volumeSize.equals("UH"))
+			return VolumeSize.UH;
+		else if (volumeSize.equals("VH"))
+			return VolumeSize.VH;
+		else if (volumeSize.equals("Hi"))
+			return VolumeSize.Hi;
+		else if (volumeSize.equals("AV"))
+			return VolumeSize.AV;
+		else if (volumeSize.equals("Lo"))
+			return VolumeSize.Lo;
+		else if (volumeSize.equals("VL"))
+			return VolumeSize.VL;
+		else
+			return VolumeSize.N;
+	}
+
 	private String getSeqName(String timeFrameDesc) {
 		return getTableName(timeFrameDesc) + "_seq";
 	}
 
 	private String getTableName(String timeFrameDesc) {
 		return SCHM_NME + "data_" + timeFrameDesc.toLowerCase();
+	}
+	
+	private String getArchTableName(String timeFrameDesc, int tableNr) {
+		return SCHM_NME + "arch_data_" + timeFrameDesc.toLowerCase() + "_" + tableNr;
 	}
 
 	private BarData rs2BarData(final ResultSet rs) throws SQLException {
@@ -274,7 +413,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		data.setBarVolume(rs.getInt("bar_volume"));
 
 		data.setImaCount(rs.getBigDecimal("ima_count"));
-		data.setBarType(getBarType(rs.getString("bar_type")));
+		data.setBarType(convertBarType(rs.getString("bar_type")));
 		data.setIndicatorNr(rs.getInt("indicator_nr"));
 		data.setIndicatorWeight(rs.getInt("indicator_weight"));
 		data.setIsConfirm(rs.getBoolean("is_confirm"));
@@ -284,8 +423,33 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		data.setVolumeThermometer(rs.getString("volume_thermometer"));
 		data.setVolumeAbsorb(rs.getInt("volume_absorb"));
 
-		data.setVolumeSize(rs.getString("volume_size"));
-		data.setSpreadSize(rs.getString("spread_size"));
+		data.setVolumeSize(convertVolumeSize(rs.getString("volume_size")));
+		data.setSpreadSize(convertSpreadSize(rs.getString("spread_size")));
+		data.setProcessPhase(rs.getInt("process_phase"));
+		data.setSymbolId(rs.getInt("symbol_id"));
+
+		return data;
+	}
+	
+	private BarData rs2BarData2(final ResultSet rs) throws SQLException {
+		BarData data = new BarData();
+
+		data.setId(rs.getInt("id"));
+		data.setBarTime(new Date(rs.getTimestamp("bar_time").getTime()));
+		data.setBarLow(rs.getBigDecimal("bar_low"));
+		data.setBarHigh(rs.getBigDecimal("bar_high"));
+		data.setBarClose(rs.getBigDecimal("bar_close"));
+		data.setBarVolume(rs.getInt("bar_volume"));
+		
+		data.setImaCount(rs.getBigDecimal("ima_count"));
+		data.setIndicatorNr(rs.getInt("indicator_nr"));
+		data.setIndicatorWeight(rs.getInt("indicator_weight"));
+		data.setIsConfirm(rs.getBoolean("is_confirm"));
+
+		data.setTrendIndicator(rs.getString("trend_indicator"));
+		data.setTrendWeight(rs.getInt("trend_weight"));
+		data.setVolumeThermometer(rs.getString("volume_thermometer"));
+
 		data.setProcessPhase(rs.getInt("process_phase"));
 		data.setSymbolId(rs.getInt("symbol_id"));
 

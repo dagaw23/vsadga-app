@@ -1,28 +1,20 @@
 package pl.com.vsadga.dto;
 
 public class IndicatorInfo {
-
 	/**
 	 * wartość numeryczna wskaźnika
 	 */
 	private int indicatorNr;
 
 	/**
-	 * czy wskaźnik został przetworzony, czy za mało jest danych do jego przetworzenia (np. w
-	 * przypadku za małej próbki danych do wyliczenia - dla początkowych wskaźników z kolekcji)
+	 * czy wskaźnik już został potwierdzony
 	 */
-	private boolean isProcessIndy;
+	private boolean isConfirm;
 
-	public IndicatorInfo(boolean isProcessIndy) {
-		super();
-		this.indicatorNr = 0;
-		this.isProcessIndy = isProcessIndy;
-	}
-
-	public IndicatorInfo(int indicatorNr, boolean isProcessIndy) {
+	public IndicatorInfo(boolean isConfirm, int indicatorNr) {
 		super();
 		this.indicatorNr = indicatorNr;
-		this.isProcessIndy = isProcessIndy;
+		this.isConfirm = isConfirm;
 	}
 
 	/**
@@ -33,10 +25,10 @@ public class IndicatorInfo {
 	}
 
 	/**
-	 * @return the isProcessIndy
+	 * @return the isConfirm
 	 */
-	public boolean isProcessIndy() {
-		return isProcessIndy;
+	public boolean isConfirm() {
+		return isConfirm;
 	}
-	
+
 }

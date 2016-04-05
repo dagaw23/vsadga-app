@@ -151,7 +151,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			barData.setSpreadSize(dataCache.getSpreadSize(barData.getBarHigh(), barData.getBarLow()));
 			
 			// sprawdzenie wskaźnika:
-			ind_info = indicatorProcessor.getDataIndicator(barData, frameDesc);
+			ind_info = indicatorProcessor.getDataIndicator(barData);
 
 			// wpisanie informacji o barze - do tabeli oraz do CACHE:
 			updateBarData(trend_data, ind_info, frameDesc, barData);
@@ -189,16 +189,11 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		
 		// jaki jest sygnał:
 		if (indyInfo != null) {
-			int indy_nr = indyInfo.getIndicatorNr();
-			barData.setIndicatorNr(indy_nr);
-
-			// jeśli został przetworzony i jest większy od zera
-			// - dla części sygnałów jest potrzebne potwierdzenie:
-			// TODO && isIndicatorToConfirm(indy_nr)
-			if (indyInfo.isProcessIndy() && indy_nr > 0) {
+			barData.setIndicatorNr(indyInfo.getIndicatorNr());
+			barData.setIsConfirm(indyInfo.isConfirm());
+			
+			if (!indyInfo.isConfirm())
 				process_phase = 2;
-				barData.setIsConfirm(false);
-			}
 		}
 
 		// wpisanie bara do CACHE:

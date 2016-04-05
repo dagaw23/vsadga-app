@@ -115,6 +115,77 @@ create table fxschema.time_frame(
 	is_active		boolean			not null
 );
 
+create table fxschema.arch_data_m5_1(
+	id					integer			not null PRIMARY KEY,
+	bar_time			timestamp		not null,
+	bar_low				numeric(10,5)	not null,
+	bar_high			numeric(10,5)	not null,
+	bar_close			numeric(10,5)	not null,
+	bar_volume			integer			not null,
+	ima_count			numeric(10,5)	not null,
+	bar_type			varchar(1)		null,
+	indicator_nr		integer			null,
+	indicator_weight	integer			null,
+	is_confirm			boolean			null,
+	trend_indicator		varchar(1)		null,
+	trend_weight		integer			null,
+	volume_thermometer	varchar(1)		null,
+	volume_absorb		integer			null,
+	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
+	process_phase		integer			not null,
+	symbol_id			smallint		not null
+						REFERENCES fxschema.currency_symbol(id)
+);
+create unique index arch_data_m5_1_idx ON fxschema.arch_data_m5_1 (bar_time, symbol_id);
+
+create table fxschema.arch_data_m15_1(
+	id					integer			not null PRIMARY KEY,
+	bar_time			timestamp		not null,
+	bar_low				numeric(10,5)	not null,
+	bar_high			numeric(10,5)	not null,
+	bar_close			numeric(10,5)	not null,
+	bar_volume			integer			not null,
+	ima_count			numeric(10,5)	not null,
+	bar_type			varchar(1)		null,	
+	indicator_nr		integer			null,
+	indicator_weight	integer			null,
+	is_confirm			boolean			null,
+	trend_indicator		varchar(1)		null,
+	trend_weight		integer			null,
+	volume_thermometer	varchar(1)		null,
+	volume_absorb		integer			null,
+	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
+	process_phase		integer			not null,
+	symbol_id			smallint		not null
+						REFERENCES fxschema.currency_symbol(id)
+);
+create unique index arch_data_m15_1_idx ON fxschema.arch_data_m15_1 (bar_time, symbol_id);
+
+create table fxschema.arch_data_h1_1(
+	id					integer			not null PRIMARY KEY,
+	bar_time			timestamp		not null,
+	bar_low				numeric(10,5)	not null,
+	bar_high			numeric(10,5)	not null,
+	bar_close			numeric(10,5)	not null,
+	bar_volume			integer			not null,
+	ima_count			numeric(10,5)	not null,
+	bar_type			varchar(1)		null,
+	indicator_nr		integer			null,
+	indicator_weight	integer			null,
+	is_confirm			boolean			null,
+	trend_indicator		varchar(1)		null,
+	trend_weight		integer			null,
+	volume_thermometer	varchar(1)		null,
+	volume_absorb		integer			null,
+	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
+	process_phase		integer			not null,
+	symbol_id			smallint		not null
+						REFERENCES fxschema.currency_symbol(id)
+);
+create unique index arch_data_h1_1_idx ON fxschema.arch_data_h1_1 (bar_time, symbol_id);
 
 	
 CREATE SEQUENCE fxschema.data_m5_seq 
@@ -193,6 +264,14 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (14, 'IS_BATCH_ANALYSE', '1');
 insert into fxschema.config_data(id, param_name, param_value)
 values (15, 'IS_BATCH_REWRITE', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (16, 'IS_DATA_BACKUP', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (17, 'M5_DAYS_STAY', '14');
+insert into fxschema.config_data(id, param_name, param_value)
+values (18, 'M15_DAYS_STAY', '21');
+insert into fxschema.config_data(id, param_name, param_value)
+values (19, 'H1_DAYS_STAY', '60');
 
 
 

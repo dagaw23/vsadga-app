@@ -9,6 +9,8 @@ import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.service.BaseServiceException;
 
 public interface CurrencyDataService {
+	
+	void backupArchiveData(String frameDesc, Date barDate, Integer tableNr) throws BaseServiceException;
 
 	List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException;
 

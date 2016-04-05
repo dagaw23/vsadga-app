@@ -25,20 +25,20 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 	@Override
 	public int getAbsorptionVolume(BarData actualBar, String frameDesc) throws BaseServiceException {
 		if (!isProcessVolume()) {
-			LOGGER.info("   [VOL] Usluga przetwarzania wolumenu absorbcyjnego jest wylaczona.");
+			LOGGER.info("   [ABS] Usluga przetwarzania wolumenu absorbcyjnego jest wylaczona.");
 			return 0;
 		}
 
 		// czy jest już chociaż 1 bar do porównania:
 		if (!dataCache.isWritedShortTermBars(1)) {
-			LOGGER.info("   [VOL] Dane jeszcze nie sa gotowe do wyliczenia wolumenu absorbcyjnego.");
+			LOGGER.info("   [ABS] Dane jeszcze nie sa gotowe do wyliczenia wolumenu absorbcyjnego.");
 			return 0;
 		}
 
 		// pobierz poprzedni bar:
 		BarStatsData prev_bar = dataCache.getLastBarData();
-		LOGGER.info("   [ABS] " + prev_bar.getBarVolume() + "-" + prev_bar.getBarType() + "-" + prev_bar.getVolumeAbsorb());
-		LOGGER.info("         " + actualBar.getBarVolume() + "-" + actualBar.getBarType() + ".");
+		//LOGGER.info("   [ABS] " + prev_bar.getBarVolume() + "-" + prev_bar.getBarType() + "-" + prev_bar.getVolumeAbsorb());
+		//LOGGER.info("         " + actualBar.getBarVolume() + "-" + actualBar.getBarType() + ".");
 		int prev_vol = 0;
 		int result_vol = 0;
 
@@ -110,12 +110,12 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		String param_value = configDataService.getParam("IS_PROCESS_VOLUME");
 
 		if (param_value == null || StringUtils.isBlank(param_value)) {
-			LOGGER.info("   [TREND] Brak parametru IS_PROCESS_VOLUME [" + param_value + "] w tabeli CONFIG_DATA.");
+			LOGGER.info("   [VOL] Brak parametru IS_PROCESS_VOLUME [" + param_value + "] w tabeli CONFIG_DATA.");
 			return false;
 		}
 
 		if (!StringUtils.isNumeric(param_value)) {
-			LOGGER.info("   [TREND] Parametr IS_PROCESS_VOLUME [" + param_value + "] nie jest numeryczny.");
+			LOGGER.info("   [VOL] Parametr IS_PROCESS_VOLUME [" + param_value + "] nie jest numeryczny.");
 			return false;
 		}
 

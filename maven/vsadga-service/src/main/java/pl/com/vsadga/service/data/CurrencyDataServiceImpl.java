@@ -13,6 +13,7 @@ import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.service.BaseServiceException;
+import pl.com.vsadga.utils.DateConverter;
 
 public class CurrencyDataServiceImpl implements CurrencyDataService {
 	/**
@@ -21,6 +22,25 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CurrencyDataServiceImpl.class);
 
 	private BarDataDao barDataDao;
+
+	@Override
+	public void backupArchiveData(String frameDesc, Date barDate, Integer tableNr) throws BaseServiceException {
+		List<BarData> data_list = null;
+
+		// wczytaj listę barów:
+		data_list = barDataDao.getAllToMaxDate(frameDesc, barDate);
+
+		if (data_list.size() == 0) {
+			LOGGER.info("   [ARCH] Brak barow do archiwizacji.");
+			return;
+		}
+
+		// wpisz listę barów - do tabeli archiwalnej:
+		int[] row_cnt = barDataDao.writeAllToArchive(data_list, frameDesc, tableNr);
+
+		LOGGER.info("   [ARCH] Wpisano [" + row_cnt.length + "] rekordow dla frame [" + frameDesc + "] i numeru tabeli ["
+				+ tableNr + "] - do daty [" + DateConverter.dateToString(barDate, "yy/MM/dd HH:mm") + "].");
+	}
 
 	@Override
 	public List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException {

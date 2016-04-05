@@ -15,9 +15,19 @@ public class BarStatsData implements Serializable {
 	private BigDecimal barClose;
 
 	/**
+	 * cena maksymalna w trakcie bara
+	 */
+	private BigDecimal barHigh;
+
+	/**
+	 * cena minimalna w trakcie bara
+	 */
+	private BigDecimal barLow;
+
+	/**
 	 * spread bara
 	 */
-	private BigDecimal barSpread;
+	// private BigDecimal barSpread;
 
 	/**
 	 * UP, DOWN, LEVEL bar
@@ -82,10 +92,15 @@ public class BarStatsData implements Serializable {
 				return false;
 		} else if (!barClose.equals(other.barClose))
 			return false;
-		if (barSpread == null) {
-			if (other.barSpread != null)
+		if (barHigh == null) {
+			if (other.barHigh != null)
 				return false;
-		} else if (!barSpread.equals(other.barSpread))
+		} else if (!barHigh.equals(other.barHigh))
+			return false;
+		if (barLow == null) {
+			if (other.barLow != null)
+				return false;
+		} else if (!barLow.equals(other.barLow))
 			return false;
 		if (barType != other.barType)
 			return false;
@@ -135,10 +150,17 @@ public class BarStatsData implements Serializable {
 	}
 
 	/**
-	 * @return the barSpread
+	 * @return the barHigh
 	 */
-	public BigDecimal getBarSpread() {
-		return barSpread;
+	public BigDecimal getBarHigh() {
+		return barHigh;
+	}
+
+	/**
+	 * @return the barLow
+	 */
+	public BigDecimal getBarLow() {
+		return barLow;
 	}
 
 	/**
@@ -207,7 +229,8 @@ public class BarStatsData implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((barClose == null) ? 0 : barClose.hashCode());
-		result = prime * result + ((barSpread == null) ? 0 : barSpread.hashCode());
+		result = prime * result + ((barHigh == null) ? 0 : barHigh.hashCode());
+		result = prime * result + ((barLow == null) ? 0 : barLow.hashCode());
 		result = prime * result + ((barType == null) ? 0 : barType.hashCode());
 		result = prime * result + ((barVolume == null) ? 0 : barVolume.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
@@ -228,11 +251,19 @@ public class BarStatsData implements Serializable {
 	}
 
 	/**
-	 * @param barSpread
-	 *            the barSpread to set
+	 * @param barHigh
+	 *            the barHigh to set
 	 */
-	public void setBarSpread(BigDecimal barSpread) {
-		this.barSpread = barSpread;
+	public void setBarHigh(BigDecimal barHigh) {
+		this.barHigh = barHigh;
+	}
+
+	/**
+	 * @param barLow
+	 *            the barLow to set
+	 */
+	public void setBarLow(BigDecimal barLow) {
+		this.barLow = barLow;
 	}
 
 	/**
@@ -306,10 +337,10 @@ public class BarStatsData implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "BarStatsData [barClose=" + barClose + ", barSpread=" + barSpread + ", barType=" + barType
-				+ ", volumeAbsorb=" + volumeAbsorb + ", barVolume=" + barVolume + ", imaCount=" + imaCount
-				+ ", trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight + ", volumeThermometer="
-				+ volumeThermometer + ", id=" + id + "]";
+		return "BarStatsData [barClose=" + barClose + ", barHigh=" + barHigh + ", barLow=" + barLow + ", barType="
+				+ barType + ", barVolume=" + barVolume + ", id=" + id + ", imaCount=" + imaCount
+				+ ", trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight + ", volumeAbsorb="
+				+ volumeAbsorb + ", volumeThermometer=" + volumeThermometer + "]";
 	}
 
 }
