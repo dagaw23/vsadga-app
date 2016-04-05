@@ -27,19 +27,25 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	public void backupArchiveData(String frameDesc, Date barDate, Integer tableNr) throws BaseServiceException {
 		List<BarData> data_list = null;
 
-		// wczytaj listę barów:
-		data_list = barDataDao.getAllToMaxDate(frameDesc, barDate);
+		try {
+			// wczytaj listę barów:
+			data_list = barDataDao.getAllToMaxDate(frameDesc, barDate);
 
-		if (data_list.size() == 0) {
-			LOGGER.info("   [ARCH] Brak barow do archiwizacji.");
-			return;
+			if (data_list.size() == 0) {
+				LOGGER.info("   [ARCH] Brak barow do archiwizacji.");
+				return;
+			}
+
+			// wpisz listę barów - do tabeli archiwalnej:
+			int[] row_cnt = barDataDao.writeAllToArchive(data_list, frameDesc, tableNr);
+
+			LOGGER.info("   [ARCH] Wpisano [" + row_cnt.length + "] rekordow dla frame [" + frameDesc
+					+ "] i numeru tabeli [" + tableNr + "] - do daty ["
+					+ DateConverter.dateToString(barDate, "yy/MM/dd HH:mm") + "].");
+		} catch (Throwable th) {
+			th.printStackTrace();
+			throw new BaseServiceException("::backupArchiveData:: wyjatek " + th.getClass().getName() + "!");
 		}
-
-		// wpisz listę barów - do tabeli archiwalnej:
-		int[] row_cnt = barDataDao.writeAllToArchive(data_list, frameDesc, tableNr);
-
-		LOGGER.info("   [ARCH] Wpisano [" + row_cnt.length + "] rekordow dla frame [" + frameDesc + "] i numeru tabeli ["
-				+ tableNr + "] - do daty [" + DateConverter.dateToString(barDate, "yy/MM/dd HH:mm") + "].");
 	}
 
 	@Override
@@ -50,8 +56,7 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	@Override
 	public List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame)
 			throws BaseServiceException {
-		List<BarData> result_list = barDataDao
-				.getLastNbarsData(symbol.getId(), timeFrame.getTimeFrameDesc(), size);
+		List<BarData> result_list = barDataDao.getLastNbarsData(symbol.getId(), timeFrame.getTimeFrameDesc(), size);
 
 		// sortowanie listy wynikowej:
 		Collections.sort(result_list, new Comparator<BarData>() {
@@ -71,11 +76,10 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	}
 
 	@Override
-	public List<BarData> getLastNbarDataFromTime(int size, CurrencySymbol symbol, TimeFrame timeFrame,
-			Date fromTime) throws BaseServiceException {
+	public List<BarData> getLastNbarDataFromTime(int size, CurrencySymbol symbol, TimeFrame timeFrame, Date fromTime)
+			throws BaseServiceException {
 		try {
-			return barDataDao.getLastNbarsDataFromTime(symbol.getId(), timeFrame.getTimeFrameDesc(), size,
-					fromTime);
+			return barDataDao.getLastNbarsDataFromTime(symbol.getId(), timeFrame.getTimeFrameDesc(), size, fromTime);
 		} catch (Throwable th) {
 			th.printStackTrace();
 			throw new BaseServiceException("::getLastNbarDataFromTime:: wyjatek " + th.getCause() + "!", th);
@@ -83,8 +87,7 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	}
 
 	@Override
-	public List<BarData> getNotProcessBarDataList(Integer symbolId, String timeFrameDesc)
-			throws BaseServiceException {
+	public List<BarData> getNotProcessBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException {
 		return barDataDao.getNotProcessBarDataList(symbolId, timeFrameDesc);
 	}
 

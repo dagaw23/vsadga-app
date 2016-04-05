@@ -7,6 +7,14 @@ import java.util.List;
 import pl.com.vsadga.data.BarData;
 
 public interface BarDataDao {
+	
+	/**
+	 * Usuwa wszystkie rekordy wg ID, które zostałe przesłane na liście
+	 * 
+	 * @param dataList
+	 * @return
+	 */
+	int deleteAll(List<BarData> dataList);
 
 	boolean existBarData(Integer symbolId, String frameDesc, Date barDate);
 
