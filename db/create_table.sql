@@ -187,7 +187,17 @@ create table fxschema.arch_data_h1_1(
 );
 create unique index arch_data_h1_1_idx ON fxschema.arch_data_h1_1 (bar_time, symbol_id);
 
-	
+create table fxschema.trade_alert(
+	id					integer			not null PRIMARY KEY,
+	alert_time			timestamp		not null,
+	alert_desc			varchar(500)	not null,
+	symbol_id			smallint		not null
+						REFERENCES fxschema.currency_symbol(id),
+	frame_id			smallint		not null
+						REFERENCES fxschema.time_frame(id)
+);
+
+
 CREATE SEQUENCE fxschema.data_m5_seq 
 	INCREMENT BY 1
     START WITH 1
@@ -212,15 +222,25 @@ CREATE SEQUENCE fxschema.data_h4_seq
 --nextval('fxschema.config_data_seq')
 
 insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (1, 'EURUSD', false, 'EURUSD');
+values (1, 'EURUSD', true, 'EURUSD');
 insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
 values (2, 'GOLD', true, 'GOLD');
 insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (3, 'GBPUSD', false, 'GBPUSD');
+values (3, 'GBPUSD', true, 'GBPUSD');
 insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (4, 'AUDUSD', false, 'AUDUSD');
+values (4, 'AUDUSD', true, 'AUDUSD');
 insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
 values (5, 'OIL', true, 'OIL');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
+values (6, 'USDJPY', true, 'USDJPY');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
+values (7, 'USDCHF', true, 'USDCHF');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
+values (8, 'USDCAD', true, 'USDCAD');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
+values (9, 'GBPCAD', true, 'GBPCAD');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
+values (10, 'GBPAUD', true, 'GBPAUD');
 
 
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
@@ -265,13 +285,19 @@ values (14, 'IS_BATCH_ANALYSE', '1');
 insert into fxschema.config_data(id, param_name, param_value)
 values (15, 'IS_BATCH_REWRITE', '1');
 insert into fxschema.config_data(id, param_name, param_value)
-values (16, 'IS_DATA_BACKUP', '1');
+values (16, 'IS_BATCH_BACKUP', '1');
 insert into fxschema.config_data(id, param_name, param_value)
 values (17, 'M5_DAYS_STAY', '14');
 insert into fxschema.config_data(id, param_name, param_value)
 values (18, 'M15_DAYS_STAY', '21');
 insert into fxschema.config_data(id, param_name, param_value)
 values (19, 'H1_DAYS_STAY', '60');
+insert into fxschema.config_data(id, param_name, param_value)
+values (20, 'M5_TABLE_NR', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (21, 'M15_TABLE_NR', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (22, 'H1_TABLE_NR', '1');
 
 
 

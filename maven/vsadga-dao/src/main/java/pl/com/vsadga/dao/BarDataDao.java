@@ -14,7 +14,7 @@ public interface BarDataDao {
 	 * @param dataList
 	 * @return
 	 */
-	int deleteAll(List<BarData> dataList);
+	int[] deleteAll(String frameDesc, List<BarData> dataList);
 
 	boolean existBarData(Integer symbolId, String frameDesc, Date barDate);
 

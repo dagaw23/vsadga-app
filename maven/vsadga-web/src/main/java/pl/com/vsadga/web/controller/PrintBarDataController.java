@@ -89,7 +89,7 @@ public class PrintBarDataController extends BaseController {
 		return msg;
 	}
 
-	private String getTableContent(List<BarData> dataList) {
+	private String getTableContent(List<BarData> dataList, TimeFrame timeFrame) {
 		StringBuffer result = new StringBuffer();
 
 		StringBuffer indy_row = new StringBuffer();
@@ -97,6 +97,7 @@ public class PrintBarDataController extends BaseController {
 		
 		StringBuffer vol_size_row = new StringBuffer();
 		StringBuffer vol_trd_row = new StringBuffer();
+		StringBuffer time_row = new StringBuffer();
 
 		result.append("<table>");
 		String vol_thrm = null;
@@ -143,6 +144,14 @@ public class PrintBarDataController extends BaseController {
 			vol_trd_row.append("'/>");
 
 			vol_size_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getVolumeSize()).append("</td>");
+			
+			// minuta lub godzina bara:
+			time_row.append("<td style='font-size:6px, font-family:Arial'>");
+			if (timeFrame.getTimeFrameDesc().startsWith("M"))
+				time_row.append(formatDate(bar_data.getBarTime(), "mm"));
+			else if (timeFrame.getTimeFrameDesc().startsWith("H"))
+				time_row.append(formatDate(bar_data.getBarTime(), "HH"));
+			time_row.append("</td>");
 		}
 
 		// indicators:
@@ -152,6 +161,8 @@ public class PrintBarDataController extends BaseController {
 		// wolumeny:
 		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(vol_size_row.toString()).append("</tr>");
 		result.append("<tr height='20'>").append(vol_trd_row.toString()).append("</tr>");
+		// minuta/godzina:
+		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(time_row.toString()).append("</tr>");
 
 		result.append("</table>");
 
@@ -184,7 +195,7 @@ public class PrintBarDataController extends BaseController {
 						+ FormatUtils.formatSimpleDate(bar_list.get(0).getBarTime()) + " - "
 						+ FormatUtils.formatSimpleDate(bar_list.get(bar_list.size()-1).getBarTime()) + "] <br>";
 				
-				html_tab += getTableContent(bar_list);
+				html_tab += getTableContent(bar_list, tme_frm);
 			}
 		} catch (BaseServiceException e) {
 			e.printStackTrace();

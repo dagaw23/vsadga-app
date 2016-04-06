@@ -38,10 +38,13 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 
 			// wpisz listę barów - do tabeli archiwalnej:
 			int[] row_cnt = barDataDao.writeAllToArchive(data_list, frameDesc, tableNr);
+			
+			// usuń bary z tabeli oryginalnej:
+			int[] del_cnt = barDataDao.deleteAll(frameDesc, data_list);
 
-			LOGGER.info("   [ARCH] Wpisano [" + row_cnt.length + "] rekordow dla frame [" + frameDesc
-					+ "] i numeru tabeli [" + tableNr + "] - do daty ["
-					+ DateConverter.dateToString(barDate, "yy/MM/dd HH:mm") + "].");
+			LOGGER.info("   [ARCH] Wpisano: [" + row_cnt.length + "], usunieto: [" + del_cnt.length
+					+ "] - dla ramy czasowej [" + frameDesc + "] i numeru tabeli [" + tableNr
+					+ "] - z data graniczna [" + DateConverter.dateToString(barDate, "yy/MM/dd HH:mm") + "].");
 		} catch (Throwable th) {
 			th.printStackTrace();
 			throw new BaseServiceException("::backupArchiveData:: wyjatek " + th.getClass().getName() + "!");

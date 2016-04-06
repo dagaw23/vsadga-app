@@ -40,7 +40,7 @@ public class DataRewriterBatchBean {
 	@Autowired
 	private TimeFrameService timeFrameService;
 
-	@Scheduled(cron = "5 * * * * MON-FRI")
+	@Scheduled(cron = "5 * * * * SUN-FRI")
 	public void cronJob() {
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;

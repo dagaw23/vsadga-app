@@ -48,4 +48,10 @@ public abstract class BaseController {
 		
 		return sdf.parse(param_value);
 	}
+	
+	protected String formatDate(Date inputDate, String pattern) {
+		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+		
+		return sdf.format(inputDate);
+	}
 }
