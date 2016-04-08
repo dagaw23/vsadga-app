@@ -35,7 +35,7 @@ public interface BarDataDao {
 
 	List<BarData> getLastNbarsData(Integer symbolId, String frameDesc, int size);
 
-	List<BarData> getLastNbarsDataFromTime(Integer symbolId, String frameDesc, int size, Date fromTime);
+	List<BarData> getLastNbarsDataToDate(Integer symbolId, String frameDesc, int size, Date cutoffDate);
 
 	/**
 	 * Pobiera listę barów dla waloru i ramki czasowej, który jeszcze nie został przetworzony wg
@@ -63,6 +63,8 @@ public interface BarDataDao {
 	 */
 	int update(String frameDesc, Integer id, BarData barData);
 
+	int updateIndicatorConfirmation(Integer id, Integer processPhase, boolean isConfirm, String frameDesc);
+	
 	int updateIndicatorData(BarData barData, Integer processPhase, String frameDesc);
 
 	int updateIndicatorWithTrend(Integer id, String frameDesc, Integer processPhase, String trendIndicator,

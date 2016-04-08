@@ -28,7 +28,7 @@ public class BarData implements Serializable {
 	private BigDecimal barLow;
 
 	/**
-	 * czas bara (w milisekundach)
+	 * czas bara
 	 */
 	private Date barTime;
 

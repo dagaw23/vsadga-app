@@ -147,7 +147,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
-	public List<BarData> getLastNbarsDataFromTime(Integer symbolId, String frameDesc, int size, Date fromTime) {
+	public List<BarData> getLastNbarsDataToDate(Integer symbolId, String frameDesc, int size, Date cutoffDate) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
 				+ " where symbol_id=? and bar_time<=? order by bar_time desc";
 
@@ -158,7 +158,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				return rs2BarData(rs);
 			}
 
-		}, symbolId, new Timestamp(fromTime.getTime()));
+		}, symbolId, new Timestamp(cutoffDate.getTime()));
 
 		if (data_list.size() <= size)
 			return data_list;
@@ -200,6 +200,13 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 		return getJdbcTemplate().update(sql, barData.getBarLow(), barData.getBarHigh(), barData.getBarClose(),
 				barData.getBarVolume(), barData.getImaCount(), barData.getProcessPhase(), id);
+	}
+
+	@Override
+	public int updateIndicatorConfirmation(Integer id, Integer processPhase, boolean isConfirm, String frameDesc) {
+		String sql = "update " + getTableName(frameDesc) + " set process_phase=?, is_confirm=? where id=?";
+
+		return getJdbcTemplate().update(sql, processPhase, isConfirm, id);
 	}
 
 	@Override

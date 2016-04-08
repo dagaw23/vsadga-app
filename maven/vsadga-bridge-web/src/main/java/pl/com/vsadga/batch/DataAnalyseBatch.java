@@ -43,7 +43,7 @@ public class DataAnalyseBatch {
 	@Autowired
 	private BarDataProcessor barDataProcessor;
 
-	@Scheduled(cron = "10 * * * * MON-FRI")
+	@Scheduled(cron = "10 * * * * SUN-FRI")
 	public void cronJob() {
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;
@@ -100,7 +100,7 @@ public class DataAnalyseBatch {
 		if (endDate == null)
 			bar_list = currencyDataService.getLastNbarData(barCount, symbol, timeFrame);
 		else
-			bar_list = currencyDataService.getLastNbarDataFromTime(barCount, symbol, timeFrame, endDate);
+			bar_list = currencyDataService.getLastNbarDataToDate(barCount, symbol, timeFrame, endDate);
 
 		// wypisy kontrolne:
 		int list_size = bar_list.size();

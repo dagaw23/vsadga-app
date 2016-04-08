@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.SpreadSize;
 import pl.com.vsadga.data.VolumeSize;
-import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.BarType;
 import pl.com.vsadga.dto.IndicatorInfo;
 import pl.com.vsadga.dto.cache.DataCache;
@@ -80,12 +79,13 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	private IndicatorInfo getDownBarIndy(BarData barData) {
 
 		if (barData.getSpreadSize() == SpreadSize.VH || barData.getSpreadSize() == SpreadSize.Hi) {
-			BarStatsData bar_last = dataCache.getPreviousBar(0);
+			BarData bar_last = dataCache.getPreviousBar(0);
 
 			// kierunek: Trap Up Move
 			if (bar_last != null && bar_last.getBarType() == BarType.UP_BAR
 					&& isClosedUpPart(bar_last.getBarHigh(), bar_last.getBarLow(), bar_last.getBarClose())
-					&& isClosedDownPart(barData) && barData.getBarHigh().compareTo(bar_last.getBarHigh()) > 0
+					&& isClosedDownPart(barData) 
+					&& barData.getBarHigh().compareTo(bar_last.getBarHigh()) > 0
 					&& isClosedBelowHalf(bar_last.getBarHigh(), bar_last.getBarLow(), barData.getBarClose())) {
 				LOGGER.info("   [INDY] DOWN bar Trap Up Move.");
 				return new IndicatorInfo(false, 58);
@@ -94,7 +94,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 		if (barData.getSpreadSize() == SpreadSize.VH || barData.getSpreadSize() == SpreadSize.Hi
 				|| barData.getSpreadSize() == SpreadSize.AV) {
-			BarStatsData bar_last = dataCache.getPreviousBar(0);
+			BarData bar_last = dataCache.getPreviousBar(0);
 
 			if (bar_last != null && (barData.getBarHigh().compareTo(bar_last.getBarHigh()) > 0)
 					&& isClosedDownPart(barData)) {
@@ -106,8 +106,8 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 		if (barData.getSpreadSize() == SpreadSize.VL || barData.getSpreadSize() == SpreadSize.Lo
 				|| barData.getSpreadSize() == SpreadSize.AV) {
-			BarStatsData bar_last = dataCache.getPreviousBar(0);
-			BarStatsData bar_prev = dataCache.getPreviousBar(1);
+			BarData bar_last = dataCache.getPreviousBar(0);
+			BarData bar_prev = dataCache.getPreviousBar(1);
 
 			// czy poprzednie bary są gotowe:
 			if (bar_last != null && bar_prev != null) {
@@ -155,8 +155,8 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 		if (barData.getSpreadSize() == SpreadSize.VL || barData.getSpreadSize() == SpreadSize.Lo
 				|| barData.getSpreadSize() == SpreadSize.AV) {
-			BarStatsData bar_last = dataCache.getPreviousBar(0);
-			BarStatsData bar_prev = dataCache.getPreviousBar(1);
+			BarData bar_last = dataCache.getPreviousBar(0);
+			BarData bar_prev = dataCache.getPreviousBar(1);
 
 			// czy poprzednie bary są gotowe:
 			if (bar_last != null && bar_prev != null) {

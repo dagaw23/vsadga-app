@@ -67,19 +67,19 @@ public class PrintBarDataController extends BaseController {
 
 	private List<BarData> getBarDataList(CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException,
 			ParseException {
-		Date from_time = null;
+		Date to_date = null;
 		Integer bar_count = null;
 
 		// liczba barów do wyświetlenia jest wymagana:
 		bar_count = getIntParamValue("VISIBILITY_BAR_COUNT", 5);
 
 		// pobierz datę graniczną wyświetlania:
-		from_time = getDateParamValue("VISIBILITY_END_DATE", "yyyy/MM/dd HH:mm");
+		to_date = getDateParamValue("VISIBILITY_END_DATE", "yyyy/MM/dd HH:mm");
 
-		if (from_time == null)
+		if (to_date == null)
 			return currencyDataService.getLastNbarData(bar_count, symbol, timeFrame);
 		else
-			return currencyDataService.getLastNbarDataFromTime(bar_count, symbol, timeFrame, from_time);
+			return currencyDataService.getLastNbarDataToDate(bar_count, symbol, timeFrame, to_date);
 
 	}
 

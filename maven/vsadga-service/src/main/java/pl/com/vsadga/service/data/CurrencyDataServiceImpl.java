@@ -23,6 +23,20 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 
 	private BarDataDao barDataDao;
 
+	private class BarDataSortDesc implements Comparator<BarData> {
+
+		@Override
+		public int compare(BarData o1, BarData o2) {
+			if (o1.getBarTime().getTime() > o2.getBarTime().getTime())
+				return 1;
+			else if (o1.getBarTime().getTime() < o2.getBarTime().getTime())
+				return -1;
+			else
+				return 0;
+		}
+
+	}
+
 	@Override
 	public void backupArchiveData(String frameDesc, Date barDate, Integer tableNr) throws BaseServiceException {
 		List<BarData> data_list = null;
@@ -38,7 +52,7 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 
 			// wpisz listę barów - do tabeli archiwalnej:
 			int[] row_cnt = barDataDao.writeAllToArchive(data_list, frameDesc, tableNr);
-			
+
 			// usuń bary z tabeli oryginalnej:
 			int[] del_cnt = barDataDao.deleteAll(frameDesc, data_list);
 
@@ -59,38 +73,43 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	@Override
 	public List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame)
 			throws BaseServiceException {
-		List<BarData> result_list = barDataDao.getLastNbarsData(symbol.getId(), timeFrame.getTimeFrameDesc(), size);
+		List<BarData> result_list = null;
 
-		// sortowanie listy wynikowej:
-		Collections.sort(result_list, new Comparator<BarData>() {
-
-			@Override
-			public int compare(BarData o1, BarData o2) {
-				if (o1.getBarTime().getTime() > o2.getBarTime().getTime())
-					return 1;
-				else if (o1.getBarTime().getTime() < o2.getBarTime().getTime())
-					return -1;
-				else
-					return 0;
-			}
-		});
-
-		return result_list;
-	}
-
-	@Override
-	public List<BarData> getLastNbarDataFromTime(int size, CurrencySymbol symbol, TimeFrame timeFrame, Date fromTime)
-			throws BaseServiceException {
 		try {
-			return barDataDao.getLastNbarsDataFromTime(symbol.getId(), timeFrame.getTimeFrameDesc(), size, fromTime);
+			result_list = barDataDao.getLastNbarsData(symbol.getId(), timeFrame.getTimeFrameDesc(), size);
+
+			// sortowanie listy wynikowej:
+			Collections.sort(result_list, new BarDataSortDesc());
+
+			return result_list;
 		} catch (Throwable th) {
 			th.printStackTrace();
-			throw new BaseServiceException("::getLastNbarDataFromTime:: wyjatek " + th.getCause() + "!", th);
+			throw new BaseServiceException("::getLastNbarData:: wyjatek " + th.getCause() + "!", th);
 		}
 	}
 
 	@Override
-	public List<BarData> getNotProcessBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException {
+	public List<BarData> getLastNbarDataToDate(int size, CurrencySymbol symbol, TimeFrame timeFrame, Date fromTime)
+			throws BaseServiceException {
+		List<BarData> result_list = null;
+
+		try {
+			result_list = barDataDao.getLastNbarsDataToDate(symbol.getId(), timeFrame.getTimeFrameDesc(), size,
+					fromTime);
+
+			// sortowanie listy wynikowej:
+			Collections.sort(result_list, new BarDataSortDesc());
+
+			return result_list;
+		} catch (Throwable th) {
+			th.printStackTrace();
+			throw new BaseServiceException("::getLastNbarDataToDate:: wyjatek " + th.getCause() + "!", th);
+		}
+	}
+
+	@Override
+	public List<BarData> getNotProcessBarDataList(Integer symbolId, String timeFrameDesc)
+			throws BaseServiceException {
 		return barDataDao.getNotProcessBarDataList(symbolId, timeFrameDesc);
 	}
 

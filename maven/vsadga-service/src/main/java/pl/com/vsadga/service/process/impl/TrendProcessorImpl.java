@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.com.vsadga.data.BarData;
-import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.cache.DataCache;
 import pl.com.vsadga.dto.process.TrendData;
 import pl.com.vsadga.service.BaseServiceException;
@@ -28,7 +27,7 @@ public class TrendProcessorImpl implements TrendProcessor {
 		}
 
 		// czy jest ostatni bar do wyliczenia:
-		BarStatsData prev_bar = dataCache.getLastBarData();
+		BarData prev_bar = dataCache.getLastBarData();
 		if (prev_bar == null) {
 			return new TrendData("S", 0);
 		}

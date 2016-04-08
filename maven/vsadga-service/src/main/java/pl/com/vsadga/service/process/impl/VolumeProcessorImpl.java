@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.data.BarData;
-import pl.com.vsadga.dto.BarStatsData;
 import pl.com.vsadga.dto.cache.DataCache;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
@@ -36,7 +35,7 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		}
 
 		// pobierz poprzedni bar:
-		BarStatsData prev_bar = dataCache.getLastBarData();
+		BarData prev_bar = dataCache.getLastBarData();
 		//LOGGER.info("   [ABS] " + prev_bar.getBarVolume() + "-" + prev_bar.getBarType() + "-" + prev_bar.getVolumeAbsorb());
 		//LOGGER.info("         " + actualBar.getBarVolume() + "-" + actualBar.getBarType() + ".");
 		int prev_vol = 0;

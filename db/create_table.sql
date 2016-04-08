@@ -190,7 +190,7 @@ create unique index arch_data_h1_1_idx ON fxschema.arch_data_h1_1 (bar_time, sym
 create table fxschema.trade_alert(
 	id					integer			not null PRIMARY KEY,
 	alert_time			timestamp		not null,
-	alert_desc			varchar(500)	not null,
+	alert_message		varchar(500)	not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id),
 	frame_id			smallint		not null
@@ -217,6 +217,11 @@ CREATE SEQUENCE fxschema.data_h4_seq
 	INCREMENT BY 1
     START WITH 1
 	CACHE 100
+	CYCLE;
+CREATE SEQUENCE fxschema.trade_alert_seq 
+	INCREMENT BY 1
+    START WITH 1
+	CACHE 10
 	CYCLE;
 
 --nextval('fxschema.config_data_seq')

@@ -89,6 +89,7 @@
 		<property name="indicatorProcessor" ref="indicatorProcessor" />
 		<property name="trendProcessor" ref="trendProcessor" />
 		<property name="volumeProcessor" ref="volumeProcessor" />
+		<property name="volumeSpreadRatio" value="200" />
 	</bean>
 
 </beans>
