@@ -53,10 +53,7 @@ public class TrendProcessorImpl implements TrendProcessor {
 				result = new TrendData(trend, weight);
 			} else {
 				// zmiana na DOWN
-				if (weight == 6)
-					result = new TrendData("S", 1);
-				else
-					result = new TrendData("U", 6);
+				result = new TrendData("S", 1);
 			}
 		}
 		// *** poprzedni bar to DOWNTREND ***
@@ -72,10 +69,7 @@ public class TrendProcessorImpl implements TrendProcessor {
 				result = new TrendData(trend, weight);
 			} else {
 				// zmiana na UP
-				if (weight == 1)
-					result = new TrendData("S", 6);
-				else
-					result = new TrendData("D", 1);
+				result = new TrendData("S", 6);
 			}
 		}
 		// *** poprzedni bar jest BOCZNY ***

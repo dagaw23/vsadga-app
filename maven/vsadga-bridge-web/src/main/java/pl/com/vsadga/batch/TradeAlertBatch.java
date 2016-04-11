@@ -27,7 +27,7 @@ public class TradeAlertBatch extends BaseBatch {
 	@Autowired
 	private TradeAlertProcessor tradeAlertProcessor;
 
-	@Scheduled(cron = "15 0/5 * * * SUN-FRI")
+	//@Scheduled(cron = "15 0/5 * * * SUN-FRI")
 	public void cronJob() {
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;

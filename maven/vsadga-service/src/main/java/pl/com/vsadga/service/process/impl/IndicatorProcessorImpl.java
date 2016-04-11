@@ -88,7 +88,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 					&& barData.getBarHigh().compareTo(bar_last.getBarHigh()) > 0
 					&& isClosedBelowHalf(bar_last.getBarHigh(), bar_last.getBarLow(), barData.getBarClose())) {
 				LOGGER.info("   [INDY] DOWN bar Trap Up Move.");
-				return new IndicatorInfo(false, 58);
+				return new IndicatorInfo(true, 58);
 			}
 		}
 

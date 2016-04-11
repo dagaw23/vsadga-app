@@ -109,8 +109,24 @@ public class PrintBarDataController extends BaseController {
 
 			// indicator:
 			indy_row.append("<td>");
-			if (bar_data.getIndicatorNr() != null && bar_data.getIndicatorNr().intValue() > 0)
-				indy_row.append(bar_data.getIndicatorNr().intValue());
+			if (bar_data.getIndicatorNr() != null) {
+				int ind_nr = bar_data.getIndicatorNr().intValue();
+				
+				if (ind_nr > 0) {
+					
+					if (ind_nr <= 10 || ind_nr == 40 || ind_nr == 58) {
+						if (bar_data.getIsConfirm() != null && bar_data.getIsConfirm().booleanValue()) {
+							indy_row.append("<b style='color:red;'>");
+							indy_row.append(bar_data.getIndicatorNr().intValue());
+							indy_row.append("</b>");
+						} else {
+							indy_row.append(bar_data.getIndicatorNr().intValue());
+						}
+					} else {
+						indy_row.append(bar_data.getIndicatorNr().intValue());
+					}
+				}
+			}
 			indy_row.append("</td>");
 
 			// trend:
@@ -189,6 +205,10 @@ public class PrintBarDataController extends BaseController {
 			for (TimeFrame tme_frm : frm_list) {
 				// pobierz listę barów:
 				bar_list = getBarDataList(symbol, tme_frm);
+				
+				// czy są bary do wyświetlenia:
+				if (bar_list.isEmpty())
+					continue;
 
 				// wpisz zakres data:
 				html_tab += "<br><br> Time: " + tme_frm.getTimeFrameDesc() + " [" 
