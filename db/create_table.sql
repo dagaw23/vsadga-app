@@ -192,9 +192,7 @@ create table fxschema.trade_alert(
 	alert_time			timestamp		not null,
 	alert_message		varchar(500)	not null,
 	symbol_id			smallint		not null
-						REFERENCES fxschema.currency_symbol(id),
-	frame_id			smallint		not null
-						REFERENCES fxschema.time_frame(id)
+						REFERENCES fxschema.currency_symbol(id)
 );
 
 
@@ -303,30 +301,7 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (21, 'M15_TABLE_NR', '1');
 insert into fxschema.config_data(id, param_name, param_value)
 values (22, 'H1_TABLE_NR', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (23, 'IS_BATCH_TRADE_ALERT', '0');
 
-
-
-alter table fxschema.data_m5
-	ADD COLUMN bar_type varchar(1),
-	ADD COLUMN volume_absorb integer,
-	ADD COLUMN volume_size varchar(2),
-	ADD COLUMN spread_size varchar(2);
-
-alter table fxschema.data_m15
-	ADD COLUMN bar_type varchar(1),
-	ADD COLUMN volume_absorb integer,
-	ADD COLUMN volume_size varchar(2),
-	ADD COLUMN spread_size varchar(2);
-
-alter table fxschema.data_h1
-	ADD COLUMN bar_type varchar(1),
-	ADD COLUMN volume_absorb integer,
-	ADD COLUMN volume_size varchar(2),
-	ADD COLUMN spread_size varchar(2);
-
-alter table fxschema.data_h4
-	ADD COLUMN bar_type varchar(1),
-	ADD COLUMN volume_absorb integer,
-	ADD COLUMN volume_size varchar(2),
-	ADD COLUMN spread_size varchar(2);
 

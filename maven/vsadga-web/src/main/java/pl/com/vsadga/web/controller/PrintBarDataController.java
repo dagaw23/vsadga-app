@@ -19,7 +19,6 @@ import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.data.CurrencyDataService;
 import pl.com.vsadga.service.symbol.SymbolService;
 import pl.com.vsadga.service.timeframe.TimeFrameService;
-import pl.com.vsadga.utils.DateConverter;
 import pl.com.vsadga.web.utils.FormatUtils;
 
 @Controller
@@ -49,6 +48,16 @@ public class PrintBarDataController extends BaseController {
 		return process("EURUSD");
 	}
 
+	@RequestMapping("/gbpaud")
+	public ModelAndView processGbpAud() {
+		return process("GBPAUD");
+	}
+
+	@RequestMapping("/gbpcad")
+	public ModelAndView processGbpCad() {
+		return process("GBPCAD");
+	}
+
 	@RequestMapping("/gbpusd")
 	public ModelAndView processGbpUsd() {
 		return process("GBPUSD");
@@ -63,6 +72,21 @@ public class PrintBarDataController extends BaseController {
 	@RequestMapping("/oil")
 	public ModelAndView processOil() {
 		return process("OIL");
+	}
+
+	@RequestMapping("/usdcad")
+	public ModelAndView processUsdCad() {
+		return process("USDCAD");
+	}
+
+	@RequestMapping("/usdchf")
+	public ModelAndView processUsdChf() {
+		return process("USDCHF");
+	}
+
+	@RequestMapping("/usdjpy")
+	public ModelAndView processUsdJpy() {
+		return process("USDJPY");
 	}
 
 	private List<BarData> getBarDataList(CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException,
@@ -94,7 +118,7 @@ public class PrintBarDataController extends BaseController {
 
 		StringBuffer indy_row = new StringBuffer();
 		StringBuffer trend_row = new StringBuffer();
-		
+
 		StringBuffer vol_size_row = new StringBuffer();
 		StringBuffer vol_trd_row = new StringBuffer();
 		StringBuffer time_row = new StringBuffer();
@@ -111,9 +135,9 @@ public class PrintBarDataController extends BaseController {
 			indy_row.append("<td>");
 			if (bar_data.getIndicatorNr() != null) {
 				int ind_nr = bar_data.getIndicatorNr().intValue();
-				
+
 				if (ind_nr > 0) {
-					
+
 					if (ind_nr <= 10 || ind_nr == 40 || ind_nr == 58) {
 						if (bar_data.getIsConfirm() != null && bar_data.getIsConfirm().booleanValue()) {
 							indy_row.append("<b style='color:red;'>");
@@ -143,7 +167,7 @@ public class PrintBarDataController extends BaseController {
 			// trend wolumenu:
 			vol_trd_row.append("<td width='20' style='background-color:");
 			vol_thrm = bar_data.getVolumeThermometer();
-			
+
 			if (vol_thrm == null) {
 				vol_trd_row.append("white");
 			} else if (vol_thrm.equals("U")) {
@@ -159,8 +183,9 @@ public class PrintBarDataController extends BaseController {
 			}
 			vol_trd_row.append("'/>");
 
-			vol_size_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getVolumeSize()).append("</td>");
-			
+			vol_size_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getVolumeSize())
+					.append("</td>");
+
 			// minuta lub godzina bara:
 			time_row.append("<td style='font-size:6px, font-family:Arial'>");
 			if (timeFrame.getTimeFrameDesc().startsWith("M"))
@@ -171,14 +196,17 @@ public class PrintBarDataController extends BaseController {
 		}
 
 		// indicators:
-		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(indy_row.toString()).append("</tr>");
+		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(indy_row.toString())
+				.append("</tr>");
 		// trend cen:
 		result.append("<tr height='20'>").append(trend_row.toString()).append("</tr>");
 		// wolumeny:
-		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(vol_size_row.toString()).append("</tr>");
+		result.append("<tr height='10' style='font-size:11px; text-align:center'>")
+				.append(vol_size_row.toString()).append("</tr>");
 		result.append("<tr height='20'>").append(vol_trd_row.toString()).append("</tr>");
 		// minuta/godzina:
-		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(time_row.toString()).append("</tr>");
+		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(time_row.toString())
+				.append("</tr>");
 
 		result.append("</table>");
 
@@ -205,16 +233,16 @@ public class PrintBarDataController extends BaseController {
 			for (TimeFrame tme_frm : frm_list) {
 				// pobierz listę barów:
 				bar_list = getBarDataList(symbol, tme_frm);
-				
+
 				// czy są bary do wyświetlenia:
 				if (bar_list.isEmpty())
 					continue;
 
 				// wpisz zakres data:
-				html_tab += "<br><br> Time: " + tme_frm.getTimeFrameDesc() + " [" 
+				html_tab += "<br><br> Time: " + tme_frm.getTimeFrameDesc() + " ["
 						+ FormatUtils.formatSimpleDate(bar_list.get(0).getBarTime()) + " - "
-						+ FormatUtils.formatSimpleDate(bar_list.get(bar_list.size()-1).getBarTime()) + "] <br>";
-				
+						+ FormatUtils.formatSimpleDate(bar_list.get(bar_list.size() - 1).getBarTime()) + "] <br>";
+
 				html_tab += getTableContent(bar_list, tme_frm);
 			}
 		} catch (BaseServiceException e) {
@@ -225,5 +253,5 @@ public class PrintBarDataController extends BaseController {
 
 		return new ModelAndView("print-data", "html_tab", html_tab);
 	}
-	
+
 }

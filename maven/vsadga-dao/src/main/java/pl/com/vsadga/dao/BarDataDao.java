@@ -34,8 +34,17 @@ public interface BarDataDao {
 	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
 
 	List<BarData> getLastNbarsData(Integer symbolId, String frameDesc, int size);
-
+	
 	List<BarData> getLastNbarsDataToDate(Integer symbolId, String frameDesc, int size, Date cutoffDate);
+
+	/**
+	 * Pobiera ostatni przetworzony (processPhase > 1) bar.
+	 * 
+	 * @param symbolId
+	 * @param frameDesc opis dotyczący ramki czasowej
+	 * @return
+	 */
+	BarData getLastProcessBarData(Integer symbolId, String frameDesc);
 
 	/**
 	 * Pobiera listę barów dla waloru i ramki czasowej, który jeszcze nie został przetworzony wg

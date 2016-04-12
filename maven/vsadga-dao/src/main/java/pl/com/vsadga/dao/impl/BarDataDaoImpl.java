@@ -167,6 +167,26 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
+	public BarData getLastProcessBarData(Integer symbolId, String frameDesc) {
+		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
+				+ " where symbol_id=? and process_phase>1 order by bar_time desc";
+
+		List<BarData> data_list = getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+			@Override
+			public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2BarData(rs);
+			}
+
+		}, symbolId);
+
+		if (data_list.size() < 1)
+			return null;
+		else
+			return data_list.get(0);
+	}
+
+	@Override
 	public List<BarData> getNotProcessBarDataList(Integer symbolId, String frameDesc) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
 				+ " where symbol_id=? and process_phase=1 order by bar_time asc";

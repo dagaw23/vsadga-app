@@ -44,6 +44,9 @@
 	<bean id="timeFrameListDao" class="pl.com.vsadga.dao.impl.TimeFrameDaoImpl">
 		<constructor-arg ref="dataSource" />
 	</bean>
+	<bean id="tradeAlertDao" class="pl.com.vsadga.dao.impl.TradeAlertDaoImpl">
+		<constructor-arg ref="dataSource" />
+	</bean>
 
 	<!-- Services -->
 	<bean id="configDataService" class="pl.com.vsadga.service.config.ConfigDataServiceImpl">
@@ -72,6 +75,10 @@
 	<bean id="indicatorProcessor" class="pl.com.vsadga.service.process.impl.IndicatorProcessorImpl">
 		<property name="configDataService" ref="configDataService" />
 		<property name="dataCache" ref="dataCache" />
+	</bean>
+	<bean id="tradeAlertProcessor" class="pl.com.vsadga.service.process.impl.TradeAlertProcessorImpl">
+		<property name="barDataDao" ref="barDataDao" />
+		<property name="tradeAlertDao" ref="tradeAlertDao" />
 	</bean>
 	<bean id="trendProcessor" class="pl.com.vsadga.service.process.impl.TrendProcessorImpl">
 		<property name="configDataService" ref="configDataService" />

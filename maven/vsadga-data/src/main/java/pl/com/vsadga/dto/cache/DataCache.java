@@ -363,7 +363,7 @@ public class DataCache {
 		sb.append(avg_vol).append(", LO=");
 		sb.append(lo_vol).append(", VL=");
 		sb.append(vl_vol).append(" - RETURN=").append(result).append(".");
-		LOGGER.info(sb.toString());
+		//LOGGER.info(sb.toString());
 		
 		return result;
 	}
