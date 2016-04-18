@@ -21,16 +21,15 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndicatorProcessorImpl.class);
 
-	/*public static void main(String[] args) {
-		IndicatorProcessorImpl obj = new IndicatorProcessorImpl();
-
-		BarData bar = new BarData();
-		bar.setBarLow(new BigDecimal(1262.48));
-		bar.setBarHigh(new BigDecimal(1263.21));
-		bar.setBarClose(new BigDecimal(1262.944));
-
-		System.out.println(obj.isClosedAboveHalf(bar));
-	}*/
+	/*
+	 * public static void main(String[] args) { IndicatorProcessorImpl obj = new
+	 * IndicatorProcessorImpl();
+	 * 
+	 * BarData bar = new BarData(); bar.setBarLow(new BigDecimal(1262.48)); bar.setBarHigh(new
+	 * BigDecimal(1263.21)); bar.setBarClose(new BigDecimal(1262.944));
+	 * 
+	 * System.out.println(obj.isClosedAboveHalf(bar)); }
+	 */
 
 	private ConfigDataService configDataService;
 
@@ -75,17 +74,53 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	public void setDataCache(DataCache dataCache) {
 		this.dataCache = dataCache;
 	}
+	
+	/**
+	 * Sprawdza, czy Wolumen przesłanego barData - jest większy od Wolumenu w podanych barach.
+	 * 
+	 * @param barCount
+	 *            liczba barów pobieranych z CACHE
+	 * @param barData
+	 *            bar aktualny, z którego pobierany jest Wolumen
+	 * @return true: Wolumen przesłanego barData - jest większy od Wolumenu sprawdzanego zakresu barów, <br/>
+	 *         false: Wolumen przesłanego barData - nie jest większy od Wolumenu sprawdzanego zakresu barów
+	 */
+	private boolean isHigherVolumeThenNbars(int barCount, BarData barData) {
+		
+		for (int i=0; i<barCount; i++) {
+			if (!isHigherVolume(i, barData))
+				return false;
+		}
+		
+		return true;
+	}
+	
+	private boolean isPotentialStoppingVolume(BarData actualBar) {
+		// DOWN bar powienie zamknąć się - z dala od minimum bara:
+		if (isClosedDownPart(actualBar))
+			return false;
+		
+		// spraed musi być średni lub mały:
+		if (actualBar.getSpreadSize().getWeight() > 3)
+			return false;
+		
+		// wolumen większy od poprzednich 8 barów:
+		return isHigherVolumeThenNbars(8, actualBar);
+	}
+	
+	
 
 	private IndicatorInfo getDownBarIndy(BarData barData) {
-
+		SpreadSize spr_size = barData.getSpreadSize();
+		VolumeSize vol_size = barData.getVolumeSize();
+		
 		if (barData.getSpreadSize() == SpreadSize.VH || barData.getSpreadSize() == SpreadSize.Hi) {
 			BarData bar_last = dataCache.getPreviousBar(0);
 
 			// kierunek: Trap Up Move
 			if (bar_last != null && bar_last.getBarType() == BarType.UP_BAR
 					&& isClosedUpPart(bar_last.getBarHigh(), bar_last.getBarLow(), bar_last.getBarClose())
-					&& isClosedDownPart(barData) 
-					&& barData.getBarHigh().compareTo(bar_last.getBarHigh()) > 0
+					&& isClosedDownPart(barData) && barData.getBarHigh().compareTo(bar_last.getBarHigh()) > 0
 					&& isClosedBelowHalf(bar_last.getBarHigh(), bar_last.getBarLow(), barData.getBarClose())) {
 				LOGGER.info("   [INDY] DOWN bar Trap Up Move.");
 				return new IndicatorInfo(true, 58);
@@ -116,11 +151,128 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 					return new IndicatorInfo(false, 198);
 			}
 		}
+		
+		// kierunek: Potential Stopping Volume
+		if (isPotentialStoppingVolume(barData)) {
+			LOGGER.info("   [INDY] DOWN bar Potential Stopping Volume.");
+			return new IndicatorInfo(false, 123);
+		}
+		
+		// kierunek: Test
+		if (isTest(barData)) {
+			LOGGER.info("   [INDY] DOWN bar Test.");
+			return new IndicatorInfo(false, 116);
+		}
 
 		return null;
 	}
+	
+	private boolean isTest(BarData actualBar) {
+		// DOWN bar powienie zamknąć się w górnej części:
+		if (isClosedDownPart(actualBar))
+			return false;
+		
+		// spraed musi być średni lub mały:
+		if (actualBar.getSpreadSize().getWeight() > 3)
+			return false;
+		
+		// wolumen musi być średni lub mały:
+		if (actualBar.getVolumeSize().getWeight() > 3)
+			return false;
+		
+		return true;
+	}
+
+	private boolean isBottomReversal(BarData actualBar, BarData lastBar) {
+		// DOWN bar powienie zamknąć się w dolnej części:
+		if (!isClosedDownPart(lastBar))
+			return false;
+		
+		// Low, Close - w porównaniu z 4-ma poprzednimi:
+		if (isLowerLowAndClose(1, lastBar) && isLowerLowAndClose(2, lastBar) && isLowerLowAndClose(3, lastBar) && isLowerLowAndClose(4, lastBar)) {
+			// UP bar powinien zamknąć się w górnej części bara:
+			if (!isClosedUpPart(actualBar))
+				return false;
+			
+			// wolumeny na obydwu barach: Hi lub większe
+			if (lastBar.getVolumeSize().getWeight() < 4 || actualBar.getVolumeSize().getWeight() < 4)
+				return false;
+			
+			// spready na obydwu barach: 
+			if (lastBar.getSpreadSize().getWeight() < 4 || actualBar.getSpreadSize().getWeight() < 3)
+				return false;
+			
+			return true;
+		} else
+			return false;
+	}
+
+	/**
+	 * Sprawdza, czy Low i Close przesłanego barData - jest mniejszy od Low i Close bara o podanym
+	 * numerze. Jeśli bar o podanym numerze jeszcze nie istnieje w CACHE - zwracana jest wartość
+	 * false.
+	 * 
+	 * @param barNr
+	 *            numer bara pobieranego z CACHE
+	 * @param barData
+	 *            bar aktualny, z którego pobierany jest Low
+	 * @return true: Low i Close przesłanego barData - jest mniejszy od Low i Close bara o podanym
+	 *         numerze, <br/>
+	 *         false: Low lub Close przesłanego barData - nie jest mniejszy od Low bara o podanym
+	 *         numerze lub też bar o podanym numerze jeszcze nie istnieje w CACHE
+	 */
+	private boolean isLowerLowAndClose(int barNr, BarData barData) {
+		BarData prev_bar = dataCache.getPreviousBar(barNr);
+
+		if (prev_bar == null)
+			return false;
+
+		if ((barData.getBarLow().compareTo(prev_bar.getBarLow()) < 0)
+				&& (barData.getBarClose().compareTo(prev_bar.getBarClose()) < 0))
+			return true;
+		else
+			return false;
+	}
+	
+	/**
+	 * Sprawdza, czy Wolumen przesłanego barData - jest większy od Wolumenu bara o podanym
+	 * numerze. Jeśli bar o podanym numerze jeszcze nie istnieje w CACHE - zwracana jest wartość
+	 * false.
+	 * 
+	 * @param barNr
+	 *            numer bara pobieranego z CACHE
+	 * @param barData
+	 *            bar aktualny, z którego pobierany jest Wolumen
+	 * @return true: Wolumen przesłanego barData - jest większy od Wolumenu bara o podanym
+	 *         numerze, <br/>
+	 *         false: Wolumen przesłanego barData - nie jest większy od Wolumenu bara o podanym
+	 *         numerze lub też bar o podanym numerze jeszcze nie istnieje w CACHE
+	 */
+	private boolean isHigherVolume(int barNr, BarData barData) {
+		BarData prev_bar = dataCache.getPreviousBar(barNr);
+
+		if (prev_bar == null)
+			return false;
+
+		if (barData.getBarVolume().intValue() > prev_bar.getBarVolume().intValue())
+			return true;
+		else
+			return false;
+	}
 
 	private IndicatorInfo getUpBarIndy(BarData barData) {
+		SpreadSize spr_size = barData.getSpreadSize();
+		VolumeSize vol_size = barData.getVolumeSize();
+		BarData bar_last = dataCache.getPreviousBar(0);
+
+		// możliwa akcja na dwóch barach:
+		if (bar_last.getBarType() == BarType.DOWN_BAR) {
+			if (isBottomReversal(barData, bar_last)) {
+				LOGGER.info("   [INDY] UP bar Bottom Reversal.");
+				return new IndicatorInfo(true, 94);
+			}
+		}
+
 		if (barData.getVolumeSize() == VolumeSize.UH || barData.getVolumeSize() == VolumeSize.VH) {
 
 			if (barData.getSpreadSize() == SpreadSize.VH || barData.getSpreadSize() == SpreadSize.Hi) {
@@ -155,7 +307,6 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 		if (barData.getSpreadSize() == SpreadSize.VL || barData.getSpreadSize() == SpreadSize.Lo
 				|| barData.getSpreadSize() == SpreadSize.AV) {
-			BarData bar_last = dataCache.getPreviousBar(0);
 			BarData bar_prev = dataCache.getPreviousBar(1);
 
 			// czy poprzednie bary są gotowe:
@@ -258,7 +409,8 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 		BigDecimal spr_add = b_spread.multiply(new BigDecimal(0.30)).setScale(6, RoundingMode.HALF_UP);
 		BigDecimal price_limit = barLow.add(spr_add).setScale(6, RoundingMode.HALF_UP);
 
-		//System.out.println("   spread=" + b_spread + ", spr_add=" + spr_add + ", price_limit=" + price_limit);
+		// System.out.println("   spread=" + b_spread + ", spr_add=" + spr_add + ", price_limit=" +
+		// price_limit);
 
 		if (barClose.compareTo(price_limit) < 0)
 			return true;

@@ -146,6 +146,14 @@ public class PrintBarDataController extends BaseController {
 						} else {
 							indy_row.append(bar_data.getIndicatorNr().intValue());
 						}
+					} else if (ind_nr > 90) {
+						if (bar_data.getIsConfirm() != null && bar_data.getIsConfirm().booleanValue()) {
+							indy_row.append("<b style='color:green;'>");
+							indy_row.append(bar_data.getIndicatorNr().intValue());
+							indy_row.append("</b>");
+						} else {
+							indy_row.append(bar_data.getIndicatorNr().intValue());
+						}
 					} else {
 						indy_row.append(bar_data.getIndicatorNr().intValue());
 					}

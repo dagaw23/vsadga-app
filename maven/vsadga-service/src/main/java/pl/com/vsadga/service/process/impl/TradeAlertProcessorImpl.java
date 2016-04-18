@@ -57,11 +57,16 @@ public class TradeAlertProcessorImpl implements TradeAlertProcessor {
 		if (trend_tab[0].equals(trend_tab[1]) && trend_tab[1].equals(trend_tab[2])
 				&& trend_tab[2].equals(trend_tab[3])) {
 			msg = "READY to trade [" + symbol.getSymbolName() + "] - ";
+			
+			// bary muszą być U lub D:
+			String bar_typ = trend_tab[3];
+			if (!bar_typ.equals("U") && !bar_typ.equals("D"))
+				return;
 
-			if (trend_tab[0].equals("U"))
+			if (bar_typ.equals("U"))
 				msg += "UP trade.";
 
-			if (trend_tab[0].equals("D"))
+			if (bar_typ.equals("D"))
 				msg += "DOWN trade.";
 
 			tradeAlertDao.insert(msg, symbol.getId());
@@ -70,11 +75,16 @@ public class TradeAlertProcessorImpl implements TradeAlertProcessor {
 
 		if (trend_tab[1].equals(trend_tab[2]) && trend_tab[2].equals(trend_tab[3])) {
 			msg = "WATCH to trade [" + symbol.getSymbolName() + "] - ";
+			
+			// bary muszą być U lub D:
+			String bar_typ = trend_tab[3];
+			if (!bar_typ.equals("U") && !bar_typ.equals("D"))
+				return;
 
-			if (trend_tab[0].equals("U"))
+			if (bar_typ.equals("U"))
 				msg += "UP trade.";
 
-			if (trend_tab[0].equals("D"))
+			if (bar_typ.equals("D"))
 				msg += "DOWN trade.";
 
 			tradeAlertDao.insert(msg, symbol.getId());

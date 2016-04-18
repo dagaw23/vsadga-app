@@ -228,9 +228,21 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		case 1:
 		case 6:
 		case 7:
-		case 10:
-		case 40: {
+		case 8:
+		case 40: 
+		case 58: {
 			if (barData.getBarType() == BarType.DOWN_BAR)
+				barDataDao.updateIndicatorConfirmation(prev_bar.getId(), 3, true, frameDesc);
+			else
+				barDataDao.updateProcessPhase(prev_bar.getId(), 3, frameDesc);
+
+			break;
+		}
+		case 94:
+		case 116:
+		case 123:
+		case 198: {
+			if (barData.getBarType() == BarType.UP_BAR)
 				barDataDao.updateIndicatorConfirmation(prev_bar.getId(), 3, true, frameDesc);
 			else
 				barDataDao.updateProcessPhase(prev_bar.getId(), 3, frameDesc);
