@@ -111,8 +111,34 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	
 
 	private IndicatorInfo getDownBarIndy(BarData barData) {
+		Integer indy_nr = null;
 		SpreadSize spr_size = barData.getSpreadSize();
 		VolumeSize vol_size = barData.getVolumeSize();
+		
+		// kierunek: Bag Holding
+		if (isBagHolding(barData)) {
+			LOGGER.info("   [INDY] DOWN bar Bag Holding.");
+			return new IndicatorInfo(false, 36);
+		}
+		
+		// kierunek: Selling Climax
+		if (isSellingClimax(barData)) {
+			LOGGER.info("   [INDY] DOWN bar Selling Climax.");
+			return new IndicatorInfo(false, 33);
+		}
+		
+		// kierunek: Shakeout
+		indy_nr = isShakeout(barData);
+		if (indy_nr != null) {
+			LOGGER.info("   [INDY] DOWN bar Shakeout.");
+			return new IndicatorInfo(false, indy_nr);
+		}
+		
+		// kierunek: No Supply
+		if (isNoSupply(barData)) {
+			LOGGER.info("   [INDY] DOWN bar No Supply.");
+			return new IndicatorInfo(false, 198);
+		}
 		
 		if (barData.getSpreadSize() == SpreadSize.VH || barData.getSpreadSize() == SpreadSize.Hi) {
 			BarData bar_last = dataCache.getPreviousBar(0);
@@ -139,19 +165,6 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 			}
 		}
 
-		if (barData.getSpreadSize() == SpreadSize.VL || barData.getSpreadSize() == SpreadSize.Lo
-				|| barData.getSpreadSize() == SpreadSize.AV) {
-			BarData bar_last = dataCache.getPreviousBar(0);
-			BarData bar_prev = dataCache.getPreviousBar(1);
-
-			// czy poprzednie bary są gotowe:
-			if (bar_last != null && bar_prev != null) {
-				// kierunek: No Supply
-				if (dataCache.isVolumeLessThen2(barData, bar_last, bar_prev))
-					return new IndicatorInfo(false, 198);
-			}
-		}
-		
 		// kierunek: Potential Stopping Volume
 		if (isPotentialStoppingVolume(barData)) {
 			LOGGER.info("   [INDY] DOWN bar Potential Stopping Volume.");
@@ -165,6 +178,69 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 		}
 
 		return null;
+	}
+	
+	private boolean isBagHolding(BarData actualBar) {
+		// wymagany wolumen: UH
+		if (actualBar.getVolumeSize().getWeight() < 6)
+			return false;
+		
+		// wymagany spread: AV, Lo, VL
+		if (actualBar.getSpreadSize().getWeight() > 2)
+			return false;
+		
+		// wymagane zamknięcie: pośrodku lub w górnej części
+		if (isClosedDownPart(actualBar))
+			return false;
+		
+		return true;
+	}
+	
+	private Integer isShakeout(BarData actualBar) {
+		// wymagany spread: Hi, VH
+		if (actualBar.getSpreadSize().getWeight() < 4)
+			return null;
+		
+		// wymagane zamknięcie: w górnej części
+		if (!isClosedUpPart(actualBar))
+			return null;
+		
+		// wolumen: mały lub duży
+		if (actualBar.getVolumeSize().getWeight() < 4)
+			return 87;
+		else
+			return 34;
+	}
+	
+	private boolean isNoSupply(BarData actualBar) {
+		// wymagany spread: VL, Lo, AV
+		if (actualBar.getSpreadSize().getWeight() > 3)
+			return false;
+		
+		BarData bar_last = dataCache.getPreviousBar(0);
+		BarData bar_prev = dataCache.getPreviousBar(1);
+
+		// czy poprzednie bary są gotowe:
+		if (bar_last == null || bar_prev == null)
+			return false;
+		
+		return dataCache.isVolumeLessThen2(actualBar, bar_last, bar_prev);
+	}
+	
+	private boolean isSellingClimax(BarData actualBar) {
+		// wymagany wolumen: UH
+		if (actualBar.getVolumeSize().getWeight() < 6)
+			return false;
+		
+		// wymagany spread: Hi, VH
+		if (actualBar.getSpreadSize().getWeight() < 4)
+			return false;
+		
+		// wymagane zamknięcie: pośrodku lub w górnej części
+		if (isClosedDownPart(actualBar))
+			return false;
+		
+		return true;
 	}
 	
 	private boolean isTest(BarData actualBar) {
