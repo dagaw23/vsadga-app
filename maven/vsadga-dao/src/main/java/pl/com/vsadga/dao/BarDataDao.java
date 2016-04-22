@@ -45,6 +45,8 @@ public interface BarDataDao {
 	 * @return
 	 */
 	BarData getLastProcessBarData(Integer symbolId, String frameDesc);
+	
+	Integer getMaxVolume(Integer symbolId, String frameDesc, Date minimumDate, Date maxDate);
 
 	/**
 	 * Pobiera listę barów dla waloru i ramki czasowej, który jeszcze nie został przetworzony wg

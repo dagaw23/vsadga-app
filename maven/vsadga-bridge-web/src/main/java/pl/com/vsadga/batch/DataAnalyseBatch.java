@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,20 +15,20 @@ import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.service.BaseServiceException;
-import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.data.CurrencyDataService;
 import pl.com.vsadga.service.process.BarDataProcessor;
+import pl.com.vsadga.service.process.VolumeProcessor;
 import pl.com.vsadga.service.symbol.SymbolService;
 import pl.com.vsadga.service.timeframe.TimeFrameService;
 import pl.com.vsadga.utils.DateConverter;
 
 @Component
-public class DataAnalyseBatch {
+public class DataAnalyseBatch extends BaseBatch {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DataAnalyseBatch.class);
 
 	@Autowired
-	private ConfigDataService configDataService;
+	private BarDataProcessor barDataProcessor;
 
 	@Autowired
 	private CurrencyDataService currencyDataService;
@@ -41,7 +40,7 @@ public class DataAnalyseBatch {
 	private TimeFrameService timeFrameService;
 
 	@Autowired
-	private BarDataProcessor barDataProcessor;
+	private VolumeProcessor volumeProcessor;
 
 	@Scheduled(cron = "10 * * * * SUN-FRI")
 	public void cronJob() {
@@ -55,6 +54,9 @@ public class DataAnalyseBatch {
 			// sprawdzenie, czy BATCH nie jest zatrzymany:
 			if (!isProcessBatch())
 				return;
+
+			// wpisanie konfiguracji do VolumeProcessor:
+			initConfigData();
 
 			// pobierz listę aktywnych symboli:
 			symbol_list = symbolService.getActiveSymbols();
@@ -89,12 +91,36 @@ public class DataAnalyseBatch {
 		}
 	}
 
-	private List<BarData> getBarData(Date endDate, int barCount, CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException {
-		List<BarData> bar_list = null;
+	private int getAnalyseBarCount() throws BaseServiceException {
+		Integer param_int = getIntParamValue("ANALYSE_BAR_COUNT");
 
-		// liczba barów musi zostać podana:
-		if (barCount == 0)
-			throw new BaseServiceException("::getBarData:: brak liczby barow ANALYSE_BAR_COUNT w CONFIG_DATA.");
+		if (param_int == null)
+			throw new BaseServiceException("::getAnalyseBarCount:: brak parametru ANALYSE_BAR_COUNT [" + param_int
+					+ "] w CONFIG_DATA.");
+
+		return param_int;
+	}
+
+	private Date getAnalyseEndDate() throws BaseServiceException {
+		String param_value = getStringParamValue("ANALYSE_END_DATE");
+
+		if (param_value == null)
+			return null;
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+		sdf.setLenient(false);
+
+		try {
+			return sdf.parse(param_value);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	private List<BarData> getBarData(Date endDate, int barCount, CurrencySymbol symbol, TimeFrame timeFrame)
+			throws BaseServiceException {
+		List<BarData> bar_list = null;
 
 		// czy jest podana data graniczna dla barów:
 		if (endDate == null)
@@ -116,57 +142,20 @@ public class DataAnalyseBatch {
 		return bar_list;
 	}
 
-	private int getAnalyseBarCount() throws BaseServiceException {
-		String param_value = configDataService.getParam("ANALYSE_BAR_COUNT");
-
-		if (param_value == null || StringUtils.isBlank(param_value)) {
-			LOGGER.info("   [BATCH] Brak parametru IS_BATCH_ANALYSE [" + param_value + "] w tabeli CONFIG_DATA.");
-			return 0;
-		}
-
-		if (!StringUtils.isNumeric(param_value)) {
-			LOGGER.info("   [BATCH] Parametr IS_BATCH_ANALYSE [" + param_value + "] nie jest numeryczny.");
-			return 0;
-		}
-
-		return Integer.valueOf(param_value);
-	}
-
-	private Date getAnalyseEndDate() throws BaseServiceException {
-		String param_value = configDataService.getParam("ANALYSE_END_DATE");
-
-		if (param_value == null || StringUtils.isBlank(param_value)) {
-			LOGGER.info("   [BATCH] Brak parametru ANALYSE_END_DATE [" + param_value + "] w tabeli CONFIG_DATA.");
-			return null;
-		}
-
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-		sdf.setLenient(false);
-
-		try {
-			return sdf.parse(param_value);
-		} catch (ParseException e) {
-			e.printStackTrace();
-			return null;
-		}
+	private void initConfigData() throws BaseServiceException {
+		volumeProcessor.initLevelPositions(getStringParamValue("H4_LEVELS").split(","),
+				getStringParamValue("H1_LEVELS").split(","),
+				getStringParamValue("M15_LEVELS").split(","),
+				getStringParamValue("M5_LEVELS").split(","));
 	}
 
 	private boolean isProcessBatch() throws BaseServiceException {
-		String param_value = configDataService.getParam("IS_BATCH_ANALYSE");
+		Integer is_proc = getIntParamValue("IS_BATCH_ANALYSE");
 
-		if (param_value == null || StringUtils.isBlank(param_value)) {
-			LOGGER.info("   [BATCH] Brak parametru IS_BATCH_ANALYSE [" + param_value + "] w tabeli CONFIG_DATA.");
+		if (is_proc == null)
 			return false;
-		}
 
-		if (!StringUtils.isNumeric(param_value)) {
-			LOGGER.info("   [BATCH] Parametr IS_BATCH_ANALYSE [" + param_value + "] nie jest numeryczny.");
-			return false;
-		}
-
-		int is_proc = Integer.valueOf(param_value);
-
-		if (is_proc == 1) {
+		if (is_proc.intValue() == 1) {
 			return true;
 		} else {
 			LOGGER.info("   [BATCH] Wylaczony Batch analizy barow [" + is_proc + "].");

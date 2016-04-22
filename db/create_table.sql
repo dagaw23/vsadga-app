@@ -303,5 +303,12 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (22, 'H1_TABLE_NR', '1');
 insert into fxschema.config_data(id, param_name, param_value)
 values (23, 'IS_BATCH_TRADE_ALERT', '0');
-
+insert into fxschema.config_data(id, param_name, param_value)
+values (24, 'M5_LEVELS', '4,8,16,40');
+insert into fxschema.config_data(id, param_name, param_value)
+values (25, 'M15_LEVELS', '8,16,40,80');
+insert into fxschema.config_data(id, param_name, param_value)
+values (26, 'H1_LEVELS', '24,50,100,200');
+insert into fxschema.config_data(id, param_name, param_value)
+values (27, 'H4_LEVELS', '100,200,400,800');
 

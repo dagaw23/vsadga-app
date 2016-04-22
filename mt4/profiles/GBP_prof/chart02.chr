@@ -2,14 +2,14 @@
 id=131055216690240083
 symbol=GBPUSD
 period=240
-leftpos=9704
+leftpos=9703
 digits=5
 scale=16
 graph=0
 fore=0
 grid=1
 volume=0
-scroll=1
+scroll=0
 shift=1
 ohlc=1
 one_click=0

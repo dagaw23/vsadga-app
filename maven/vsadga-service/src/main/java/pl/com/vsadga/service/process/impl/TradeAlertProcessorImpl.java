@@ -1,5 +1,8 @@
 package pl.com.vsadga.service.process.impl;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -12,6 +15,7 @@ import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.process.TradeAlertProcessor;
+import pl.com.vsadga.utils.DateConverter;
 
 public class TradeAlertProcessorImpl implements TradeAlertProcessor {
 
@@ -57,7 +61,7 @@ public class TradeAlertProcessorImpl implements TradeAlertProcessor {
 		if (trend_tab[0].equals(trend_tab[1]) && trend_tab[1].equals(trend_tab[2])
 				&& trend_tab[2].equals(trend_tab[3])) {
 			msg = "READY to trade [" + symbol.getSymbolName() + "] - ";
-			
+
 			// bary muszą być U lub D:
 			String bar_typ = trend_tab[3];
 			if (!bar_typ.equals("U") && !bar_typ.equals("D"))
@@ -75,9 +79,27 @@ public class TradeAlertProcessorImpl implements TradeAlertProcessor {
 
 		if (trend_tab[1].equals(trend_tab[2]) && trend_tab[2].equals(trend_tab[3])) {
 			msg = "WATCH to trade [" + symbol.getSymbolName() + "] - ";
-			
+
 			// bary muszą być U lub D:
 			String bar_typ = trend_tab[3];
+			if (!bar_typ.equals("U") && !bar_typ.equals("D"))
+				return;
+
+			if (bar_typ.equals("U"))
+				msg += "UP trade.";
+
+			if (bar_typ.equals("D"))
+				msg += "DOWN trade.";
+
+			tradeAlertDao.insert(msg, symbol.getId());
+			return;
+		}
+
+		if (trend_tab[0].equals(trend_tab[1]) && trend_tab[1].equals(trend_tab[2])) {
+			msg = "SCALP trade [" + symbol.getSymbolName() + "] - ";
+
+			// bary muszą być U lub D:
+			String bar_typ = trend_tab[2];
 			if (!bar_typ.equals("U") && !bar_typ.equals("D"))
 				return;
 

@@ -2,7 +2,7 @@
 id=131055216674951887
 symbol=GBPUSD
 period=1440
-leftpos=2052
+leftpos=2054
 digits=5
 scale=16
 graph=0
@@ -56,8 +56,8 @@ hidden=0
 zorder=0
 time_0=1458259200
 value_0=1.451340
-time_1=1460073600
-value_1=1.441647
+time_1=1462752000
+value_1=1.439092
 ray=1
 </object>
 <object>

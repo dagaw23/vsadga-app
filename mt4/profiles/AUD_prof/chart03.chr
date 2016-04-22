@@ -1,8 +1,8 @@
 <chart>
 id=131055214234374908
 symbol=AUDUSD
-period=15
-leftpos=9432
+period=60
+leftpos=3893
 digits=5
 scale=16
 graph=0
@@ -23,7 +23,7 @@ window_left=200
 window_top=200
 window_right=1676
 window_bottom=760
-window_type=3
+window_type=1
 background_color=16777215
 foreground_color=0
 barup_color=16711680
@@ -74,6 +74,21 @@ selectable=1
 hidden=0
 zorder=0
 value_0=0.781071
+</object>
+<object>
+type=1
+object_name=Horizontal Line 7693
+period_flags=0
+create_time=1461329421
+color=13458026
+style=0
+weight=2
+background=0
+filling=0
+selectable=1
+hidden=0
+zorder=0
+value_0=0.775515
 </object>
 </indicator>
 <indicator>

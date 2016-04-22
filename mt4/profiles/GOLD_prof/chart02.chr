@@ -2,7 +2,7 @@
 id=131054465745088857
 symbol=GOLD
 period=240
-leftpos=2497
+leftpos=2509
 digits=2
 scale=16
 graph=0
@@ -54,7 +54,7 @@ filling=0
 selectable=1
 hidden=0
 zorder=0
-value_0=1254.651719
+value_0=1248.967187
 </object>
 </indicator>
 <indicator>

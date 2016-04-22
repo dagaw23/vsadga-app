@@ -66,7 +66,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			bar_data = barDataList.get(i);
 
 			// przetworzenie bara wg statusu:
-			processByPhase(bar_data, timeFrame.getTimeFrameDesc());
+			processByPhase(bar_data, timeFrame);
 		}
 	}
 
@@ -126,7 +126,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	 * @param frameDesc
 	 * @throws BaseServiceException
 	 */
-	private void processByPhase(BarData barData, String frameDesc) throws BaseServiceException {
+	private void processByPhase(BarData barData, TimeFrame timeFrame) throws BaseServiceException {
 		int bar_phase = barData.getProcessPhase().intValue();
 
 		BarType bar_typ = null;
@@ -146,7 +146,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		// *** status BAR: 1 ***
 		if (bar_phase == 1) {
 			// czy poprzedni bar czeka na potwierdzenie:
-			checkPrevBarToConfirm(barData, frameDesc);
+			checkPrevBarToConfirm(barData, timeFrame.getTimeFrameDesc());
 			
 			// dodanie do CACHE z wolumenem i spread - aktualnego bara:
 			dataCache.addIndicatorData(getIndyData(barData));
@@ -160,9 +160,13 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			// oraz trendu wolumenowego:
 			vol_therm = volumeProcessor.getVolumeThermometer(barData);
 			barData.setVolumeThermometer(vol_therm);
+			
+			// sprawdzenie poziomu wolumenu:
+			barData.setIndicatorWeight(volumeProcessor.getVolumeSize(barData, timeFrame));
+			LOGGER.info("   > IndicatorWeight=" + barData.getIndicatorWeight());
 
 			// wolumen obsorbcyjny:
-			vol_absorb = volumeProcessor.getAbsorptionVolume(barData, frameDesc);
+			vol_absorb = volumeProcessor.getAbsorptionVolume(barData, timeFrame.getTimeFrameDesc());
 			barData.setVolumeAbsorb(vol_absorb);
 
 			// wielkość wolumenu:
@@ -174,7 +178,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			ind_info = indicatorProcessor.getDataIndicator(barData);
 
 			// wpisanie informacji o barze - do tabeli oraz do CACHE:
-			updateBarData(trend_data, ind_info, frameDesc, barData);
+			updateBarData(trend_data, ind_info, timeFrame.getTimeFrameDesc(), barData);
 		}
 
 		// *** status BAR: 2 ***
@@ -190,7 +194,7 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		if (bar_phase == 3) {
 			// LOGGER.info("   [STATS] Bar wg statusu [" + bar_phase + "] juz ZAKONCZONY.");
 			// czy poprzedni bar czeka na potwierdzenie:
-			checkPrevBarToConfirm(barData, frameDesc);
+			checkPrevBarToConfirm(barData, timeFrame.getTimeFrameDesc());
 			
 			dataCache.addBarDataWithIndy(barData, getIndyData(barData));
 		}

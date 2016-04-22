@@ -9,4 +9,5 @@ import pl.com.vsadga.service.BaseServiceException;
 public interface TradeAlertProcessor {
 
 	void checkTradeAlert(CurrencySymbol symbol, List<TimeFrame> timeFrameList) throws BaseServiceException;
+	
 }

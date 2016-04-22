@@ -187,6 +187,15 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
+	public Integer getMaxVolume(Integer symbolId, String frameDesc, Date minimumDate, Date maxDate) {
+		String sql = "select max(bar_volume) from " + getTableName(frameDesc)
+				+ " where symbol_id=? and bar_time >= ? and bar_time < ?";
+
+		return getJdbcTemplate().queryForInt(sql, symbolId, new Timestamp(minimumDate.getTime()),
+				new Timestamp(maxDate.getTime()));
+	}
+
+	@Override
 	public List<BarData> getNotProcessBarDataList(Integer symbolId, String frameDesc) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
 				+ " where symbol_id=? and process_phase=1 order by bar_time asc";
