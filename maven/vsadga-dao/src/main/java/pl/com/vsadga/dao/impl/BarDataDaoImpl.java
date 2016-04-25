@@ -111,7 +111,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	@Override
 	public BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
-				+ " where bar_time=? and symbol_id=?";
+				+ " where bar_time<=? and symbol_id=?";
 
 		return getJdbcTemplate().query(sql, new ResultSetExtractor<BarData>() {
 
