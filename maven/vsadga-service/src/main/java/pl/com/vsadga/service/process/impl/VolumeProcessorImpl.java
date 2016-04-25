@@ -1,7 +1,6 @@
 package pl.com.vsadga.service.process.impl;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
@@ -15,7 +14,6 @@ import pl.com.vsadga.dto.cache.DataCache;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.process.VolumeProcessor;
-import pl.com.vsadga.utils.DateConverter;
 
 public class VolumeProcessorImpl implements VolumeProcessor {
 
@@ -108,26 +106,19 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		if (timeFrame.getTimeFrame().intValue() == 5) {
 			// Ultra Long:
 			min_cal.add(Calendar.HOUR_OF_DAY, -m5PositionUltraLong);
-			LOGGER.info(" [" + timeFrame.getTimeFrameDesc() + "]," + actualBar.getSymbolId() + ", data1:"
-					+ DateConverter.dateToString(actualBar.getBarTime(), "yy/MM/dd HH:mm") + ", data2:"
-					+ DateConverter.dateToString(min_cal.getTime(), "yy/MM/dd HH:mm") + ".");
-
-			// czy jest już taki bar wstecz:
-			if (notExistMinimumBar(min_cal, actualBar, timeFrame)) {
-				LOGGER.info("NOT EXIST");
-				return null;
-			}
-
-			if (isGreaterVolume(min_cal, actualBar, timeFrame))
+			if (existMinimumBar(min_cal, actualBar, timeFrame) && isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 4;
 
 			// Long:
 			min_cal.add(Calendar.HOUR_OF_DAY, (m5PositionUltraLong - m5PositionLong));
-			if (isGreaterVolume(min_cal, actualBar, timeFrame))
+			if (existMinimumBar(min_cal, actualBar, timeFrame) && isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 3;
 
 			// Medium:
 			min_cal.add(Calendar.HOUR_OF_DAY, (m5PositionLong - m5PositionMedium));
+			// czy jest już taki bar wstecz:
+			if (notExistMinimumBar(min_cal, actualBar, timeFrame))
+				return null;
 			if (isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 2;
 
@@ -143,21 +134,19 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		if (timeFrame.getTimeFrame().intValue() == 15) {
 			// Ultra Long:
 			min_cal.add(Calendar.HOUR_OF_DAY, -m15PositionUltraLong);
-
-			// czy jest już taki bar wstecz:
-			if (notExistMinimumBar(min_cal, actualBar, timeFrame))
-				return null;
-
-			if (isGreaterVolume(min_cal, actualBar, timeFrame))
+			if (existMinimumBar(min_cal, actualBar, timeFrame) && isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 4;
 
 			// Long:
 			min_cal.add(Calendar.HOUR_OF_DAY, (m15PositionUltraLong - m15PositionLong));
-			if (isGreaterVolume(min_cal, actualBar, timeFrame))
+			if (existMinimumBar(min_cal, actualBar, timeFrame) && isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 3;
 
 			// Medium:
 			min_cal.add(Calendar.HOUR_OF_DAY, (m15PositionLong - m15PositionMedium));
+			// czy jest już taki bar wstecz:
+			if (notExistMinimumBar(min_cal, actualBar, timeFrame))
+				return null;
 			if (isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 2;
 
@@ -173,21 +162,19 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		if (timeFrame.getTimeFrame().intValue() == 60) {
 			// Ultra Long:
 			min_cal.add(Calendar.HOUR_OF_DAY, -h1PositionUltraLong);
-
-			// czy jest już taki bar wstecz:
-			if (notExistMinimumBar(min_cal, actualBar, timeFrame))
-				return null;
-
-			if (isGreaterVolume(min_cal, actualBar, timeFrame))
+			if (existMinimumBar(min_cal, actualBar, timeFrame) && isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 4;
 
 			// Long:
 			min_cal.add(Calendar.HOUR_OF_DAY, (h1PositionUltraLong - h1PositionLong));
-			if (isGreaterVolume(min_cal, actualBar, timeFrame))
+			if (existMinimumBar(min_cal, actualBar, timeFrame) && isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 3;
 
 			// Medium:
 			min_cal.add(Calendar.HOUR_OF_DAY, (h1PositionLong - h1PositionMedium));
+			// czy jest już taki bar wstecz:
+			if (notExistMinimumBar(min_cal, actualBar, timeFrame))
+				return null;
 			if (isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 2;
 
@@ -203,21 +190,19 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		if (timeFrame.getTimeFrame().intValue() == 240) {
 			// Ultra Long:
 			min_cal.add(Calendar.HOUR_OF_DAY, -h4PositionUltraLong);
-
-			// czy jest już taki bar wstecz:
-			if (notExistMinimumBar(min_cal, actualBar, timeFrame))
-				return null;
-
-			if (isGreaterVolume(min_cal, actualBar, timeFrame))
+			if (existMinimumBar(min_cal, actualBar, timeFrame) && isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 4;
 
 			// Long:
 			min_cal.add(Calendar.HOUR_OF_DAY, (h4PositionUltraLong - h4PositionLong));
-			if (isGreaterVolume(min_cal, actualBar, timeFrame))
+			if (existMinimumBar(min_cal, actualBar, timeFrame) && isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 3;
 
 			// Medium:
 			min_cal.add(Calendar.HOUR_OF_DAY, (h4PositionLong - h4PositionMedium));
+			// czy jest już taki bar wstecz:
+			if (notExistMinimumBar(min_cal, actualBar, timeFrame))
+				return null;
 			if (isGreaterVolume(min_cal, actualBar, timeFrame))
 				return 2;
 
@@ -356,6 +341,16 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 			return false;
 	}
 
+	private boolean existMinimumBar(GregorianCalendar minCal, BarData actualBar, TimeFrame timeFrame) {
+		BarData bar_data = barDataDao.getBySymbolAndTime(actualBar.getSymbolId(), timeFrame.getTimeFrameDesc(),
+				minCal.getTime());
+
+		if (bar_data == null)
+			return false;
+		else
+			return true;
+	}
+	
 	private boolean notExistMinimumBar(GregorianCalendar minCal, BarData actualBar, TimeFrame timeFrame) {
 		BarData bar_data = barDataDao.getBySymbolAndTime(actualBar.getSymbolId(), timeFrame.getTimeFrameDesc(),
 				minCal.getTime());

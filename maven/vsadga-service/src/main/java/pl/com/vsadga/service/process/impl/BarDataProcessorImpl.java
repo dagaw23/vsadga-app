@@ -163,7 +163,6 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			
 			// sprawdzenie poziomu wolumenu:
 			barData.setIndicatorWeight(volumeProcessor.getVolumeSize(barData, timeFrame));
-			LOGGER.info("   > IndicatorWeight=" + barData.getIndicatorWeight());
 
 			// wolumen obsorbcyjny:
 			vol_absorb = volumeProcessor.getAbsorptionVolume(barData, timeFrame.getTimeFrameDesc());

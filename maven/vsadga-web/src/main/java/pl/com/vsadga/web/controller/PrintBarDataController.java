@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,11 +121,14 @@ public class PrintBarDataController extends BaseController {
 		StringBuffer trend_row = new StringBuffer();
 
 		StringBuffer vol_size_row = new StringBuffer();
+		StringBuffer vol_pick_row = new StringBuffer();
+		
 		StringBuffer vol_trd_row = new StringBuffer();
 		StringBuffer time_row = new StringBuffer();
 
 		result.append("<table>");
 		String vol_thrm = null;
+		Integer ind_weight = null;
 
 		for (BarData bar_data : dataList) {
 			// pomijamy nie przetworzone jeszcze do minimum 2:
@@ -191,8 +195,13 @@ public class PrintBarDataController extends BaseController {
 			}
 			vol_trd_row.append("'/>");
 
-			vol_size_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getVolumeSize())
-					.append("</td>");
+			vol_size_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getVolumeSize()).append("</td>");
+			
+			ind_weight = bar_data.getIndicatorWeight();
+			if (ind_weight != null && ind_weight.intValue() > 0)
+				vol_pick_row.append("<td style='font-size:6px, font-family:Arial'>").append(ind_weight).append("</td>");
+			else
+				vol_pick_row.append("<td/>");
 
 			// minuta lub godzina bara:
 			time_row.append("<td style='font-size:6px, font-family:Arial'>");
@@ -208,9 +217,13 @@ public class PrintBarDataController extends BaseController {
 				.append("</tr>");
 		// trend cen:
 		result.append("<tr height='20'>").append(trend_row.toString()).append("</tr>");
-		// wolumeny:
+		// wolumeny opisowy:
 		result.append("<tr height='10' style='font-size:11px; text-align:center'>")
 				.append(vol_size_row.toString()).append("</tr>");
+		// pick wolumenowy:
+		result.append("<tr height='10' style='font-size:11px; text-align:center'>")
+				.append(vol_pick_row.toString()).append("</tr>");
+		// trend wolumenu:
 		result.append("<tr height='20'>").append(vol_trd_row.toString()).append("</tr>");
 		// minuta/godzina:
 		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(time_row.toString())
