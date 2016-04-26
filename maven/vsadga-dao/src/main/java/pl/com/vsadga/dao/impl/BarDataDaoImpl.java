@@ -107,7 +107,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 		}, symbolId);
 	}
-
+	
 	@Override
 	public BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
@@ -124,6 +124,13 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 			}
 
 		}, new Timestamp(barTime.getTime()), symbolId);
+	}
+
+	@Override
+	public int getRowNumber(Integer symbolId, String frameDesc, Date barTime) {
+		String sql = "select count(*) from " + getTableName(frameDesc) + " where bar_time < ? and symbol_id = ?";
+
+		return getJdbcTemplate().queryForInt(sql, new Timestamp(barTime.getTime()), symbolId);
 	}
 
 	@Override
@@ -187,12 +194,11 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
-	public Integer getMaxVolume(Integer symbolId, String frameDesc, Date minimumDate, Date maxDate) {
-		String sql = "select max(bar_volume) from " + getTableName(frameDesc)
-				+ " where symbol_id=? and bar_time >= ? and bar_time < ?";
+	public Integer getMaxVolume(Integer symbolId, String frameDesc, Date maxDate, int limit) {
+		String sql = "select max(bar_volume) from (select bar_volume from " + getTableName(frameDesc)
+				+ " where symbol_id = ? and bar_time < ? order by bar_time desc LIMIT ?) as q1";
 
-		return getJdbcTemplate().queryForInt(sql, symbolId, new Timestamp(minimumDate.getTime()),
-				new Timestamp(maxDate.getTime()));
+		return getJdbcTemplate().queryForInt(sql, symbolId, new Timestamp(maxDate.getTime()), limit);
 	}
 
 	@Override

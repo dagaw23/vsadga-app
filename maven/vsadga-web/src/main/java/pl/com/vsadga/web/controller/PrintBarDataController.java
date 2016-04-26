@@ -15,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.dto.BarType;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
 import pl.com.vsadga.service.data.CurrencyDataService;
@@ -122,13 +123,15 @@ public class PrintBarDataController extends BaseController {
 
 		StringBuffer vol_size_row = new StringBuffer();
 		StringBuffer vol_pick_row = new StringBuffer();
-		
+		StringBuffer vol_abs_row = new StringBuffer();
+
 		StringBuffer vol_trd_row = new StringBuffer();
 		StringBuffer time_row = new StringBuffer();
 
 		result.append("<table>");
 		String vol_thrm = null;
 		Integer ind_weight = null;
+		Integer vol_abs = null;
 
 		for (BarData bar_data : dataList) {
 			// pomijamy nie przetworzone jeszcze do minimum 2:
@@ -195,13 +198,30 @@ public class PrintBarDataController extends BaseController {
 			}
 			vol_trd_row.append("'/>");
 
-			vol_size_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getVolumeSize()).append("</td>");
-			
+			vol_size_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getVolumeSize())
+					.append("</td>");
+
 			ind_weight = bar_data.getIndicatorWeight();
 			if (ind_weight != null && ind_weight.intValue() > 0)
-				vol_pick_row.append("<td style='font-size:6px, font-family:Arial'>").append(ind_weight).append("</td>");
+				vol_pick_row.append("<td style='font-size:6px, font-family:Arial'>").append(ind_weight)
+						.append("</td>");
 			else
 				vol_pick_row.append("<td/>");
+
+			vol_abs = bar_data.getVolumeAbsorb();
+			if (vol_abs != null && vol_abs.intValue() > 0) {
+				vol_abs_row.append("<td style='background-color:");
+				if (bar_data.getBarType() == BarType.UP_BAR)
+					vol_abs_row.append("lightgreen");
+				else if (bar_data.getBarType() == BarType.DOWN_BAR)
+					vol_abs_row.append("lightcoral");
+				else
+					vol_abs_row.append("white");
+				
+				vol_abs_row.append("'>").append(vol_abs).append("</td>");
+			} else {
+				vol_abs_row.append("<td/>");
+			}
 
 			// minuta lub godzina bara:
 			time_row.append("<td style='font-size:6px, font-family:Arial'>");
@@ -223,6 +243,9 @@ public class PrintBarDataController extends BaseController {
 		// pick wolumenowy:
 		result.append("<tr height='10' style='font-size:11px; text-align:center'>")
 				.append(vol_pick_row.toString()).append("</tr>");
+		// wolumen absorbcyjny:
+		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(vol_abs_row.toString())
+				.append("</tr>");
 		// trend wolumenu:
 		result.append("<tr height='20'>").append(vol_trd_row.toString()).append("</tr>");
 		// minuta/godzina:

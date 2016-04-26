@@ -73,7 +73,7 @@ int OnCalculate(const int rates_total,
     //Print("::OnCalculate:: M:",Minute(),"S:",Seconds(), ",", prev_calculated, ",", rates_total, ".");
     
    if (rates_total != prev_calculated) {
-      drawVolumes(2000, tick_volume, close);
+      drawVolumes(tick_volume, close);
    } else {
       EqualBarBuffer[0] = tick_volume[0];
    }
@@ -85,24 +85,26 @@ int OnCalculate(const int rates_total,
 
 void OnTick()
 {
-   Print("M:",Minute(),"S:",Seconds());
+   //Print("M:",Minute(),"S:",Seconds());
    
 }
 
-void drawVolumes(int bar_count, const long &tick_volume[], const double &close[])
+void drawVolumes(const long &tick_volume[], const double &close[])
 {
-   int i = bar_count - 2;
+   int i = iBars(Symbol(), 0) - 4;
    long prev_vol = 0;
    long prev_prev_vol = 0;
    
-   while (i >= 0)
+   //Alert("drawVolumes:", tick_volume[i]);
+   
+   while (i > 0)
    {
       prev_vol = tick_volume[i+1];
       prev_prev_vol = tick_volume[i+2];
       
       if ((tick_volume[i] < prev_vol) && (tick_volume[i] < prev_prev_vol)) {
          Less2BarBuffer[i] = tick_volume[i];
-      } else {     
+      } else {
          if (close[i+1] < close[i]) {
             UpBarBuffer[i] = tick_volume[i];
          } else if (close[i+1] > close[i]) {

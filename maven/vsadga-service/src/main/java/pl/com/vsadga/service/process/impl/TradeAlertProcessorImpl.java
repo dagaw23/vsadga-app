@@ -1,8 +1,5 @@
 package pl.com.vsadga.service.process.impl;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -15,7 +12,6 @@ import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.process.TradeAlertProcessor;
-import pl.com.vsadga.utils.DateConverter;
 
 public class TradeAlertProcessorImpl implements TradeAlertProcessor {
 
@@ -113,6 +109,49 @@ public class TradeAlertProcessorImpl implements TradeAlertProcessor {
 			return;
 		}
 
+	}
+
+	@Override
+	public void checkVolumeSize(CurrencySymbol symbol, List<TimeFrame> timeFrameList, int timeMinute)
+			throws BaseServiceException {
+		BarData bar_data = null;
+		Integer[] vol_size = new Integer[4];
+
+		for (TimeFrame tme_frm : timeFrameList) {
+			bar_data = barDataDao.getLastProcessBarData(symbol.getId(), tme_frm.getTimeFrameDesc());
+
+			// zapisanie wielkości wolumenu:
+			if (tme_frm.getTimeFrame().intValue() == 5)
+				vol_size[0] = bar_data.getIndicatorWeight();
+			else if (tme_frm.getTimeFrame().intValue() == 15)
+				vol_size[1] = bar_data.getIndicatorWeight();
+			else if (tme_frm.getTimeFrame().intValue() == 60)
+				vol_size[2] = bar_data.getIndicatorWeight();
+			else if (tme_frm.getTimeFrame().intValue() == 240)
+				vol_size[3] = bar_data.getIndicatorWeight();
+		}
+
+		// 5 minut ZAWSZE:
+		if (vol_size[0] != null && vol_size[0].intValue() > 2)
+			tradeAlertDao.insert("VOLUME by 5M in [" + symbol.getSymbolName() + "] = [" + vol_size[0] + "].",
+					symbol.getId());
+
+		if (timeMinute % 15 == 0) {
+			// 15 minut:
+			if (vol_size[1] != null && vol_size[1].intValue() > 2)
+				tradeAlertDao.insert("VOLUME by 15M in [" + symbol.getSymbolName() + "] = [" + vol_size[1] + "].",
+						symbol.getId());
+		} else if (timeMinute == 0) {
+			// 1H:
+			if (vol_size[2] != null && vol_size[2].intValue() > 2)
+				tradeAlertDao.insert("VOLUME by 1H in [" + symbol.getSymbolName() + "] = [" + vol_size[2] + "].",
+						symbol.getId());
+
+			// 4H:
+			if (vol_size[3] != null && vol_size[3].intValue() > 2)
+				tradeAlertDao.insert("VOLUME by 4H in [" + symbol.getSymbolName() + "] = [" + vol_size[3] + "].",
+						symbol.getId());
+		}
 	}
 
 	/**

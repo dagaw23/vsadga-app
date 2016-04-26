@@ -30,8 +30,10 @@ public interface BarDataDao {
 	List<BarData> getAllToMaxDate(String frameDesc, Date barDate);
 
 	List<BarData> getBarDataList(Integer symbolId, String frameDesc);
-
+	
 	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
+
+	int getRowNumber(Integer symbolId, String frameDesc, Date barTime);
 
 	List<BarData> getLastNbarsData(Integer symbolId, String frameDesc, int size);
 	
@@ -46,7 +48,7 @@ public interface BarDataDao {
 	 */
 	BarData getLastProcessBarData(Integer symbolId, String frameDesc);
 	
-	Integer getMaxVolume(Integer symbolId, String frameDesc, Date minimumDate, Date maxDate);
+	Integer getMaxVolume(Integer symbolId, String frameDesc, Date maxDate, int limit);
 
 	/**
 	 * Pobiera listę barów dla waloru i ramki czasowej, który jeszcze nie został przetworzony wg

@@ -1,5 +1,8 @@
 package pl.com.vsadga.batch;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -49,11 +52,19 @@ public class TradeAlertBatch extends BaseBatch {
 						+ "] ani ramy czasowe [" + tmefrm_list.size() + "].");
 				return;
 			}
+			
+			// aktualny czas:
+			GregorianCalendar act_date = new GregorianCalendar();
+			act_date.setTime(new Date());
+			// aktualna minuta:
+			int min_nr = act_date.get(Calendar.MINUTE);
 
 			for (CurrencySymbol symbol : symbol_list) {
 				LOGGER.info("   [ALERT] Symbol [" + symbol.getSymbolName() + "].");
 
 				tradeAlertProcessor.checkTradeAlert(symbol, tmefrm_list);
+				
+				tradeAlertProcessor.checkVolumeSize(symbol, tmefrm_list, min_nr);
 			}
 
 		} catch (BaseServiceException e) {
