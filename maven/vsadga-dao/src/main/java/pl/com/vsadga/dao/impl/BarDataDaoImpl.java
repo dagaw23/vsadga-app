@@ -32,7 +32,6 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 	private final String SCHM_NME = "fxschema.";
 
-
 	public BarDataDaoImpl(DataSource dataSource) {
 		super(dataSource);
 	}
