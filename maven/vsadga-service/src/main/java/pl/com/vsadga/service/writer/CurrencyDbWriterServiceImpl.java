@@ -273,28 +273,17 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 
 			// aktualny bar - wstawienie, jeśli nie ma w tabeli:
 			if (rec_cal.compareTo(actualDate) == 0) {
-				//LOGGER.info("   [BAR] Nowy bar " + tmeFrm.getTimeFrame() + "M - data z REC ["
-				//		+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "], data SYS ["
-				//		+ DateConverter.dateToString(actualDate.getTime(), "HH:mm:ss,SSS") + "].");
-
 				insertNewBarData(rec, symbolId, tmeFrm.getTimeFrameDesc(), rec_cal);
 				continue;
 			}
 
 			// poprzedni bar - końcowa aktualizacja części wartości:
 			if (rec_cal.compareTo(prev_date) == 0) {
-				//LOGGER.info("   [BAR] Poprzedni bar " + tmeFrm.getTimeFrame() + "M - data z REC ["
-				//		+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "], data PREV ["
-				//		+ DateConverter.dateToString(prev_date.getTime(), "HH:mm:ss,SSS") + "].");
-
 				insertOrUpdateLastBarData(rec, symbolId, tmeFrm.getTimeFrameDesc(), rec_cal, 1);
 				continue;
 			}
 
 			// poprzednie bary - tylko jeśli nie ma ich w tabeli lub jeśli mają staus 0:
-			//LOGGER.info("   [BAR] Weryfikacja bara " + tmeFrm.getTimeFrame() + "M - data z REC ["
-			//		+ DateConverter.dateToString(rec_cal.getTime(), "HH:mm:ss,SSS") + "], data SYS ["
-			//		+ DateConverter.dateToString(actualDate.getTime(), "HH:mm:ss,SSS") + "].");
 			insertOrUpdatePrevBarData(rec, symbolId, tmeFrm.getTimeFrameDesc(), rec_cal);
 		}
 	}
