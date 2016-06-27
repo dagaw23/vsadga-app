@@ -131,7 +131,6 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 		BarType bar_typ = null;
 		TrendData trend_data = null;
-		String vol_therm = null;
 		int vol_absorb = 0;
 
 		IndicatorInfo ind_info = null;
@@ -146,7 +145,12 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		// *** status BAR: 1 ***
 		if (bar_phase == 1) {
 			// czy poprzedni bar czeka na potwierdzenie:
-			checkPrevBarToConfirm(barData, timeFrame.getTimeFrameDesc());
+			//checkPrevBarToConfirm(barData, timeFrame.getTimeFrameDesc());
+			
+			// aktualizacja wolumenu tickowego - na rzeczywisty:
+			updateBarVolume();
+			
+			
 			
 			// dodanie do CACHE z wolumenem i spread - aktualnego bara:
 			dataCache.addIndicatorData(getIndyData(barData));
@@ -157,21 +161,13 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 			// sprawdzenie trendu cenowego:
 			trend_data = trendProcessor.getActualTrend(barData);
-			// oraz trendu wolumenowego:
-			vol_therm = volumeProcessor.getVolumeThermometer(barData);
-			barData.setVolumeThermometer(vol_therm);
 			
 			// sprawdzenie poziomu wolumenu:
-			barData.setIndicatorWeight(volumeProcessor.getVolumeSize(barData, timeFrame));
+			barData.setVolumeSize(volumeProcessor.getVolumeSize(barData, timeFrame));
 
 			// wolumen obsorbcyjny:
 			vol_absorb = volumeProcessor.getAbsorptionVolume(barData, timeFrame.getTimeFrameDesc());
 			barData.setVolumeAbsorb(vol_absorb);
-
-			// wielkość wolumenu:
-			barData.setVolumeSize(dataCache.getVolumeSize(barData));
-			// oraz spreadu:
-			barData.setSpreadSize(dataCache.getSpreadSize(barData.getBarHigh(), barData.getBarLow()));
 
 			// sprawdzenie wskaźnika:
 			ind_info = indicatorProcessor.getDataIndicator(barData);
@@ -198,6 +194,12 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			dataCache.addBarDataWithIndy(barData, getIndyData(barData));
 		}
 
+	}
+	
+	private void updateBarVolume(Integer barVolume) {
+		
+		
+		
 	}
 	
 	private IndicatorData getIndyData(BarData barData) {

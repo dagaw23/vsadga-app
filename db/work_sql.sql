@@ -39,4 +39,24 @@ select * from fxschema.arch_data_h1_1
 order by bar_time desc
 
 
+ALTER TABLE fxschema.currency_symbol DROP COLUMN table_name
+
+ALTER TABLE fxschema.currency_symbol ADD COLUMN futures_symbol	varchar(10) null;
+
+update fxschema.currency_symbol set futures_symbol='6e' where symbol_name = 'EURUSD'
+
+update fxschema.currency_symbol set futures_symbol='6b' where symbol_name = 'GBPUSD'
+
+update fxschema.currency_symbol set futures_symbol='6a' where symbol_name = 'AUDUSD'
+
+update fxschema.currency_symbol set futures_symbol='gc' where symbol_name = 'GOLD'
+
+update fxschema.currency_symbol set futures_symbol='cl' where symbol_name = 'OIL'
+
+update fxschema.currency_symbol set futures_symbol='6j' where symbol_name = 'USDJPY'
+
+update fxschema.currency_symbol set futures_symbol='6s' where symbol_name = 'USDCHF'
+
+update fxschema.currency_symbol set futures_symbol='6c' where symbol_name = 'USDCAD'
+
 

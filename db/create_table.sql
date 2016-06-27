@@ -9,7 +9,7 @@ create table fxschema.currency_symbol(
 	id				smallint		not null PRIMARY KEY,
 	symbol_name		varchar(10)		not null,
 	is_active		boolean			not null,
-	table_name		varchar(10)		not null
+	futures_symbol	varchar(10)		null
 );
 
 create table fxschema.data_m5(
@@ -22,14 +22,11 @@ create table fxschema.data_m5(
 	ima_count			numeric(10,5)	not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
-	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
-	volume_thermometer	varchar(1)		null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
-	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -46,14 +43,11 @@ create table fxschema.data_m15(
 	ima_count			numeric(10,5)	not null,
 	bar_type			varchar(1)		null,	
 	indicator_nr		integer			null,
-	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
-	volume_thermometer	varchar(1)		null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
-	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -70,14 +64,11 @@ create table fxschema.data_h1(
 	ima_count			numeric(10,5)	not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
-	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
-	volume_thermometer	varchar(1)		null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
-	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -94,14 +85,11 @@ create table fxschema.data_h4(
 	ima_count			numeric(10,5)	not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
-	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
-	volume_thermometer	varchar(1)		null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
-	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -125,14 +113,11 @@ create table fxschema.arch_data_m5_1(
 	ima_count			numeric(10,5)	not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
-	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
-	volume_thermometer	varchar(1)		null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
-	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -149,14 +134,11 @@ create table fxschema.arch_data_m15_1(
 	ima_count			numeric(10,5)	not null,
 	bar_type			varchar(1)		null,	
 	indicator_nr		integer			null,
-	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
-	volume_thermometer	varchar(1)		null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
-	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -173,14 +155,11 @@ create table fxschema.arch_data_h1_1(
 	ima_count			numeric(10,5)	not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
-	indicator_weight	integer			null,
 	is_confirm			boolean			null,
 	trend_indicator		varchar(1)		null,
 	trend_weight		integer			null,
-	volume_thermometer	varchar(1)		null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
-	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)

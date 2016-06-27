@@ -1,6 +1,5 @@
 package pl.com.vsadga.service.process.impl;
 
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
@@ -10,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.data.VolumeSize;
 import pl.com.vsadga.dto.cache.DataCache;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.config.ConfigDataService;
@@ -93,7 +93,7 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 	}
 
 	@Override
-	public Integer getVolumeSize(BarData actualBar, TimeFrame timeFrame) throws BaseServiceException {
+	public VolumeSize getVolumeSize(BarData actualBar, TimeFrame timeFrame) throws BaseServiceException {
 		// aktualna data:
 		GregorianCalendar act_cal = new GregorianCalendar();
 		act_cal.setTime(actualBar.getBarTime());
@@ -105,111 +105,87 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 		if (timeFrame.getTimeFrame().intValue() == 5) {
 			// Ultra Long:
 			if (row_count >= m5PositionUltraLong && isGreaterVolume(actualBar, timeFrame, m5PositionUltraLong))
-				return 4;
+				return VolumeSize.VH;
 
 			// Long:
 			if (row_count >= m5PositionLong && isGreaterVolume(actualBar, timeFrame, m5PositionLong))
-				return 3;
+				return VolumeSize.Hi;
 
 			// Medium:
 			if (row_count >= m5PositionMedium && isGreaterVolume(actualBar, timeFrame, m5PositionMedium))
-				return 2;
+				return VolumeSize.AV;
 
 			// Short:
 			if (row_count >= m5PositionShort && isGreaterVolume(actualBar, timeFrame, m5PositionShort))
-				return 1;
+				return VolumeSize.Lo;
 			
-			return 0;
+			return VolumeSize.N;
 		}
 
 		// *** 15 minut ***
 		if (timeFrame.getTimeFrame().intValue() == 15) {
 			// Ultra Long:
 			if (row_count >= m15PositionUltraLong && isGreaterVolume(actualBar, timeFrame, m15PositionUltraLong))
-				return 4;
+				return VolumeSize.VH;
 			
 			// Long:
 			if (row_count >= m15PositionLong && isGreaterVolume(actualBar, timeFrame, m15PositionLong))
-				return 3;
+				return VolumeSize.Hi;
 			
 			// Medium:
 			if (row_count >= m15PositionMedium && isGreaterVolume(actualBar, timeFrame, m15PositionMedium))
-				return 2;
+				return VolumeSize.AV;
 			
 			// Short:
 			if (row_count >= m15PositionShort && isGreaterVolume(actualBar, timeFrame, m15PositionShort))
-				return 1;
+				return VolumeSize.Lo;
 
-			return 0;
+			return VolumeSize.N;
 		}
 
 		// *** 1 godzina ***
 		if (timeFrame.getTimeFrame().intValue() == 60) {
 			// Ultra Long:
 			if (row_count >= h1PositionUltraLong && isGreaterVolume(actualBar, timeFrame, h1PositionUltraLong))
-				return 4;
+				return VolumeSize.VH;
 			
 			// Long:
 			if (row_count >= h1PositionLong && isGreaterVolume(actualBar, timeFrame, h1PositionLong))
-				return 3;
+				return VolumeSize.Hi;
 			
 			// Medium:
 			if (row_count >= h1PositionMedium && isGreaterVolume(actualBar, timeFrame, h1PositionMedium))
-				return 2;
+				return VolumeSize.AV;
 			
 			// Short:
 			if (row_count >= h1PositionShort && isGreaterVolume(actualBar, timeFrame, h1PositionShort))
-				return 1;
+				return VolumeSize.Lo;
 
-			return 0;
+			return VolumeSize.N;
 		}
 
 		// *** 4 godziny ***
 		if (timeFrame.getTimeFrame().intValue() == 240) {
 			// Ultra Long:
 			if (row_count >= h4PositionUltraLong && isGreaterVolume(actualBar, timeFrame, h4PositionUltraLong))
-				return 4;
+				return VolumeSize.VH;
 			
 			// Long:
 			if (row_count >= h4PositionLong && isGreaterVolume(actualBar, timeFrame, h4PositionLong))
-				return 3;
+				return VolumeSize.Hi;
 			
 			// Medium:
 			if (row_count >= h4PositionMedium && isGreaterVolume(actualBar, timeFrame, h4PositionMedium))
-				return 2;
+				return VolumeSize.AV;
 			
 			// Short:
 			if (row_count >= h4PositionShort && isGreaterVolume(actualBar, timeFrame, h4PositionShort))
-				return 1;
+				return VolumeSize.Lo;
 
-			return 0;
+			return VolumeSize.N;
 		}
 
 		return null;
-	}
-
-	@Override
-	public String getVolumeThermometer(BarData actualBar) throws BaseServiceException {
-		if (!isProcessVolume()) {
-			LOGGER.info("   [VOL] Usluga przetwarzania trendu wolumenu jest wylaczona.");
-			return null;
-		}
-
-		// czy CACHE dla UP/DOWN bar jest wypełniony:
-		if (!dataCache.isWritedShortTermBars(3)) {
-			LOGGER.info("   [VOL] Dane jeszcze nie sa gotowe do wyliczenia trendu wolumenu.");
-			return "N";
-		}
-
-		// sprawdzenie, który wolumen jest większy:
-		int vol_comp = dataCache.compareLastVolumeData(actualBar);
-
-		if (vol_comp > 0)
-			return "U";
-		else if (vol_comp < 0)
-			return "D";
-		else
-			return "L";
 	}
 
 	@Override

@@ -8,13 +8,13 @@ public class CurrencySymbol implements Serializable {
 	 */
 	private static final long serialVersionUID = -1106282759948483161L;
 
+	private String futuresSymbol;
+
 	private Integer id;
 
 	private Boolean isActive;
 
 	private String symbolName;
-
-	private String tableName;
 
 	/*
 	 * (non-Javadoc)
@@ -30,6 +30,11 @@ public class CurrencySymbol implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		CurrencySymbol other = (CurrencySymbol) obj;
+		if (futuresSymbol == null) {
+			if (other.futuresSymbol != null)
+				return false;
+		} else if (!futuresSymbol.equals(other.futuresSymbol))
+			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -45,12 +50,14 @@ public class CurrencySymbol implements Serializable {
 				return false;
 		} else if (!symbolName.equals(other.symbolName))
 			return false;
-		if (tableName == null) {
-			if (other.tableName != null)
-				return false;
-		} else if (!tableName.equals(other.tableName))
-			return false;
 		return true;
+	}
+
+	/**
+	 * @return the futuresSymbol
+	 */
+	public String getFuturesSymbol() {
+		return futuresSymbol;
 	}
 
 	/**
@@ -74,13 +81,6 @@ public class CurrencySymbol implements Serializable {
 		return symbolName;
 	}
 
-	/**
-	 * @return the tableName
-	 */
-	public String getTableName() {
-		return tableName;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -90,11 +90,19 @@ public class CurrencySymbol implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((futuresSymbol == null) ? 0 : futuresSymbol.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
 		result = prime * result + ((symbolName == null) ? 0 : symbolName.hashCode());
-		result = prime * result + ((tableName == null) ? 0 : tableName.hashCode());
 		return result;
+	}
+
+	/**
+	 * @param futuresSymbol
+	 *            the futuresSymbol to set
+	 */
+	public void setFuturesSymbol(String futuresSymbol) {
+		this.futuresSymbol = futuresSymbol;
 	}
 
 	/**
@@ -121,14 +129,6 @@ public class CurrencySymbol implements Serializable {
 		this.symbolName = symbolName;
 	}
 
-	/**
-	 * @param tableName
-	 *            the tableName to set
-	 */
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -137,7 +137,7 @@ public class CurrencySymbol implements Serializable {
 	@Override
 	public String toString() {
 		return "CurrencySymbol [id=" + id + ", isActive=" + isActive + ", symbolName=" + symbolName
-				+ ", tableName=" + tableName + "]";
+				+ ", futuresSymbol=" + futuresSymbol + "]";
 	}
 
 }

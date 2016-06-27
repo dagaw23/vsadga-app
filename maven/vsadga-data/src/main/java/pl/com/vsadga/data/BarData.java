@@ -35,7 +35,7 @@ public class BarData implements Serializable {
 	private BarType barType;
 
 	/**
-	 * ilość ticków w trakcie bara
+	 * wolumen rzeczywisty lub tickowy
 	 */
 	private Integer barVolume;
 
@@ -55,12 +55,6 @@ public class BarData implements Serializable {
 	private Integer indicatorNr;
 
 	/**
-	 * waga wskaźnika <br/>
-	 * (im większy numer, tym większe znaczenie wskaźnika)
-	 */
-	private Integer indicatorWeight;
-
-	/**
 	 * czy sygnał został potwierdzony
 	 */
 	private Boolean isConfirm;
@@ -75,18 +69,6 @@ public class BarData implements Serializable {
 	 * </ul>
 	 */
 	private Integer processPhase;
-
-	/**
-	 * wielkość bara - w porównaniu ze średnią wielkością:
-	 * <ul>
-	 * <li>VH - bardzo duży,
-	 * <li>Hi - duży,
-	 * <li>Av - średni
-	 * <li>Lo - mały,
-	 * <li>VL - bardzo mały.
-	 * </ul>
-	 */
-	private SpreadSize spreadSize;
 
 	/**
 	 * odwołanie do symbolu, którego dotyczy bar
@@ -116,27 +98,13 @@ public class BarData implements Serializable {
 	/**
 	 * wielkość wolumenu - w porównaniu ze średnim wolumenem:
 	 * <ul>
-	 * <li>UH - Yao Ming
 	 * <li>VH - bardzo wysoki,
 	 * <li>Hi - wysoki,
 	 * <li>Av - średni
-	 * <li>Lo - mały,
-	 * <li>VL - bardzo mały.
+	 * <li>Lo - mały.
 	 * </ul>
 	 */
 	private VolumeSize volumeSize;
-
-	/**
-	 * trend wolumenu:
-	 * <ul>
-	 * <li>L: aktualny bar jest LEVEL,
-	 * <li>U: trend rosnący,
-	 * <li>D: trend malejący,
-	 * <li>S: trend boczny,
-	 * <li>N: niezdefiniowany.
-	 * </ul>
-	 */
-	private String volumeThermometer;
 
 	/*
 	 * (non-Javadoc)
@@ -194,11 +162,6 @@ public class BarData implements Serializable {
 				return false;
 		} else if (!indicatorNr.equals(other.indicatorNr))
 			return false;
-		if (indicatorWeight == null) {
-			if (other.indicatorWeight != null)
-				return false;
-		} else if (!indicatorWeight.equals(other.indicatorWeight))
-			return false;
 		if (isConfirm == null) {
 			if (other.isConfirm != null)
 				return false;
@@ -208,8 +171,6 @@ public class BarData implements Serializable {
 			if (other.processPhase != null)
 				return false;
 		} else if (!processPhase.equals(other.processPhase))
-			return false;
-		if (spreadSize != other.spreadSize)
 			return false;
 		if (symbolId == null) {
 			if (other.symbolId != null)
@@ -232,11 +193,6 @@ public class BarData implements Serializable {
 		} else if (!volumeAbsorb.equals(other.volumeAbsorb))
 			return false;
 		if (volumeSize != other.volumeSize)
-			return false;
-		if (volumeThermometer == null) {
-			if (other.volumeThermometer != null)
-				return false;
-		} else if (!volumeThermometer.equals(other.volumeThermometer))
 			return false;
 		return true;
 	}
@@ -295,23 +251,12 @@ public class BarData implements Serializable {
 		return indicatorNr;
 	}
 
-	public Integer getIndicatorWeight() {
-		return indicatorWeight;
-	}
-
 	public Boolean getIsConfirm() {
 		return isConfirm;
 	}
 
 	public Integer getProcessPhase() {
 		return processPhase;
-	}
-
-	/**
-	 * @return the spreadSize
-	 */
-	public SpreadSize getSpreadSize() {
-		return spreadSize;
 	}
 
 	/**
@@ -349,13 +294,6 @@ public class BarData implements Serializable {
 		return volumeSize;
 	}
 
-	/**
-	 * @return the volumeThermometer
-	 */
-	public String getVolumeThermometer() {
-		return volumeThermometer;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -374,16 +312,13 @@ public class BarData implements Serializable {
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((imaCount == null) ? 0 : imaCount.hashCode());
 		result = prime * result + ((indicatorNr == null) ? 0 : indicatorNr.hashCode());
-		result = prime * result + ((indicatorWeight == null) ? 0 : indicatorWeight.hashCode());
 		result = prime * result + ((isConfirm == null) ? 0 : isConfirm.hashCode());
 		result = prime * result + ((processPhase == null) ? 0 : processPhase.hashCode());
-		result = prime * result + ((spreadSize == null) ? 0 : spreadSize.hashCode());
 		result = prime * result + ((symbolId == null) ? 0 : symbolId.hashCode());
 		result = prime * result + ((trendIndicator == null) ? 0 : trendIndicator.hashCode());
 		result = prime * result + ((trendWeight == null) ? 0 : trendWeight.hashCode());
 		result = prime * result + ((volumeAbsorb == null) ? 0 : volumeAbsorb.hashCode());
 		result = prime * result + ((volumeSize == null) ? 0 : volumeSize.hashCode());
-		result = prime * result + ((volumeThermometer == null) ? 0 : volumeThermometer.hashCode());
 		return result;
 	}
 
@@ -451,24 +386,12 @@ public class BarData implements Serializable {
 		this.indicatorNr = indicatorNr;
 	}
 
-	public void setIndicatorWeight(Integer indicatorWeight) {
-		this.indicatorWeight = indicatorWeight;
-	}
-
 	public void setIsConfirm(Boolean isConfirm) {
 		this.isConfirm = isConfirm;
 	}
 
 	public void setProcessPhase(Integer processPhase) {
 		this.processPhase = processPhase;
-	}
-
-	/**
-	 * @param spreadSize
-	 *            the spreadSize to set
-	 */
-	public void setSpreadSize(SpreadSize spreadSize) {
-		this.spreadSize = spreadSize;
 	}
 
 	/**
@@ -511,14 +434,6 @@ public class BarData implements Serializable {
 		this.volumeSize = volumeSize;
 	}
 
-	/**
-	 * @param volumeThermometer
-	 *            the volumeThermometer to set
-	 */
-	public void setVolumeThermometer(String volumeThermometer) {
-		this.volumeThermometer = volumeThermometer;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -528,11 +443,10 @@ public class BarData implements Serializable {
 	public String toString() {
 		return "BarData [barClose=" + barClose + ", barHigh=" + barHigh + ", barLow=" + barLow + ", barTime="
 				+ barTime + ", barType=" + barType + ", barVolume=" + barVolume + ", id=" + id + ", imaCount="
-				+ imaCount + ", indicatorNr=" + indicatorNr + ", indicatorWeight=" + indicatorWeight
-				+ ", isConfirm=" + isConfirm + ", processPhase=" + processPhase + ", spreadSize=" + spreadSize
-				+ ", symbolId=" + symbolId + ", trendIndicator=" + trendIndicator + ", trendWeight=" + trendWeight
-				+ ", volumeAbsorb=" + volumeAbsorb + ", volumeSize=" + volumeSize + ", volumeThermometer="
-				+ volumeThermometer + "]";
+				+ imaCount + ", indicatorNr=" + indicatorNr + ", isConfirm=" + isConfirm + ", processPhase="
+				+ processPhase + ", symbolId=" + symbolId + ", trendIndicator=" + trendIndicator
+				+ ", trendWeight=" + trendWeight + ", volumeAbsorb=" + volumeAbsorb + ", volumeSize=" + volumeSize
+				+ "]";
 	}
 
 }
