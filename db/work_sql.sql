@@ -33,30 +33,80 @@ set bar_type=null, indicator_nr=null, indicator_weight=null,
    volume_size=null, spread_size=null, process_phase=1
 
 
-delete from fxschema.data_m5
+drop table fxschema.data_m5;
 
 select * from fxschema.arch_data_h1_1  
 order by bar_time desc
 
 
-ALTER TABLE fxschema.currency_symbol DROP COLUMN table_name
+1) 
+drop table fxschema.currency_symbol
 
-ALTER TABLE fxschema.currency_symbol ADD COLUMN futures_symbol	varchar(10) null;
+drop table fxschema.trade_alert
 
-update fxschema.currency_symbol set futures_symbol='6e' where symbol_name = 'EURUSD'
+drop table fxschema.arch_data_h1_1
 
-update fxschema.currency_symbol set futures_symbol='6b' where symbol_name = 'GBPUSD'
+drop table fxschema.arch_data_m15_1
 
-update fxschema.currency_symbol set futures_symbol='6a' where symbol_name = 'AUDUSD'
+drop table fxschema.arch_data_m5_1
 
-update fxschema.currency_symbol set futures_symbol='gc' where symbol_name = 'GOLD'
+drop table fxschema.data_h4
 
-update fxschema.currency_symbol set futures_symbol='cl' where symbol_name = 'OIL'
+drop table fxschema.data_h1
 
-update fxschema.currency_symbol set futures_symbol='6j' where symbol_name = 'USDJPY'
+drop table fxschema.data_m15
 
-update fxschema.currency_symbol set futures_symbol='6s' where symbol_name = 'USDCHF'
+drop table fxschema.data_m5
 
-update fxschema.currency_symbol set futures_symbol='6c' where symbol_name = 'USDCAD'
+2) 
+
+create table fxschema.currency_symbol
+
+create table fxschema.data_m5
+
+create table fxschema.data_m15
+
+create table fxschema.data_h1
+
+create table fxschema.data_h4
+
+create table fxschema.data_d1
+
+create table fxschema.data_w1
+
+create table fxschema.arch_data_m5_1
+
+create table fxschema.arch_data_m15_1
+
+create table fxschema.arch_data_h1_1
+
+create table fxschema.trade_alert
+
+
+CREATE SEQUENCE fxschema.data_d1_seq 
+	INCREMENT BY 1
+    START WITH 1
+	CACHE 100
+	CYCLE;
+CREATE SEQUENCE fxschema.data_w1_seq 
+	INCREMENT BY 1
+    START WITH 1
+	CACHE 10
+	CYCLE;
+
+3) 
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)...
+
+4) 
+
+select * from fxschema.config_data
+order by id
+
+insert into fxschema.config_data(id, param_name, param_value)
+values (28, 'ACCESS_KEY', '123');
+insert into fxschema.config_data(id, param_name, param_value)
+values (29, 'IS_HTTP_PROXY', '1');
+
+
 
 

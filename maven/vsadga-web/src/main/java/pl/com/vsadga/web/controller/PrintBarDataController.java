@@ -30,7 +30,7 @@ public class PrintBarDataController extends BaseController {
 
 	@Autowired
 	private ConfigDataService configDataService;
-
+	
 	@Autowired
 	private CurrencyDataService currencyDataService;
 
@@ -125,12 +125,9 @@ public class PrintBarDataController extends BaseController {
 		StringBuffer vol_pick_row = new StringBuffer();
 		StringBuffer vol_abs_row = new StringBuffer();
 
-		StringBuffer vol_trd_row = new StringBuffer();
 		StringBuffer time_row = new StringBuffer();
 
 		result.append("<table>");
-		String vol_thrm = null;
-		Integer ind_weight = null;
 		Integer vol_abs = null;
 
 		for (BarData bar_data : dataList) {
@@ -179,35 +176,6 @@ public class PrintBarDataController extends BaseController {
 			}
 			trend_row.append("'/>");
 
-			// trend wolumenu:
-			vol_trd_row.append("<td width='20' style='background-color:");
-			vol_thrm = bar_data.getVolumeThermometer();
-
-			if (vol_thrm == null) {
-				vol_trd_row.append("white");
-			} else if (vol_thrm.equals("U")) {
-				vol_trd_row.append("lightgreen");
-			} else if (vol_thrm.equals("D")) {
-				vol_trd_row.append("lightcoral");
-			} else if (vol_thrm.equals("S")) {
-				vol_trd_row.append("lightgray");
-			} else if (vol_thrm.equals("L")) {
-				vol_trd_row.append("black");
-			} else {
-				vol_trd_row.append("white");
-			}
-			vol_trd_row.append("'/>");
-
-			vol_size_row.append("<td style='font-size:6px, font-family:Arial'>").append(bar_data.getVolumeSize())
-					.append("</td>");
-
-			ind_weight = bar_data.getIndicatorWeight();
-			if (ind_weight != null && ind_weight.intValue() > 0)
-				vol_pick_row.append("<td style='font-size:6px, font-family:Arial'>").append(ind_weight)
-						.append("</td>");
-			else
-				vol_pick_row.append("<td/>");
-
 			vol_abs = bar_data.getVolumeAbsorb();
 			if (vol_abs != null && vol_abs.intValue() > 0) {
 				vol_abs_row.append("<td style='background-color:");
@@ -246,8 +214,6 @@ public class PrintBarDataController extends BaseController {
 		// wolumen absorbcyjny:
 		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(vol_abs_row.toString())
 				.append("</tr>");
-		// trend wolumenu:
-		result.append("<tr height='20'>").append(vol_trd_row.toString()).append("</tr>");
 		// minuta/godzina:
 		result.append("<tr height='10' style='font-size:11px; text-align:center'>").append(time_row.toString())
 				.append("</tr>");

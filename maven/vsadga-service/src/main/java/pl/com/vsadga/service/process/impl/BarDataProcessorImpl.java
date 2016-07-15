@@ -147,11 +147,6 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			// czy poprzedni bar czeka na potwierdzenie:
 			//checkPrevBarToConfirm(barData, timeFrame.getTimeFrameDesc());
 			
-			// aktualizacja wolumenu tickowego - na rzeczywisty:
-			updateBarVolume();
-			
-			
-			
 			// dodanie do CACHE z wolumenem i spread - aktualnego bara:
 			dataCache.addIndicatorData(getIndyData(barData));
 
@@ -194,12 +189,6 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 			dataCache.addBarDataWithIndy(barData, getIndyData(barData));
 		}
 
-	}
-	
-	private void updateBarVolume(Integer barVolume) {
-		
-		
-		
 	}
 	
 	private IndicatorData getIndyData(BarData barData) {

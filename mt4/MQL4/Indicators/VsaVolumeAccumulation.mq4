@@ -30,7 +30,7 @@
 #property indicator_width3  3
 
 //--- input parameters
-input string   AccessHttp = "";
+input string   AccessHttp = "http://generatedata.biz/mt4/smart.php";
 input string   AccessKey = "";
 
 // Log:
@@ -393,13 +393,13 @@ string getFuturesSymbol(string fxSymbol)
       return "6s";
    else if (fxSymbol == "GOLD")
       return "gc";
-   else if (fxSymbol == "Crude Oil")
+   else if (fxSymbol == "OILMn-AUG16")
       return "cl";
    else if (fxSymbol == "Copper")
       return "hg";
    else if (fxSymbol == "Natural Gas")
       return "ng";
-   else if (fxSymbol == "Silver")
+   else if (fxSymbol == "SILVER")
       return "si";
    else if (fxSymbol == "Wheat")
       return "zw";
@@ -411,7 +411,7 @@ string getFuturesSymbol(string fxSymbol)
       return "ym";
    else if (fxSymbol == "U.S. Treasury Bond")
       return "zb";
-   else if (fxSymbol == "DAX Index")
+   else if (fxSymbol == "GER30Cash")
       return "fdax";
    else if (fxSymbol == "Dollar Index")
       return "dx";

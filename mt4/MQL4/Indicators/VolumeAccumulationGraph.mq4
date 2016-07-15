@@ -10,7 +10,7 @@
 #property indicator_chart_window
 
 //--- input parameters
-input string   AccessHttp = "";
+input string   AccessHttp = "http://generatedata.biz/mt4/smart.php";
 input string   AccessKey = "";
 
 // Log:
@@ -84,6 +84,7 @@ int OnInit()
    
    IndicatorShortName("Volume Accumulation Graph Indicator");
    OpenLog("VolumeAccumaGraphLog");
+   deleteTextObjectsIfExist();
 
    return(INIT_SUCCEEDED);
 }
@@ -350,7 +351,7 @@ string getFuturesSymbol(string fxSymbol)
       return "ym";
    else if (fxSymbol == "U.S. Treasury Bond")
       return "zb";
-   else if (fxSymbol == "DAX Index")
+   else if (fxSymbol == "GER30Cash")
       return "fdax";
    else if (fxSymbol == "Dollar Index")
       return "dx";
@@ -474,6 +475,28 @@ bool deleteAllTextObjects() {
       }
          
    }   
+   
+   return true;
+}
+
+bool deleteTextObjectsIfExist() {
+   string obj_name;
+   
+   // usuniecie obiektow tekstowych - jesli zostana znalezione:
+   for (int i=50000; i>=0; i--) {
+      obj_name = StringConcatenate("text_obj_", i);
+      
+      if (ObjectFind(obj_name) >= 0) {
+         if (!ObjectDelete(obj_name)) {
+            Log("ERROR: NOT delete text object [" + obj_name + "], error code ["+GetLastError() + "].");
+            return false;
+         }
+         
+         // odswiezenie wykresu:
+         ChartRedraw(0);
+         Sleep(10);
+      }
+   }
    
    return true;
 }

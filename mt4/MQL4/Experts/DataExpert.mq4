@@ -9,16 +9,18 @@
 #property strict
 
 //---------------------------------------- Input parameters ------------------------------------------
-input string   SYMBOL_1="EURUSD";
-input string   SYMBOL_2="AUDUSD";
-input string   SYMBOL_3="GBPUSD";
-input string   SYMBOL_4="GOLD";
-input string   SYMBOL_5="OIL-JUN16";
-input string   SYMBOL_6="USDJPY";
+input string   SYMBOL_1="AUDUSD";
+input string   SYMBOL_2="GBPUSD";
+input string   SYMBOL_3="USDCAD";
+input string   SYMBOL_4="EURUSD";
+input string   SYMBOL_5="USDJPY";
+input string   SYMBOL_6="NZDUSD";
 input string   SYMBOL_7="USDCHF";
-input string   SYMBOL_8="USDCAD";
-input string   SYMBOL_9="GBPCAD";
-input string   SYMBOL_10="GBPAUD";
+input string   SYMBOL_8="OIL-AUG16";
+input string   SYMBOL_9="GOLD";
+input string   SYMBOL_10="SILVER";
+input string   SYMBOL_11="US500-SEP16";
+input string   SYMBOL_12="GER30-SEP16";
 
 
 input string   FILE_DIR_PATH="Actual";
@@ -73,6 +75,8 @@ void OnTick()
       write_by_symbol(SYMBOL_8, PERIOD_M5, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_9, PERIOD_M5, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_10, PERIOD_M5, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_11, PERIOD_M5, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_12, PERIOD_M5, FULL_LOAD_SIZE);
       
       write_by_symbol(SYMBOL_1, PERIOD_M15, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_2, PERIOD_M15, FULL_LOAD_SIZE);
@@ -84,6 +88,8 @@ void OnTick()
       write_by_symbol(SYMBOL_8, PERIOD_M15, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_9, PERIOD_M15, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_10, PERIOD_M15, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_11, PERIOD_M15, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_12, PERIOD_M15, FULL_LOAD_SIZE);
       
       write_by_symbol(SYMBOL_1, PERIOD_H1, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_2, PERIOD_H1, FULL_LOAD_SIZE);
@@ -95,6 +101,8 @@ void OnTick()
       write_by_symbol(SYMBOL_8, PERIOD_H1, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_9, PERIOD_H1, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_10, PERIOD_H1, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_11, PERIOD_H1, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_12, PERIOD_H1, FULL_LOAD_SIZE);
       
       write_by_symbol(SYMBOL_1, PERIOD_H4, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_2, PERIOD_H4, FULL_LOAD_SIZE);
@@ -106,6 +114,8 @@ void OnTick()
       write_by_symbol(SYMBOL_8, PERIOD_H4, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_9, PERIOD_H4, FULL_LOAD_SIZE);
       write_by_symbol(SYMBOL_10, PERIOD_H4, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_11, PERIOD_H4, FULL_LOAD_SIZE);
+      write_by_symbol(SYMBOL_12, PERIOD_H4, FULL_LOAD_SIZE);
       
       gIsDone=true;
    } else {
@@ -183,6 +193,8 @@ void write_by_5_minutes(datetime date_time)
    write_by_symbol(SYMBOL_8, PERIOD_M5, ARRAY_WRITE_SIZE);
    write_by_symbol(SYMBOL_9, PERIOD_M5, ARRAY_WRITE_SIZE);
    write_by_symbol(SYMBOL_10, PERIOD_M5, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_11, PERIOD_M5, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_12, PERIOD_M5, ARRAY_WRITE_SIZE);
 }
 
 void write_by_15_minutes(datetime date_time)
@@ -200,6 +212,8 @@ void write_by_15_minutes(datetime date_time)
    write_by_symbol(SYMBOL_8, PERIOD_M15, ARRAY_WRITE_SIZE);
    write_by_symbol(SYMBOL_9, PERIOD_M15, ARRAY_WRITE_SIZE);
    write_by_symbol(SYMBOL_10, PERIOD_M15, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_11, PERIOD_M15, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_12, PERIOD_M15, ARRAY_WRITE_SIZE);
 }
 
 void write_by_1_hour(datetime date_time)
@@ -218,6 +232,8 @@ void write_by_1_hour(datetime date_time)
    write_by_symbol(SYMBOL_8, PERIOD_H1, ARRAY_WRITE_SIZE);
    write_by_symbol(SYMBOL_9, PERIOD_H1, ARRAY_WRITE_SIZE);
    write_by_symbol(SYMBOL_10, PERIOD_H1, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_11, PERIOD_H1, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_12, PERIOD_H1, ARRAY_WRITE_SIZE);
 }
 
 void write_by_4_hour(datetime date_time)
@@ -236,6 +252,8 @@ void write_by_4_hour(datetime date_time)
    write_by_symbol(SYMBOL_8, PERIOD_H4, ARRAY_WRITE_SIZE);
    write_by_symbol(SYMBOL_9, PERIOD_H4, ARRAY_WRITE_SIZE);
    write_by_symbol(SYMBOL_10, PERIOD_H4, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_11, PERIOD_H4, ARRAY_WRITE_SIZE);
+   write_by_symbol(SYMBOL_12, PERIOD_H4, ARRAY_WRITE_SIZE);
 }
 
 void write_by_symbol(string symbol, int tme_frm, int buff_size)

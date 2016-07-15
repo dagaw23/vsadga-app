@@ -96,6 +96,48 @@ create table fxschema.data_h4(
 );
 create unique index data_h4_idx ON fxschema.data_h4 (bar_time, symbol_id);
 
+create table fxschema.data_d1(
+	id					integer			not null PRIMARY KEY,
+	bar_time			timestamp		not null,
+	bar_low				numeric(10,5)	not null,
+	bar_high			numeric(10,5)	not null,
+	bar_close			numeric(10,5)	not null,
+	bar_volume			integer			not null,
+	ima_count			numeric(10,5)	not null,
+	bar_type			varchar(1)		null,
+	indicator_nr		integer			null,
+	is_confirm			boolean			null,
+	trend_indicator		varchar(1)		null,
+	trend_weight		integer			null,
+	volume_absorb		integer			null,
+	volume_size			varchar(2)		null,
+	process_phase		integer			not null,
+	symbol_id			smallint		not null
+						REFERENCES fxschema.currency_symbol(id)
+);
+create unique index data_d1_idx ON fxschema.data_d1 (bar_time, symbol_id);
+
+create table fxschema.data_w1(
+	id					integer			not null PRIMARY KEY,
+	bar_time			timestamp		not null,
+	bar_low				numeric(10,5)	not null,
+	bar_high			numeric(10,5)	not null,
+	bar_close			numeric(10,5)	not null,
+	bar_volume			integer			not null,
+	ima_count			numeric(10,5)	not null,
+	bar_type			varchar(1)		null,
+	indicator_nr		integer			null,
+	is_confirm			boolean			null,
+	trend_indicator		varchar(1)		null,
+	trend_weight		integer			null,
+	volume_absorb		integer			null,
+	volume_size			varchar(2)		null,
+	process_phase		integer			not null,
+	symbol_id			smallint		not null
+						REFERENCES fxschema.currency_symbol(id)
+);
+create unique index data_w1_idx ON fxschema.data_w1 (bar_time, symbol_id);
+
 create table fxschema.time_frame(
 	id				smallint		not null PRIMARY KEY,
 	time_frame		integer			not null,
@@ -195,6 +237,16 @@ CREATE SEQUENCE fxschema.data_h4_seq
     START WITH 1
 	CACHE 100
 	CYCLE;
+CREATE SEQUENCE fxschema.data_d1_seq 
+	INCREMENT BY 1
+    START WITH 1
+	CACHE 100
+	CYCLE;
+CREATE SEQUENCE fxschema.data_w1_seq 
+	INCREMENT BY 1
+    START WITH 1
+	CACHE 10
+	CYCLE;
 CREATE SEQUENCE fxschema.trade_alert_seq 
 	INCREMENT BY 1
     START WITH 1
@@ -203,26 +255,30 @@ CREATE SEQUENCE fxschema.trade_alert_seq
 
 --nextval('fxschema.config_data_seq')
 
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (1, 'EURUSD', true, 'EURUSD');
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (2, 'GOLD', true, 'GOLD');
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (3, 'GBPUSD', true, 'GBPUSD');
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (4, 'AUDUSD', true, 'AUDUSD');
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (5, 'OIL', true, 'OIL');
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (6, 'USDJPY', true, 'USDJPY');
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (7, 'USDCHF', true, 'USDCHF');
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (8, 'USDCAD', true, 'USDCAD');
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (9, 'GBPCAD', true, 'GBPCAD');
-insert into fxschema.currency_symbol(id, symbol_name, is_active, table_name)
-values (10, 'GBPAUD', true, 'GBPAUD');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (1, 'AUDUSD', true, '6A');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (2, 'GBPUSD', true, '6B');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (3, 'USDCAD', true, '6C');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (4, 'EURUSD', true, '6E');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (5, 'USDJPY', true, '6J');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (6, 'NZDUSD', true, '6N');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (7, 'USDCHF', true, '6S');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (8, 'OIL', true, 'CL');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (9, 'GOLD', true, 'GC');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (10, 'SILVER', true, 'SI');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (11, 'SP500', true, 'ES');
+insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
+values (12, 'DAX', true, 'FDAX');
 
 
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
@@ -230,13 +286,13 @@ values (1, 1, 'M1', false);
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
 values (2, 5, 'M5', true);
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
-values (3, 15, 'M15', false);
+values (3, 15, 'M15', true);
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
 values (4, 30, 'M30', false);
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
-values (5, 60, 'H1', false);
+values (5, 60, 'H1', true);
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
-values (6, 240, 'H4', false);
+values (6, 240, 'H4', true);
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
 values (7, 1440, 'D1', false);
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)
@@ -290,4 +346,9 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (26, 'H1_LEVELS', '25,50,100,200');
 insert into fxschema.config_data(id, param_name, param_value)
 values (27, 'H4_LEVELS', '25,50,100,200');
+insert into fxschema.config_data(id, param_name, param_value)
+values (28, 'ACCESS_KEY', '123');
+insert into fxschema.config_data(id, param_name, param_value)
+values (29, 'IS_HTTP_PROXY', '1');
+
 

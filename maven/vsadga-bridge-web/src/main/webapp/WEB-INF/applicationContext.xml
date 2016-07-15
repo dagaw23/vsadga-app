@@ -65,6 +65,9 @@
 	<bean id="currencyDataService" class="pl.com.vsadga.service.data.CurrencyDataServiceImpl">
 		<property name="barDataDao" ref="barDataDao" />
 	</bean>
+	
+	<!-- IO -->
+	<bean id="httpReader" class="pl.com.vsadga.service.io.HttpReaderImpl"/>
 
 	<!-- Writer -->
 	<bean id="barDataFileReader" class="pl.com.vsadga.io.impl.Mt4DataFileReaderImpl">

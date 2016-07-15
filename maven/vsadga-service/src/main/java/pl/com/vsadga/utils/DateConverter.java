@@ -150,7 +150,6 @@ public final class DateConverter {
 		GregorianCalendar res = new GregorianCalendar();
 		SimpleDateFormat df = null;
 		
-		
 		if (pattern == null) {
 			df = new SimpleDateFormat("yyyyMMdd");
 		} else {

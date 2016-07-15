@@ -122,13 +122,13 @@ public class TradeAlertProcessorImpl implements TradeAlertProcessor {
 
 			// zapisanie wielkości wolumenu:
 			if (tme_frm.getTimeFrame().intValue() == 5)
-				vol_size[0] = bar_data.getIndicatorWeight();
+				vol_size[0] = bar_data.getBarVolume();
 			else if (tme_frm.getTimeFrame().intValue() == 15)
-				vol_size[1] = bar_data.getIndicatorWeight();
+				vol_size[1] = bar_data.getBarVolume();
 			else if (tme_frm.getTimeFrame().intValue() == 60)
-				vol_size[2] = bar_data.getIndicatorWeight();
+				vol_size[2] = bar_data.getBarVolume();
 			else if (tme_frm.getTimeFrame().intValue() == 240)
-				vol_size[3] = bar_data.getIndicatorWeight();
+				vol_size[3] = bar_data.getBarVolume();
 		}
 
 		// 5 minut ZAWSZE:

@@ -8,9 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.com.vsadga.data.BarData;
-import pl.com.vsadga.data.SpreadSize;
-import pl.com.vsadga.data.VolumeSize;
-import pl.com.vsadga.dto.BarType;
 import pl.com.vsadga.dto.IndicatorInfo;
 import pl.com.vsadga.dto.cache.DataCache;
 import pl.com.vsadga.service.BaseServiceException;
@@ -45,7 +42,10 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 			LOGGER.info("   [INDY] Usluga przetwarzania wskaznika jest wylaczona.");
 			return null;
 		}
+		
+		return null;
 
+		/*
 		if (barData.getBarType() == BarType.UP_BAR) {
 			// wskaźniki dla UP barów:
 			return getUpBarIndy(barData);
@@ -57,7 +57,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 		} else {
 			LOGGER.info("   [INDY] Bar typu [" + barData.getBarType() + "] nie jest przetwarzany.");
 			return null;
-		}
+		} */
 	}
 
 	/**
@@ -74,6 +74,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 	public void setDataCache(DataCache dataCache) {
 		this.dataCache = dataCache;
 	}
+	
 	
 	/**
 	 * Sprawdza, czy Wolumen przesłanego barData - jest większy od Wolumenu w podanych barach.
@@ -95,6 +96,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 		return true;
 	}
 	
+	/*
 	private boolean isPotentialStoppingVolume(BarData actualBar) {
 		// DOWN bar powienie zamknąć się - z dala od minimum bara:
 		if (isClosedDownPart(actualBar))
@@ -282,6 +284,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 		} else
 			return false;
 	}
+	*/
 
 	/**
 	 * Sprawdza, czy Low i Close przesłanego barData - jest mniejszy od Low i Close bara o podanym
@@ -336,6 +339,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 			return false;
 	}
 
+	/*
 	private IndicatorInfo getUpBarIndy(BarData barData) {
 		SpreadSize spr_size = barData.getSpreadSize();
 		VolumeSize vol_size = barData.getVolumeSize();
@@ -397,6 +401,7 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 		return null;
 	}
+	*/
 
 	/**
 	 * Sprawdza, czy cena jest zamknięta powyżej połowy bara - włącznie z samą ceną będącą połową
