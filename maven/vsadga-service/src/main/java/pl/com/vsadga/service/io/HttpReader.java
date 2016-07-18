@@ -5,9 +5,10 @@ import java.util.Date;
 
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.dto.HttpProxy;
 
 public interface HttpReader {
 
 	String readFromUrl(CurrencySymbol symbol, TimeFrame frame, Date actualDate, Date lastOpen, String accessKey,
-			boolean isProxy) throws IOException;
+			HttpProxy httpProxy) throws IOException;
 }

@@ -350,5 +350,7 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (28, 'ACCESS_KEY', '123');
 insert into fxschema.config_data(id, param_name, param_value)
 values (29, 'IS_HTTP_PROXY', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (30, 'HTTP_PROXY_HOST', 'proxy');
 
 

@@ -12,29 +12,14 @@ import java.util.Date;
 
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.dto.HttpProxy;
 
 public class HttpReaderImpl implements HttpReader {
 	private final String ZERO_DATE = "1970.01.01%2000:00";
 
-	/*
-	 * public static void main(String[] args) throws IOException { HttpReaderImpl obj = new
-	 * HttpReaderImpl();
-	 * 
-	 * CurrencySymbol symbol = new CurrencySymbol(); symbol.setSymbolName("EURUSD");
-	 * symbol.setFuturesSymbol("6e");
-	 * 
-	 * TimeFrame frame = new TimeFrame(); frame.setTimeFrame(5);
-	 * 
-	 * GregorianCalendar greg = new GregorianCalendar(); greg.setTime(new Date());
-	 * greg.add(Calendar.HOUR_OF_DAY, 1);
-	 * 
-	 * System.out.println(obj.readFromUrl(symbol, frame, greg.getTime(), null, "88301876068826",
-	 * true)); }
-	 */
-
 	@Override
 	public String readFromUrl(CurrencySymbol symbol, TimeFrame frame, Date actualDate, Date lastOpen,
-			String accessKey, boolean isProxy) throws IOException {
+			String accessKey, HttpProxy httpProxy) throws IOException {
 		URL url = null;
 		Proxy proxy = null;
 		URLConnection conn = null;
@@ -46,8 +31,10 @@ public class HttpReaderImpl implements HttpReader {
 		try {
 			url = new URL(buildHttpUrl(symbol, frame.getTimeFrame(), actualDate, lastOpen, accessKey));
 
-			if (isProxy) {
-				proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy-usr.kir.pl", 8080));
+			// czy połączenie poprzez proxy:
+			if (httpProxy.isHttpProxy()) {
+				proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(httpProxy.getProxyHost(),
+						httpProxy.getProxyPort()));
 				conn = url.openConnection(proxy);
 			} else {
 				conn = url.openConnection();

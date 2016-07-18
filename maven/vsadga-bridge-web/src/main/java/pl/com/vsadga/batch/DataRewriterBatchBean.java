@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.dto.HttpProxy;
 import pl.com.vsadga.dto.Mt4FileRecord;
 import pl.com.vsadga.dto.VolumeData;
 import pl.com.vsadga.io.BarDataFileReader;
@@ -49,7 +50,7 @@ public class DataRewriterBatchBean extends BaseBatch {
 	@Autowired
 	private HttpReader httpReader;
 
-	private boolean isHttpProxy;
+	private HttpProxy httpProxy;
 
 	private String mt4LocalPath;
 
@@ -163,7 +164,8 @@ public class DataRewriterBatchBean extends BaseBatch {
 	/**
 	 * Dla wczytanych symboli oraz ramek czasowych - wczytuje zawartość pliku płaskiego, który
 	 * wpisuje do tabel bazy danych.
-	 * @throws BatchProcessException 
+	 * 
+	 * @throws BatchProcessException
 	 */
 	private int processDataFiles() throws BatchProcessException {
 		List<CurrencySymbol> symbol_list = null;
@@ -226,14 +228,20 @@ public class DataRewriterBatchBean extends BaseBatch {
 
 		// pobierz informację o proxy:
 		Integer int_value = getIntParamValue("IS_HTTP_PROXY");
-		if (value == null)
+		if (int_value == null)
 			return false;
 		else {
-			if (int_value.intValue() == 1)
-				this.isHttpProxy = true;
-			else
-				this.isHttpProxy = false;
+			if (int_value.intValue() != 1) {
+				this.httpProxy = new HttpProxy(false);
+				return true;
+			}
 
+			// pobierz wartość proxy:
+			value = getStringParamValue("HTTP_PROXY_HOST");
+			if (value == null)
+				return false;
+			
+			this.httpProxy = new HttpProxy(true, value.trim(), 8080);
 		}
 
 		return true;
@@ -244,9 +252,9 @@ public class DataRewriterBatchBean extends BaseBatch {
 		List<Mt4FileRecord> rec_volume_list = null;
 
 		try {
-		// pobierz przesunięcie godzin w dacie:
-		int hr_shift = getHourShift();
-		GregorianCalendar sys_date = getSystemDate(hr_shift);
+			// pobierz przesunięcie godzin w dacie:
+			int hr_shift = getHourShift();
+			GregorianCalendar sys_date = getSystemDate(hr_shift);
 
 			// pobierz całą zawartość pliku:
 			rec_list = barDataFileReader.readAll(mt4LocalPath, symbol.getSymbolName(),
@@ -277,7 +285,7 @@ public class DataRewriterBatchBean extends BaseBatch {
 		} catch (Throwable th) {
 			th.printStackTrace();
 			throw new BatchProcessException("::rewriteFileContent2db:: wyjatek Throwable!", th);
-		} 
+		}
 	}
 
 	private List<Mt4FileRecord> updateBarVolumes(List<Mt4FileRecord> recordList, CurrencySymbol symbol,
@@ -303,15 +311,14 @@ public class DataRewriterBatchBean extends BaseBatch {
 		}
 
 		try {
-			http_response = httpReader.readFromUrl(symbol, timeFrame, actualTime.getTime(), min_time.getTime(),
-					httpAccessKey, isHttpProxy);
+			http_response = httpReader.readFromUrl(symbol, timeFrame, actualTime.getTime(), min_time.getTime(), httpAccessKey, httpProxy);
 			if (StringUtils.isBlank(http_response)) {
-				LOGGER.info("   [VOL] Pusta odpowiedz HTTP [" + http_response + "] dla symbolu,ramki: ["
+				LOGGER.info("   Pusta odpowiedz HTTP [" + http_response + "] dla symbolu,ramki: ["
 						+ symbol.getSymbolName() + "," + timeFrame + "].");
 				return recordList;
 			}
 
-			String[] resp_tab = http_response.split("\n");
+			String[] resp_tab = http_response.trim().split("\n");
 			String[] line_tab = null;
 
 			for (String line : resp_tab) {
@@ -326,11 +333,8 @@ public class DataRewriterBatchBean extends BaseBatch {
 			for (Mt4FileRecord file_rec : recordList) {
 				real_volume = volume_map.get(file_rec.getBarTime());
 
-				if (real_volume != null && real_volume.intValue() > 0) {
-					LOGGER.info("      [" + file_rec.getBarTime() + "]: [" + real_volume + "].");
-
+				if (real_volume != null && real_volume.intValue() > 0)
 					file_rec.setBarVolume(real_volume);
-				}
 
 				result_list.add(file_rec);
 			}

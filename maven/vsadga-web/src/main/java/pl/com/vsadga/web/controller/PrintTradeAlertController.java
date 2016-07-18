@@ -1,7 +1,5 @@
 package pl.com.vsadga.web.controller;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,26 +7,45 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import pl.com.vsadga.data.TradeAlert;
-import pl.com.vsadga.service.alert.TradeAlertService;
+import pl.com.vsadga.data.CurrencySymbol;
+import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.service.BaseServiceException;
+import pl.com.vsadga.service.chart.ChartWriter;
 
 @Controller
 public class PrintTradeAlertController extends BaseController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PrintTradeAlertController.class);
 	
+	//private TradeAlertService tradeAlertService;
+	
 	@Autowired
-	private TradeAlertService tradeAlertService;
+	private ChartWriter chartWriter;
 	
 	@RequestMapping("/alert")
 	public ModelAndView printTradeAlertList() {
 		StringBuffer html_buff = new StringBuffer();
 		html_buff.append("<br><br>Alert printer");
-		List<TradeAlert> alert_list = null;
 		
-		alert_list = tradeAlertService.getActualTradeAlertList();
+		//List<TradeAlert> alert_list = null;
+		//alert_list = tradeAlertService.getActualTradeAlertList();
 		
-		if (alert_list.isEmpty()) {
+		CurrencySymbol symbol = new CurrencySymbol();
+		symbol.setIsActive(true);
+		symbol.setSymbolName("GOLD");
+		
+		TimeFrame timeFrame = new TimeFrame();
+		timeFrame.setIsActive(true);
+		timeFrame.setTimeFrame(5);
+		timeFrame.setTimeFrameDesc("M5");
+		
+		try {
+			chartWriter.print(symbol, timeFrame);
+		} catch (BaseServiceException e) {
+			e.printStackTrace();
+		}
+		
+		/*if (alert_list.isEmpty()) {
 			html_buff.append("<br>Brak alertow.");
 		} else {
 			html_buff.append("<table>");
@@ -42,7 +59,7 @@ public class PrintTradeAlertController extends BaseController {
 			}
 			
 			html_buff.append("</table>");
-		}
+		}*/
 		
 		return new ModelAndView("print-alert", "html_tab", html_buff.toString());
 	}
