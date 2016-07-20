@@ -106,7 +106,25 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (28, 'ACCESS_KEY', '123');
 insert into fxschema.config_data(id, param_name, param_value)
 values (29, 'IS_HTTP_PROXY', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (30, 'HTTP_PROXY_HOST', 'proxy');
+insert into fxschema.config_data(id, param_name, param_value)
+values (31, 'IS_BATCH_REPORT_PRINTER', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (32, 'CHART_JPG_WRITE_PATH', '/My-workspaces/vsadga-workspace/work');
 
 
+4H: 6*15
+1H: 24*15
+15M: 4*24*15
+5M:  12*24*15
 
+update fxschema.time_frame
+set is_active=false
 
+update fxschema.time_frame
+set is_active=true
+where time_frame_desc='H4'
+
+update fxschema.currency_symbol
+set is_active=true

@@ -352,5 +352,8 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (29, 'IS_HTTP_PROXY', '1');
 insert into fxschema.config_data(id, param_name, param_value)
 values (30, 'HTTP_PROXY_HOST', 'proxy');
-
+insert into fxschema.config_data(id, param_name, param_value)
+values (31, 'IS_BATCH_REPORT_PRINTER', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (32, 'CHART_JPG_WRITE_PATH', '/My-workspaces/vsadga-workspace/work');
 

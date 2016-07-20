@@ -49,6 +49,12 @@
 	</bean>
 
 	<!-- Services -->
+	<bean id="chartWriter" class="pl.com.vsadga.service.chart.ChartWriterImpl">
+		<property name="currencyDataService" ref="currencyDataService" />
+	</bean>
+	<bean id="currencyDataService" class="pl.com.vsadga.service.data.CurrencyDataServiceImpl">
+		<property name="barDataDao" ref="barDataDao" />
+	</bean>
 	<bean id="configDataService" class="pl.com.vsadga.service.config.ConfigDataServiceImpl">
 		<property name="configDataDao" ref="configDataDao" />
 	</bean>
@@ -61,9 +67,6 @@
 	</bean>
 	<bean id="timeFrameService" class="pl.com.vsadga.service.timeframe.TimeFrameServiceImpl">
 		<property name="timeFrameListDao" ref="timeFrameListDao" />
-	</bean>
-	<bean id="currencyDataService" class="pl.com.vsadga.service.data.CurrencyDataServiceImpl">
-		<property name="barDataDao" ref="barDataDao" />
 	</bean>
 	
 	<!-- IO -->

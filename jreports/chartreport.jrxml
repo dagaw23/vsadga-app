@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="chartreport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9b69a069-53dc-42f3-8330-325d15277229">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="chartParams" class="pl.com.vsadga.dto.ChartPatameters"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="47" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="60" splitType="Stretch"/>
+	</pageHeader>
+	<detail>
+		<band height="692" splitType="Stretch">
+			<image>
+				<reportElement uuid="b14e27d3-653c-4320-ba10-e451ea92b16d" x="5" y="78" width="550" height="550"/>
+				<imageExpression><![CDATA[$P{chartParams}.getSymbol1M5Path()]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="170" y="15" width="103" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName1()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="287" y="15" width="100" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[- M5]]></text>
+			</staticText>
+		</band>
+		<band height="692">
+			<staticText>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="287" y="18" width="100" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[- M5]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="170" y="18" width="103" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName2()]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement uuid="c77fabd3-e47e-4949-84ce-0400f1be889c" x="5" y="85" width="550" height="550"/>
+				<imageExpression><![CDATA[$P{chartParams}.getSymbol2M5Path()]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="50">
+			<textField>
+				<reportElement uuid="e10885e4-8a44-4bb4-b6c8-96e2b1b19b73" x="422" y="30" width="80" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement uuid="88d9fa37-ccb9-4eaf-b547-28806b6ff67f" x="502" y="30" width="40" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="35" splitType="Stretch"/>
+	</summary>
+</jasperReport>

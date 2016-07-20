@@ -6,5 +6,9 @@ import pl.com.vsadga.service.BaseServiceException;
 
 public interface ChartWriter {
 
-	public void print(CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException;
+	public void writeChartToJpg(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount, String pathToWrite) throws BaseServiceException;
+	
+	public void writeChartToPdf(String symbolName1, String symbolName2) throws BaseServiceException;
+	
+	public void initConfigParams() throws BaseServiceException;
 }

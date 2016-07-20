@@ -33,6 +33,7 @@ public class PrintTradeAlertController extends BaseController {
 		CurrencySymbol symbol = new CurrencySymbol();
 		symbol.setIsActive(true);
 		symbol.setSymbolName("GOLD");
+		symbol.setId(9);
 		
 		TimeFrame timeFrame = new TimeFrame();
 		timeFrame.setIsActive(true);
@@ -40,7 +41,7 @@ public class PrintTradeAlertController extends BaseController {
 		timeFrame.setTimeFrameDesc("M5");
 		
 		try {
-			chartWriter.print(symbol, timeFrame);
+			chartWriter.writeChartToJpg(symbol, timeFrame, 50, "/tmp");
 		} catch (BaseServiceException e) {
 			e.printStackTrace();
 		}
