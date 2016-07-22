@@ -56,11 +56,16 @@ public class ReportPrinterBatch extends BaseBatch {
 			}
 			
 			// 1) Utworzenie wykresow w postaci JPG:
-			//int chart_writed2jpg = writeChartsToJpg(symbol_list, tmefrm_list);
-			//LOGGER.info("   [CHART] Utworzono [" + chart_writed2jpg + "] pliki JPG.");
+			int chart_writed2jpg = writeChartsToJpg(symbol_list, tmefrm_list);
+			LOGGER.info("   [CHART] Utworzono [" + chart_writed2jpg + "] pliki JPG.");
 			
 			// 2) Utworzenie pliku PDF:
 			createPdfReport();
+			
+			// 3) Usunięcie plików JPG:
+			int chart_deleted = deleteChartsJpg(symbol_list, tmefrm_list);
+			LOGGER.info("   [CHART] Usunieto [" + chart_deleted + "] pliki JPG.");
+			
 						
 		} catch (BaseServiceException e) {
 			e.printStackTrace();
@@ -70,17 +75,33 @@ public class ReportPrinterBatch extends BaseBatch {
 	}
 	
 	private void createPdfReport() throws BaseServiceException {
+		chartWriter.writeChartToPdf("AUDUSD", "GBPUSD");
+		chartWriter.writeChartToPdf("USDCAD", "EURUSD");
+		chartWriter.writeChartToPdf("USDJPY", "NZDUSD");
 		
-		chartWriter.writeChartToPdf("GOLD", "GBPUSD");
-		
+		chartWriter.writeChartToPdf("USDCHF", "OIL");
+		chartWriter.writeChartToPdf("GOLD", "SILVER");
+		chartWriter.writeChartToPdf("US500", "GER30");
 	}
 	
 	private int writeChartsToJpg(List<CurrencySymbol> symbolList, List<TimeFrame> timeFrameList) throws BaseServiceException {
 		int chart_count = 0;
 		for (CurrencySymbol symbol : symbolList) {
 			for (TimeFrame timeFrame : timeFrameList) {
-				chartWriter.writeChartToJpg(symbol, timeFrame, 50, chartJpgWritePath);
+				chartWriter.writeChartToJpg(symbol, timeFrame, 100, chartJpgWritePath);
 				chart_count++;
+			}
+		}
+		
+		return chart_count;
+	}
+	
+	private int deleteChartsJpg(List<CurrencySymbol> symbolList, List<TimeFrame> timeFrameList) throws BaseServiceException {
+		int chart_count = 0;
+		for (CurrencySymbol symbol : symbolList) {
+			for (TimeFrame timeFrame : timeFrameList) {
+				if (chartWriter.deleteChartJpg(symbol, timeFrame, chartJpgWritePath))
+					chart_count++;
 			}
 		}
 		

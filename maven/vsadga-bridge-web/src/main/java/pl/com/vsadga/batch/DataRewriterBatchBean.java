@@ -171,6 +171,8 @@ public class DataRewriterBatchBean extends BaseBatch {
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;
 		int file_count = 0;
+		int hr_shift = 0;
+		GregorianCalendar shift_date = null;
 
 		// pobierz listę aktywnych symboli:
 		symbol_list = symbolService.getActiveSymbols();
@@ -187,13 +189,22 @@ public class DataRewriterBatchBean extends BaseBatch {
 			LOGGER.info("   ### Brak aktywnych timeFrame [" + tmefrm_list.size() + "].");
 			return 0;
 		}
+		
+		try {
+			// pobierz przesunięcie godzin w dacie:
+			hr_shift = getHourShift();
+			shift_date = getSystemDate(hr_shift);
+		} catch (BaseServiceException e) {
+			e.printStackTrace();
+			throw new BatchProcessException("::processDataFiles:: wyjatek BaseServiceException!", e); 
+		}
 
 		for (CurrencySymbol sym : symbol_list) {
 			for (TimeFrame frm : tmefrm_list) {
 				LOGGER.info("   [WRITE] Symbol [" + sym.getSymbolName() + "], ramka [" + frm.getTimeFrameDesc()
 						+ "].");
 
-				rewriteFileContent2db(sym, frm);
+				rewriteFileContent2db(sym, frm, shift_date);
 				file_count++;
 			}
 		}
@@ -247,14 +258,12 @@ public class DataRewriterBatchBean extends BaseBatch {
 		return true;
 	}
 
-	private void rewriteFileContent2db(CurrencySymbol symbol, TimeFrame timeFrame) throws BatchProcessException {
+	private void rewriteFileContent2db(CurrencySymbol symbol, TimeFrame timeFrame, GregorianCalendar shiftDate) throws BatchProcessException {
 		List<Mt4FileRecord> rec_list = null;
 		List<Mt4FileRecord> rec_volume_list = null;
 
 		try {
-			// pobierz przesunięcie godzin w dacie:
-			int hr_shift = getHourShift();
-			GregorianCalendar sys_date = getSystemDate(hr_shift);
+			
 
 			// pobierz całą zawartość pliku:
 			rec_list = barDataFileReader.readAll(mt4LocalPath, symbol.getSymbolName(),
@@ -268,10 +277,10 @@ public class DataRewriterBatchBean extends BaseBatch {
 			}
 
 			// zaczytaj wolumen rzeczywisty:
-			rec_volume_list = updateBarVolumes(rec_list, symbol, timeFrame, sys_date);
+			rec_volume_list = updateBarVolumes(rec_list, symbol, timeFrame, shiftDate);
 
 			// wpisz rekordy lub aktualizuj w DB:
-			currencyDbWriterService.write(symbol, timeFrame, rec_volume_list, sys_date);
+			currencyDbWriterService.write(symbol, timeFrame, rec_volume_list, shiftDate);
 
 		} catch (ReaderException e) {
 			e.printStackTrace();

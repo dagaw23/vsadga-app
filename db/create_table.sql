@@ -276,9 +276,9 @@ values (9, 'GOLD', true, 'GC');
 insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
 values (10, 'SILVER', true, 'SI');
 insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
-values (11, 'SP500', true, 'ES');
+values (11, 'US500', true, 'ES');
 insert into fxschema.currency_symbol(id, symbol_name, is_active, futures_symbol)
-values (12, 'DAX', true, 'FDAX');
+values (12, 'GER30', true, 'FDAX');
 
 
 insert into fxschema.time_frame(id, time_frame, time_frame_desc, is_active)

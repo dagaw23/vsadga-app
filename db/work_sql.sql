@@ -114,11 +114,18 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (32, 'CHART_JPG_WRITE_PATH', '/My-workspaces/vsadga-workspace/work');
 
 
-4H: 6*15
-1H: 24*15
-15M: 4*24*15
+nowe katalogi:
+c:\My-workspaces\vsadga-workspace
+ - jreports
+ - reports
+ - work
+
+
 5M:  12*24*15
 
+delete files.
+
+4H: 6*17 --> 120
 update fxschema.time_frame
 set is_active=false
 
@@ -128,3 +135,91 @@ where time_frame_desc='H4'
 
 update fxschema.currency_symbol
 set is_active=true
+
+
+1H: 24*17  --> 420
+update fxschema.time_frame
+set is_active=false
+
+update fxschema.time_frame
+set is_active=true
+where time_frame_desc='H1'
+
+
+15M: 4*24*15  --> 1650
+update fxschema.time_frame
+set is_active=false
+
+update fxschema.time_frame
+set is_active=true
+where time_frame_desc='M15'
+
+5M:  12*24*15  --> 1650
+update fxschema.time_frame
+set is_active=false
+
+update fxschema.time_frame
+set is_active=true
+where time_frame_desc='M5'
+
+------------------------------
+update fxschema.time_frame
+set is_active=false
+
+update fxschema.config_data
+set param_value='0'
+where id=15
+
+update fxschema.currency_symbol
+set is_active=false
+
+update fxschema.time_frame
+set is_active=true
+where time_frame_desc='M5' or time_frame_desc='M15' or time_frame_desc='H1' or time_frame_desc='H4'
+
+update fxschema.config_data
+set param_value='1650'
+where id=4
+
+update fxschema.config_data
+set param_value='1'
+where id=14
+
+update fxschema.currency_symbol
+set is_active=true
+where id=1 or id=2
+
+update fxschema.currency_symbol
+set is_active=true
+where id=3 or id=4
+
+update fxschema.currency_symbol
+set is_active=true
+where id=5 or id=6
+
+update fxschema.currency_symbol
+set is_active=false
+
+update fxschema.currency_symbol
+set is_active=true
+where id=7 or id=8
+
+update fxschema.currency_symbol
+set is_active=true
+where id=9 or id=10
+
+update fxschema.currency_symbol
+set is_active=true
+where id=11 or id=12
+
+update fxschema.currency_symbol
+set is_active=false
+
+update fxschema.config_data
+set param_value='100'
+where id=4
+
+update fxschema.currency_symbol
+set is_active=true
+
+

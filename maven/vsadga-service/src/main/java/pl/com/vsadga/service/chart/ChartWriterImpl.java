@@ -81,16 +81,29 @@ public class ChartWriterImpl implements ChartWriter {
 
 	private CurrencyDataService currencyDataService;
 
-	private TimeSeries volumeOhlcSeries;
-	
+	private String pathToJasperFile = "/My-workspaces/vsadga-workspace/jreports/chartreport.jrxml";
+
 	/**
 	 * ścieżka do plików JPG - zakończona znakiem '/'
 	 */
 	private String pathToJpgFile = "/My-workspaces/vsadga-workspace/work/";
-	
+
 	private String pathToPdfFile = "/My-workspaces/vsadga-workspace/reports/";
-	
-	private String pathToJasperFile = "/My-workspaces/vsadga-workspace/jreports/chartreport.jrxml";
+
+	private TimeSeries volumeOhlcSeries;
+
+	@Override
+	public boolean deleteChartJpg(CurrencySymbol symbol, TimeFrame timeFrame, String pathToWrite) throws BaseServiceException {
+		File file = getChartFile(pathToWrite, symbol, timeFrame);
+		
+		return file.delete();
+	}
+
+	@Override
+	public void initConfigParams() throws BaseServiceException {
+		// TODO Auto-generated method stub
+
+	}
 
 	/**
 	 * @param currencyDataService
@@ -98,46 +111,6 @@ public class ChartWriterImpl implements ChartWriter {
 	 */
 	public void setCurrencyDataService(CurrencyDataService currencyDataService) {
 		this.currencyDataService = currencyDataService;
-	}
-	
-	@Override
-	public void writeChartToPdf(String symbolName1, String symbolName2) {//"GOLD", "GBPUSD"
-		JasperReport compiledReport = null;
-		HashMap<String, Object> parameters = new HashMap<String, Object>();
-		
-		try {
-			// kompiluj szablon raportu:
-			compiledReport = JasperCompileManager.compileReport(pathToJasperFile);
-			
-			// wpisz wymagane parametry:
-			parameters.put("chartParams", getParameters(symbolName1, symbolName2));
-			
-			JasperPrint filledReport = JasperFillManager.fillReport(compiledReport, parameters, new JREmptyDataSource());
-			JasperExportManager.exportReportToPdfFile(filledReport, pathToPdfFile + getPdfFileName(symbolName1, symbolName2));
-			
-		} catch (JRException e) {
-			e.printStackTrace();
-		} catch (Throwable th) {
-			th.printStackTrace();
-		}
-		
-	}
-	
-	private String getPdfFileName(String symbolName1, String symbolName2) {
-		return symbolName1 + "_" + symbolName2 + "_" + DateConverter.dateToString(new Date(), "yyMMdd-HHmm") + ".pdf";
-		
-	}
-	
-	private ChartPatameters getParameters(String symbolName1, String symbolName2) {
-		ChartPatameters params = new ChartPatameters();
-		
-		params.setSymbolName1(symbolName1);
-		params.setSymbol1M5Path(pathToJpgFile + getChartFileName(symbolName1, "M5"));
-		
-		params.setSymbolName2(symbolName2);
-		params.setSymbol2M5Path(pathToJpgFile + getChartFileName(symbolName2, "M5"));
-		
-		return params;
 	}
 
 	@Override
@@ -161,6 +134,31 @@ public class ChartWriterImpl implements ChartWriter {
 			LOGGER.error("::writeChartToJpg:: wyjatek Throwable!");
 			throw new BaseServiceException(th);
 		}
+	}
+
+	@Override
+	public void writeChartToPdf(String symbolName1, String symbolName2) {// "GOLD", "GBPUSD"
+		JasperReport compiledReport = null;
+		HashMap<String, Object> parameters = new HashMap<String, Object>();
+
+		try {
+			// kompiluj szablon raportu:
+			compiledReport = JasperCompileManager.compileReport(pathToJasperFile);
+
+			// wpisz wymagane parametry:
+			parameters.put("chartParams", getParameters(symbolName1, symbolName2));
+
+			JasperPrint filledReport = JasperFillManager.fillReport(compiledReport, parameters,
+					new JREmptyDataSource());
+			JasperExportManager.exportReportToPdfFile(filledReport,
+					pathToPdfFile + getPdfFileName(symbolName1, symbolName2));
+
+		} catch (JRException e) {
+			e.printStackTrace();
+		} catch (Throwable th) {
+			th.printStackTrace();
+		}
+
 	}
 
 	private JFreeChart createCombinedChart(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount)
@@ -246,9 +244,9 @@ public class ChartWriterImpl implements ChartWriter {
 
 			// kolor dla bara danych:
 			if (prev_bar_close.compareTo(bar_data.getBarClose()) < 0)
-				barSeriesColor.add(Color.red);
-			else if (prev_bar_close.compareTo(bar_data.getBarClose()) > 0)
 				barSeriesColor.add(Color.blue);
+			else if (prev_bar_close.compareTo(bar_data.getBarClose()) > 0)
+				barSeriesColor.add(Color.red);
 			else
 				barSeriesColor.add(Color.black);
 
@@ -269,11 +267,11 @@ public class ChartWriterImpl implements ChartWriter {
 	private File getChartFile(String pathToWrite, CurrencySymbol symbol, TimeFrame timeFrame) {
 		return new File(pathToWrite + File.separator + getChartFileName(symbol, timeFrame));
 	}
-	
+
 	private String getChartFileName(CurrencySymbol symbol, TimeFrame timeFrame) {
 		return getChartFileName(symbol.getSymbolName(), timeFrame.getTimeFrameDesc());
 	}
-	
+
 	private String getChartFileName(String symbolName, String timeFrameDesc) {
 		return symbolName + "-" + timeFrameDesc + ".jpg";
 	}
@@ -282,10 +280,22 @@ public class ChartWriterImpl implements ChartWriter {
 		return "Wykres " + symbol.getSymbolName() + " - " + timeFrame.getTimeFrameDesc();
 	}
 
-	@Override
-	public void initConfigParams() throws BaseServiceException {
-		// TODO Auto-generated method stub
-		
+	private ChartPatameters getParameters(String symbolName1, String symbolName2) {
+		ChartPatameters params = new ChartPatameters();
+
+		params.setSymbolName1(symbolName1);
+		params.setSymbol1M5Path(pathToJpgFile + getChartFileName(symbolName1, "M5"));
+
+		params.setSymbolName2(symbolName2);
+		params.setSymbol2M5Path(pathToJpgFile + getChartFileName(symbolName2, "M5"));
+
+		return params;
+	}
+
+	private String getPdfFileName(String symbolName1, String symbolName2) {
+		return symbolName1 + "_" + symbolName2 + "_" + DateConverter.dateToString(new Date(), "yyMMdd-HHmm")
+				+ ".pdf";
+
 	}
 
 }
