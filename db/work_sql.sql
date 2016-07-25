@@ -120,6 +120,8 @@ c:\My-workspaces\vsadga-workspace
  - reports
  - work
 
+ KS Ursynów
+ FutbolTalent
 
 5M:  12*24*15
 

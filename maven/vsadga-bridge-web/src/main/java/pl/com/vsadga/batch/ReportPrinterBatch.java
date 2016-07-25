@@ -31,7 +31,7 @@ public class ReportPrinterBatch extends BaseBatch {
 
 	private String chartJpgWritePath;
 
-	@Scheduled(cron = "30 0/5 0,7-23 * * SUN-FRI")
+	@Scheduled(cron = "30 0 0,7-23 * * SUN-FRI")
 	public void cronJob() {
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;

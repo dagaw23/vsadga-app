@@ -34,7 +34,7 @@ public class DataCalculateBatch extends BaseBatch {
 	public DataCalculateBatch() {
 	}
 	
-	@Scheduled(cron = "30 0/1 7-23 * * SUN-FRI")
+	@Scheduled(cron = "30 0 0,7-23 * * SUN-FRI")
 	public void cronJob() {
 		
 		try {
