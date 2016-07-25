@@ -42,4 +42,20 @@ public abstract class BaseBatch {
 		return param_value;
 	}
 
+	protected boolean isProcessBatch(String paramName) throws BaseServiceException {
+		Integer is_process = getIntParamValue(paramName);
+
+		if (is_process == null)
+			throw new BaseServiceException("::isProcessBatch:: brak parametru " + paramName + " [" + is_process
+					+ "] w tabeli parametrow.");
+
+		if (is_process.intValue() == 1) {
+			return true;
+		} else {
+			LOGGER.info("   [BATCH] Wylaczony Batch wg parametru " + paramName + " [" + is_process.intValue()
+					+ "].");
+			return false;
+		}
+	}
+
 }

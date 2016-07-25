@@ -356,4 +356,7 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (31, 'IS_BATCH_REPORT_PRINTER', '1');
 insert into fxschema.config_data(id, param_name, param_value)
 values (32, 'CHART_JPG_WRITE_PATH', '/My-workspaces/vsadga-workspace/work');
-
+insert into fxschema.config_data(id, param_name, param_value)
+values (33, 'IS_BATCH_DATA_CALCULATE', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (34, 'DATA_CALCULATE_MODE', 'ALL');

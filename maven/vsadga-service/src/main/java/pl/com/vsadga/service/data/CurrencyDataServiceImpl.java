@@ -16,13 +16,6 @@ import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.utils.DateConverter;
 
 public class CurrencyDataServiceImpl implements CurrencyDataService {
-	/**
-	 * logger do zapisywania komunikatów do pliku log
-	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(CurrencyDataServiceImpl.class);
-
-	private BarDataDao barDataDao;
-
 	private class BarDataSortDesc implements Comparator<BarData> {
 
 		@Override
@@ -36,6 +29,13 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 		}
 
 	}
+
+	/**
+	 * logger do zapisywania komunikatów do pliku log
+	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(CurrencyDataServiceImpl.class);
+
+	private BarDataDao barDataDao;
 
 	@Override
 	public void backupArchiveData(String frameDesc, Date barDate, Integer tableNr) throws BaseServiceException {
@@ -62,6 +62,16 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 		} catch (Throwable th) {
 			th.printStackTrace();
 			throw new BaseServiceException("::backupArchiveData:: wyjatek " + th.getClass().getName() + "!");
+		}
+	}
+
+	@Override
+	public int deleteAll(String frameDesc, List<BarData> dataList) throws BaseServiceException {
+		try {
+			return barDataDao.deleteAll(frameDesc, dataList).length;
+		} catch (Throwable th) {
+			th.printStackTrace();
+			throw new BaseServiceException("::deleteAll:: wyjatek Throwable!");
 		}
 	}
 
@@ -111,6 +121,16 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	public List<BarData> getNotProcessBarDataList(Integer symbolId, String timeFrameDesc)
 			throws BaseServiceException {
 		return barDataDao.getNotProcessBarDataList(symbolId, timeFrameDesc);
+	}
+
+	@Override
+	public int insert(String frameDesc, BarData data) throws BaseServiceException {
+		try {
+			return barDataDao.insert(frameDesc, data);
+		} catch (Throwable th) {
+			th.printStackTrace();
+			throw new BaseServiceException("::insert:: wyjatek Throwable!", th);
+		}
 	}
 
 	/**

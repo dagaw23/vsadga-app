@@ -15,6 +15,8 @@ public interface CurrencyDataService {
 
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = { BaseServiceException.class })
 	void backupArchiveData(String frameDesc, Date barDate, Integer tableNr) throws BaseServiceException;
+	
+	int deleteAll(final String frameDesc, final List<BarData> dataList) throws BaseServiceException;
 
 	List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException;
 
@@ -24,4 +26,6 @@ public interface CurrencyDataService {
 			throws BaseServiceException;
 
 	List<BarData> getNotProcessBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException;
+	
+	int insert(String frameDesc, BarData data) throws BaseServiceException;
 }

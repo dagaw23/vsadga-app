@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="chartreport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9b69a069-53dc-42f3-8330-325d15277229">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
+	<property name="ireport.y" value="6286"/>
 	<parameter name="chartParams" class="pl.com.vsadga.dto.ChartPatameters"/>
 	<background>
 		<band splitType="Stretch"/>
@@ -17,40 +17,200 @@
 		<band height="692" splitType="Stretch">
 			<image>
 				<reportElement uuid="b14e27d3-653c-4320-ba10-e451ea92b16d" x="5" y="78" width="550" height="550"/>
-				<imageExpression><![CDATA[$P{chartParams}.getSymbol1M5Path()]]></imageExpression>
+				<imageExpression><![CDATA[$P{chartParams}.getSymbol1D1Path()]]></imageExpression>
 			</image>
 			<textField>
-				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="170" y="15" width="103" height="20"/>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="156" y="25" width="103" height="20"/>
 				<textElement textAlignment="Right">
 					<font size="14" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName1()]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="287" y="15" width="100" height="20"/>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="273" y="25" width="100" height="20"/>
 				<textElement>
 					<font size="14" isBold="true"/>
 				</textElement>
-				<text><![CDATA[- M5]]></text>
+				<text><![CDATA[- D1]]></text>
 			</staticText>
 		</band>
 		<band height="692">
 			<staticText>
-				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="287" y="18" width="100" height="20"/>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="273" y="37" width="100" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[- H4]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="156" y="37" width="103" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName1()]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement uuid="b14e27d3-653c-4320-ba10-e451ea92b16d" x="0" y="92" width="550" height="550"/>
+				<imageExpression><![CDATA[$P{chartParams}.getSymbol1H4Path()]]></imageExpression>
+			</image>
+		</band>
+		<band height="692">
+			<textField>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="156" y="40" width="103" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName1()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="273" y="40" width="100" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[- H1]]></text>
+			</staticText>
+			<image>
+				<reportElement uuid="b14e27d3-653c-4320-ba10-e451ea92b16d" x="0" y="90" width="550" height="550"/>
+				<imageExpression><![CDATA[$P{chartParams}.getSymbol1H1Path()]]></imageExpression>
+			</image>
+		</band>
+		<band height="692">
+			<textField>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="156" y="41" width="103" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName1()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="273" y="41" width="100" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[- M15]]></text>
+			</staticText>
+			<image>
+				<reportElement uuid="b14e27d3-653c-4320-ba10-e451ea92b16d" x="5" y="103" width="550" height="550"/>
+				<imageExpression><![CDATA[$P{chartParams}.getSymbol1M15Path()]]></imageExpression>
+			</image>
+		</band>
+		<band height="692">
+			<staticText>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="273" y="43" width="100" height="20"/>
 				<textElement>
 					<font size="14" isBold="true"/>
 				</textElement>
 				<text><![CDATA[- M5]]></text>
 			</staticText>
 			<textField>
-				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="170" y="18" width="103" height="20"/>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="156" y="43" width="103" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName1()]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement uuid="b14e27d3-653c-4320-ba10-e451ea92b16d" x="0" y="86" width="550" height="550"/>
+				<imageExpression><![CDATA[$P{chartParams}.getSymbol1M5Path()]]></imageExpression>
+			</image>
+		</band>
+		<band height="692">
+			<staticText>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="273" y="33" width="100" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[- D1]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="156" y="33" width="103" height="20"/>
 				<textElement textAlignment="Right">
 					<font size="14" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName2()]]></textFieldExpression>
 			</textField>
 			<image>
-				<reportElement uuid="c77fabd3-e47e-4949-84ce-0400f1be889c" x="5" y="85" width="550" height="550"/>
+				<reportElement uuid="c77fabd3-e47e-4949-84ce-0400f1be889c" x="0" y="98" width="550" height="550"/>
+				<imageExpression><![CDATA[$P{chartParams}.getSymbol2D1Path()]]></imageExpression>
+			</image>
+		</band>
+		<band height="692">
+			<textField>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="156" y="38" width="103" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName2()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="273" y="38" width="100" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[- H4]]></text>
+			</staticText>
+			<image>
+				<reportElement uuid="c77fabd3-e47e-4949-84ce-0400f1be889c" x="5" y="86" width="550" height="550"/>
+				<imageExpression><![CDATA[$P{chartParams}.getSymbol2H4Path()]]></imageExpression>
+			</image>
+		</band>
+		<band height="692">
+			<textField>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="156" y="36" width="103" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName2()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="273" y="36" width="100" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[- H1]]></text>
+			</staticText>
+			<image>
+				<reportElement uuid="c77fabd3-e47e-4949-84ce-0400f1be889c" x="5" y="83" width="550" height="550"/>
+				<imageExpression><![CDATA[$P{chartParams}.getSymbol2H1Path()]]></imageExpression>
+			</image>
+		</band>
+		<band height="692">
+			<textField>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="156" y="27" width="103" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName2()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="273" y="27" width="100" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[- M15]]></text>
+			</staticText>
+			<image>
+				<reportElement uuid="c77fabd3-e47e-4949-84ce-0400f1be889c" x="5" y="94" width="550" height="550"/>
+				<imageExpression><![CDATA[$P{chartParams}.getSymbol2M15Path()]]></imageExpression>
+			</image>
+		</band>
+		<band height="692">
+			<textField>
+				<reportElement uuid="96cdf92f-5d46-4e5c-a47d-714b5192dc0f" x="156" y="31" width="103" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chartParams}.getSymbolName2()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="9031efd6-7d39-4055-80cd-0e0d98a08f4a" x="273" y="31" width="100" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[- M5]]></text>
+			</staticText>
+			<image>
+				<reportElement uuid="c77fabd3-e47e-4949-84ce-0400f1be889c" x="5" y="82" width="550" height="550"/>
 				<imageExpression><![CDATA[$P{chartParams}.getSymbol2M5Path()]]></imageExpression>
 			</image>
 		</band>
