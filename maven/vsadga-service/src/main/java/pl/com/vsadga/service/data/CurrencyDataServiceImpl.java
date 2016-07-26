@@ -81,6 +81,16 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	}
 
 	@Override
+	public List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime) throws BaseServiceException {
+		return barDataDao.getBarDataList(symbolId, timeFrameDesc, startTime);
+	}
+
+	@Override
+	public List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime, Date endTime) throws BaseServiceException {
+		return barDataDao.getBarDataList(symbolId, timeFrameDesc, startTime, endTime);
+	}
+
+	@Override
 	public List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame)
 			throws BaseServiceException {
 		List<BarData> result_list = null;
@@ -139,6 +149,16 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	 */
 	public void setBarDataDao(BarDataDao barDataDao) {
 		this.barDataDao = barDataDao;
+	}
+
+	@Override
+	public int update(String frameDesc, BarData barData) throws BaseServiceException {
+		return barDataDao.update(frameDesc, barData);
+	}
+
+	@Override
+	public int update(String frameDesc, BarData barData, Integer processPhase) throws BaseServiceException {
+		return barDataDao.update(frameDesc, barData, processPhase);
 	}
 
 }

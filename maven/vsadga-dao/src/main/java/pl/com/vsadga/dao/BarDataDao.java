@@ -31,6 +31,10 @@ public interface BarDataDao {
 
 	List<BarData> getBarDataList(Integer symbolId, String frameDesc);
 	
+	List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime, Date endTime);
+	
+	List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime);
+	
 	BarData getBySymbolAndTime(Integer symbolId, String frameDesc, Date barTime);
 
 	int getRowNumber(Integer symbolId, String frameDesc, Date barTime);
@@ -75,6 +79,26 @@ public interface BarDataDao {
 	 * @return
 	 */
 	int update(String frameDesc, Integer id, BarData barData);
+	
+	/**
+	 * Dla podanego rekordu wg ID - aktualizuje cenę: zamknięcia, maksymalną i minimalną oraz
+	 * wolumen rekordu.
+	 * 
+	 * @param frameDesc
+	 * @param barData
+	 * @return
+	 */
+	int update(String frameDesc, BarData barData);
+	
+	/**
+	 * Dla podanego rekordu wg ID - aktualizuje cenę: zamknięcia, maksymalną i minimalną,
+	 * wolumen rekordu oraz status.
+	 * 
+	 * @param frameDesc
+	 * @param barData
+	 * @return
+	 */
+	int update(String frameDesc, BarData barData, Integer processPhase);
 
 	int updateIndicatorConfirmation(Integer id, Integer processPhase, boolean isConfirm, String frameDesc);
 	

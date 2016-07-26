@@ -34,7 +34,8 @@ public class DataCalculateBatch extends BaseBatch {
 	public DataCalculateBatch() {
 	}
 	
-	@Scheduled(cron = "30 0 0,7-23 * * SUN-FRI")
+	//0 1
+	@Scheduled(cron = "40 * 0,7-23 * * SUN-FRI")
 	public void cronJob() {
 		
 		try {
@@ -61,7 +62,7 @@ public class DataCalculateBatch extends BaseBatch {
 			if (param_value.equals("ALL")) {
 				processAllBarData();
 			} else if (param_value.equals("STEP")) {
-				// TODO
+				processStepBarData();
 			} else if (param_value.startsWith("FROM")) {
 				// TODO
 			} else {
@@ -70,6 +71,82 @@ public class DataCalculateBatch extends BaseBatch {
 			}
 				
 			
+		} catch (BaseServiceException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private boolean isMidnightTime(GregorianCalendar actualTime) {
+		if (actualTime.get(Calendar.HOUR_OF_DAY) == 0)
+			return true;
+		else
+			return false;
+	}
+	
+	private void updateActualDay(List<CurrencySymbol> symbolList, GregorianCalendar actualTime) throws BaseServiceException {
+		List<BarData> bar_list = null;
+		
+		for (CurrencySymbol sym : symbolList) {
+			
+			// pobierz dane wg symbolu - z H1:
+			bar_list = currencyDataService.getBarDataList(sym.getId(), "H1", actualTime.getTime());
+			
+			currencyDataService.update("D1", getMainSingleDayBar(bar_list));
+		}
+	}
+	
+	private void updateLastAndOpenNewDay(List<CurrencySymbol> symbolList, GregorianCalendar actualTime, GregorianCalendar prevTime) throws BaseServiceException {
+		List<BarData> bar_list = null;
+		
+		for (CurrencySymbol sym : symbolList) {
+			
+			// pobierz dane za poprzedni dzień - z H1:
+			bar_list = currencyDataService.getBarDataList(sym.getId(), "H1", prevTime.getTime(), actualTime.getTime());
+			
+			currencyDataService.update("D1", getMainSingleDayBar(bar_list));
+			
+			// pobierz dane za nowy dzień:
+			bar_list = currencyDataService.getBarDataList(sym.getId(), "H1", actualTime.getTime());
+			currencyDataService.insert("D1", getSingleDayBar(bar_list));
+		}
+	}
+	
+	private void processStepBarData() {
+		List<CurrencySymbol> symbol_list = null;
+		GregorianCalendar time_shift = null;
+		
+		// pobierz listę aktywnych symboli:
+		symbol_list = symbolService.getActiveSymbols();
+		if (symbol_list.isEmpty()) {
+			LOGGER.info("   [CALC] Zaden symbol nie jest aktywny [" + symbol_list.size() + "].");
+			return;
+		}
+		
+		
+		try {
+			// pobierz aktualną godzinę - z przesunięciem:
+			time_shift = getActualTimeWithShift();
+			
+			if (isMidnightTime(time_shift)) {
+				time_shift.set(Calendar.MINUTE, 0);
+				time_shift.set(Calendar.SECOND, 0);
+				time_shift.set(Calendar.MILLISECOND, 0);
+				
+				GregorianCalendar prev_day = new GregorianCalendar();
+				prev_day.setTime(time_shift.getTime());
+				prev_day.add(Calendar.HOUR_OF_DAY, -24);
+				
+				updateLastAndOpenNewDay(symbol_list, time_shift, prev_day);
+				
+			} else {
+				
+				time_shift.set(Calendar.MINUTE, 0);
+				time_shift.set(Calendar.SECOND, 0);
+				time_shift.set(Calendar.MILLISECOND, 0);
+				
+				updateActualDay(symbol_list, time_shift);
+			}
+		
 		} catch (BaseServiceException e) {
 			e.printStackTrace();
 		}
@@ -220,6 +297,44 @@ public class DataCalculateBatch extends BaseBatch {
 		barData.setBarTime(getSingleDayDate(barDataList.get(0)));
 		barData.setSymbolId(barDataList.get(0).getSymbolId());
 		barData.setProcessPhase(process_phase);
+		
+		return barData;
+	}
+	
+	private BarData getMainSingleDayBar(List<BarData> barDataList) {
+		BarData barData = new BarData();
+		
+		BigDecimal bar_high = null;
+		BigDecimal bar_low = null;
+		BigDecimal bar_close = null;
+		Integer bar_volume = 0;
+		
+		for (BarData bar_data : barDataList) {
+			if (bar_close == null) {
+				bar_close = bar_data.getBarClose();
+				bar_high = bar_data.getBarHigh();
+				bar_low = bar_data.getBarLow();
+				bar_volume += bar_data.getBarVolume();
+				continue;
+			}
+			
+			if (bar_data.getBarHigh().compareTo(bar_high) > 0)
+				bar_high = bar_data.getBarHigh();
+			
+			if (bar_data.getBarLow().compareTo(bar_high) < 0)
+				bar_low = bar_data.getBarLow();
+			
+			bar_close = bar_data.getBarClose();
+			bar_volume += bar_data.getBarVolume();
+		}
+		
+		barData.setBarHigh(bar_high);
+		barData.setBarLow(bar_low);
+		barData.setBarClose(bar_close);
+		barData.setBarVolume(bar_volume);
+		
+		barData.setSymbolId(barDataList.get(0).getSymbolId());
+		barData.setBarTime(getSingleDayDate(barDataList.get(0)));
 		
 		return barData;
 	}

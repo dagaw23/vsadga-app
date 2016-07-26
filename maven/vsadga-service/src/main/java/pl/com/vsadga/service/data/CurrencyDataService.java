@@ -19,6 +19,30 @@ public interface CurrencyDataService {
 	int deleteAll(final String frameDesc, final List<BarData> dataList) throws BaseServiceException;
 
 	List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException;
+	
+	/**
+	 * Pobiera dane z podanego zakresu dat (większe równe startTime oraz mniejsze od endTime).
+	 * 
+	 * @param symbolId
+	 * @param timeFrameDesc
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 * @throws BaseServiceException
+	 */
+	List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime, Date endTime) throws BaseServiceException;
+	
+	/**
+	 * Pobiera dane, gdzie data jest większa lub równa od podanej daty.
+	 * 
+	 * @param symbolId
+	 * @param timeFrameDesc
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 * @throws BaseServiceException
+	 */
+	List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime) throws BaseServiceException;
 
 	List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException;
 
@@ -28,4 +52,24 @@ public interface CurrencyDataService {
 	List<BarData> getNotProcessBarDataList(Integer symbolId, String timeFrameDesc) throws BaseServiceException;
 	
 	int insert(String frameDesc, BarData data) throws BaseServiceException;
+	
+	/**
+	 * Aktualizuje zamknięcie, high, low i wolumen - dla bara o ID z tego bara. 
+	 * 
+	 * @param frameDesc
+	 * @param data
+	 * @return
+	 * @throws BaseServiceException
+	 */
+	int update(String frameDesc, BarData data) throws BaseServiceException;
+	
+	/**
+	 * Aktualizuje zamknięcie, high, low i wolumen - dla bara o ID z tego bara. 
+	 * 
+	 * @param frameDesc
+	 * @param data
+	 * @return
+	 * @throws BaseServiceException
+	 */
+	int update(String frameDesc, BarData data, Integer processPhase) throws BaseServiceException;
 }

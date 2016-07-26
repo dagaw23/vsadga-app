@@ -224,4 +224,10 @@ where id=4
 update fxschema.currency_symbol
 set is_active=true
 
+-------------------------------------------------------------------------------
+
+update fxschema.config_data
+set param_value='50'
+where id=4
+
 
