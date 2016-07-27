@@ -54,4 +54,15 @@ public abstract class BaseController {
 		
 		return sdf.format(inputDate);
 	}
+	
+	protected String getStringParamValue(String paramName) throws BaseServiceException {
+		String param_value = configDataService.getParam(paramName);
+
+		if (param_value == null || StringUtils.isBlank(param_value)) {
+			LOGGER.info("   [BATCH] Brak parametru [" + paramName + ":" + param_value + "] w tabeli CONFIG_DATA.");
+			return null;
+		}
+
+		return param_value;
+	}
 }

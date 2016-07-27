@@ -40,11 +40,11 @@ public class PrintTradeAlertController extends BaseController {
 		timeFrame.setTimeFrame(5);
 		timeFrame.setTimeFrameDesc("M5");
 		
-		try {
-			chartWriter.writeChartToJpg(symbol, timeFrame, 50, "/tmp");
-		} catch (BaseServiceException e) {
-			e.printStackTrace();
-		}
+		//try {
+			//chartWriter.writeChartToJpg(symbol, timeFrame, 50, "/tmp");
+		//} catch (BaseServiceException e) {
+//			e.printStackTrace();
+	//	}
 		
 		/*if (alert_list.isEmpty()) {
 			html_buff.append("<br>Brak alertow.");

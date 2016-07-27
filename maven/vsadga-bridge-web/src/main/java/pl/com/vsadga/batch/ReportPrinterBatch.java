@@ -29,9 +29,7 @@ public class ReportPrinterBatch extends BaseBatch {
 	@Autowired
 	private ChartWriter chartWriter;
 
-	private String chartJpgWritePath;
-
-	@Scheduled(cron = "30 0 0,7-23 * * SUN-FRI")
+	@Scheduled(cron = "0 1 0,7-23 * * SUN-FRI")
 	public void cronJob() {
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;
@@ -42,7 +40,8 @@ public class ReportPrinterBatch extends BaseBatch {
 				return;
 
 			// wczytaj dane konfiguracyjne:
-			readConfigData();
+			if (!readConfigData())
+				return;
 
 			// pobierz listę aktywnych symboli:
 			symbol_list = symbolService.getActiveSymbols();
@@ -88,7 +87,7 @@ public class ReportPrinterBatch extends BaseBatch {
 		int chart_count = 0;
 		for (CurrencySymbol symbol : symbolList) {
 			for (TimeFrame timeFrame : timeFrameList) {
-				chartWriter.writeChartToJpg(symbol, timeFrame, 100, chartJpgWritePath);
+				chartWriter.writeChartToJpg(symbol, timeFrame, 85);
 				chart_count++;
 			}
 		}
@@ -101,7 +100,7 @@ public class ReportPrinterBatch extends BaseBatch {
 		int chart_count = 0;
 		for (CurrencySymbol symbol : symbolList) {
 			for (TimeFrame timeFrame : timeFrameList) {
-				if (chartWriter.deleteChartJpg(symbol, timeFrame, chartJpgWritePath))
+				if (chartWriter.deleteChartJpg(symbol, timeFrame))
 					chart_count++;
 			}
 		}
@@ -110,15 +109,30 @@ public class ReportPrinterBatch extends BaseBatch {
 	}
 
 	private boolean readConfigData() throws BatchProcessException {
-		String value = null;
+		String jpg_path = null;
+		String pdf_path = null;
+		String jasper_path = null;
 
 		try {
-			value = getStringParamValue("CHART_JPG_WRITE_PATH");
-
-			if (value == null)
+			jpg_path = getStringParamValue("CHART_JPG_WRITE_PATH");
+			if (jpg_path == null) {
+				LOGGER.error("   [REPORT] Brak parametru CHART_JPG_WRITE_PATH w tabeli parametrow.");
 				return false;
-			else
-				this.chartJpgWritePath = value.trim();
+			}
+			
+			pdf_path = getStringParamValue("CHART_PDF_WRITE_PATH");
+			if (pdf_path == null) {
+				LOGGER.error("   [REPORT] Brak parametru CHART_PDF_WRITE_PATH w tabeli parametrow.");
+				return false;
+			}
+			
+			jasper_path = getStringParamValue("JASPER_XML_PATH");
+			if (jasper_path == null) {
+				LOGGER.error("   [REPORT] Brak parametru JASPER_XML_PATH w tabeli parametrow.");
+				return false;
+			}
+			
+			chartWriter.initConfigParams(jasper_path, jpg_path, pdf_path);
 
 			return true;
 		} catch (BaseServiceException e) {

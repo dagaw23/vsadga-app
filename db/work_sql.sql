@@ -230,4 +230,3 @@ update fxschema.config_data
 set param_value='50'
 where id=4
 
-

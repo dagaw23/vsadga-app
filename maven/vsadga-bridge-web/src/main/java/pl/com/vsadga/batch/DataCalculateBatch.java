@@ -34,8 +34,7 @@ public class DataCalculateBatch extends BaseBatch {
 	public DataCalculateBatch() {
 	}
 	
-	//0 1
-	@Scheduled(cron = "40 * 0,7-23 * * SUN-FRI")
+	@Scheduled(cron = "45 0 0,7-23 * * SUN-FRI")
 	public void cronJob() {
 		
 		try {
@@ -69,8 +68,6 @@ public class DataCalculateBatch extends BaseBatch {
 				LOGGER.error("TRYB [" + param_value + "] nie jest obslugiwany.");
 				return;
 			}
-				
-			
 		} catch (BaseServiceException e) {
 			e.printStackTrace();
 		}
@@ -85,29 +82,35 @@ public class DataCalculateBatch extends BaseBatch {
 	
 	private void updateActualDay(List<CurrencySymbol> symbolList, GregorianCalendar actualTime) throws BaseServiceException {
 		List<BarData> bar_list = null;
+		LOGGER.info("   [CALC] updateActualDay.");
 		
 		for (CurrencySymbol sym : symbolList) {
 			
 			// pobierz dane wg symbolu - z H1:
 			bar_list = currencyDataService.getBarDataList(sym.getId(), "H1", actualTime.getTime());
 			
-			currencyDataService.update("D1", getMainSingleDayBar(bar_list));
+			if (bar_list.size() > 0)
+				currencyDataService.update("D1", getMainSingleDayBar(bar_list));
 		}
 	}
 	
 	private void updateLastAndOpenNewDay(List<CurrencySymbol> symbolList, GregorianCalendar actualTime, GregorianCalendar prevTime) throws BaseServiceException {
 		List<BarData> bar_list = null;
+		LOGGER.info("   [CALC] updateLastAndOpenNewDay.");
 		
 		for (CurrencySymbol sym : symbolList) {
 			
 			// pobierz dane za poprzedni dzień - z H1:
 			bar_list = currencyDataService.getBarDataList(sym.getId(), "H1", prevTime.getTime(), actualTime.getTime());
 			
-			currencyDataService.update("D1", getMainSingleDayBar(bar_list));
+			if (bar_list.size() > 0)
+				currencyDataService.update("D1", getMainSingleDayBar(bar_list));
 			
 			// pobierz dane za nowy dzień:
 			bar_list = currencyDataService.getBarDataList(sym.getId(), "H1", actualTime.getTime());
-			currencyDataService.insert("D1", getSingleDayBar(bar_list));
+			
+			if (bar_list.size() > 0)
+				currencyDataService.insert("D1", getSingleDayBar(bar_list));
 		}
 	}
 	
@@ -139,7 +142,7 @@ public class DataCalculateBatch extends BaseBatch {
 				updateLastAndOpenNewDay(symbol_list, time_shift, prev_day);
 				
 			} else {
-				
+				time_shift.set(Calendar.HOUR_OF_DAY, 0);
 				time_shift.set(Calendar.MINUTE, 0);
 				time_shift.set(Calendar.SECOND, 0);
 				time_shift.set(Calendar.MILLISECOND, 0);
@@ -157,69 +160,70 @@ public class DataCalculateBatch extends BaseBatch {
 		List<BarData> bar_list = null;
 		GregorianCalendar bar_time = null;
 		int day_of_mth = 0;
-		List<BarData> hour_bar_list = new ArrayList<BarData>();
-		List<BarData> day_bar_list = new ArrayList<BarData>();
-		BarData day_bar = null;
-		
+		List<BarData> hour_bar_list = null;
+		List<BarData> day_bar_list = null;
+
 		// pobierz listę aktywnych symboli:
 		symbol_list = symbolService.getActiveSymbols();
 		if (symbol_list.isEmpty()) {
 			LOGGER.info("   [CALC] Zaden symbol nie jest aktywny [" + symbol_list.size() + "].");
 			return;
 		}
-		
+
 		try {
-		for (CurrencySymbol sym : symbol_list) {
-			int del_cnt = 0;
-			
-			// usuń dane z D1 - dla symbolu:
-			bar_list = currencyDataService.getBarDataList(sym.getId(), "D1");
-			if (bar_list.isEmpty()) {
-				LOGGER.info("   [CALC] Brak danych dla [" + sym.getSymbolName() + "] i D1.");
-			} else {
-				del_cnt = currencyDataService.deleteAll("D1", bar_list);
-				LOGGER.info("   [CALC] Usunieto rekordy dla [" + sym.getSymbolName() + "] i D1 - w liczbie [" + del_cnt + "].");
-			}
-			
-			// usuń dane z W1 - dla symbolu:
-			// TODO: dodac takze przetwarzanie W1
-			//bar_list = currencyDataService.getBarDataList(sym.getId(), "W1");
-			//if (bar_list.isEmpty()) {
-			//	LOGGER.info("   [CALC] Brak danych dla [" + sym.getSymbolName() + "] i W1.");
-			//} else {
-			//	del_cnt = currencyDataService.deleteAll("W1", bar_list);
-			//	LOGGER.info("   [CALC] Usunieto rekordy dla [" + sym.getSymbolName() + "] i W1 - w liczbie [" + del_cnt + "].");
-			//}
-			
-			// pobierz dane wg symbolu - z H1:
-			bar_list = currencyDataService.getBarDataList(sym.getId(), "H1");
-			
-			for (BarData bar_data : bar_list) {
-				bar_time = new GregorianCalendar();
-				bar_time.setTime(bar_data.getBarTime());
-				
-				if (day_of_mth == 0) {
-					day_of_mth = bar_time.get(Calendar.DAY_OF_MONTH);
+			for (CurrencySymbol sym : symbol_list) {
+				int del_cnt = 0;
+				hour_bar_list = new ArrayList<BarData>();
+				day_bar_list = new ArrayList<BarData>();
+				day_of_mth = 0;
+
+				// usuń dane z D1 - dla symbolu:
+				bar_list = currencyDataService.getBarDataList(sym.getId(), "D1");
+				if (bar_list.isEmpty()) {
+					LOGGER.info("   [CALC] Brak danych dla [" + sym.getId() + "," + sym.getSymbolName()
+							+ "] i D1.");
+				} else {
+					del_cnt = currencyDataService.deleteAll("D1", bar_list);
+					LOGGER.info("   [CALC] Usunieto rekordy dla [" + sym.getId() + "," + sym.getSymbolName()
+							+ "] i D1 - w liczbie [" + del_cnt + "].");
+				}
+
+				// pobierz dane wg symbolu - z H1:
+				bar_list = currencyDataService.getBarDataList(sym.getId(), "H1");
+				LOGGER.info("   [CALC] H1 dla [" + sym.getId() + "," + sym.getSymbolName() + "] w liczbie "
+						+ bar_list.size());
+
+				for (BarData bar_data : bar_list) {
+					bar_time = new GregorianCalendar();
+					bar_time.setTime(bar_data.getBarTime());
+
+					if (day_of_mth == 0) {
+						day_of_mth = bar_time.get(Calendar.DAY_OF_MONTH);
+						hour_bar_list.add(bar_data);
+						continue;
+					}
+
+					// zmiana dnia:
+					if (bar_time.get(Calendar.DAY_OF_MONTH) != day_of_mth) {
+						// pobierz bar dzienny:
+						day_bar_list.add(getSingleDayBar(hour_bar_list));
+
+						hour_bar_list = new ArrayList<BarData>();
+						day_of_mth = bar_time.get(Calendar.DAY_OF_MONTH);
+					}
+
 					hour_bar_list.add(bar_data);
-					continue;
 				}
-				
-				// zmiana dnia:
-				if (bar_time.get(Calendar.DAY_OF_MONTH) != day_of_mth) {
-					// pobierz bar dzienny:
+
+				// zapisanie jeszcze ostatniej porcji danych:
+				if (hour_bar_list.size() > 0)
 					day_bar_list.add(getSingleDayBar(hour_bar_list));
-					
-					hour_bar_list = new ArrayList<BarData>();
-					day_of_mth = bar_time.get(Calendar.DAY_OF_MONTH);
-				}
-				
-				hour_bar_list.add(bar_data);
+
+				// dodaj bary dniowe do tabeli:
+				LOGGER.info("   [CALC] Symbol [" + sym.getSymbolName() + "] - dodano ["
+						+ addDayData(day_bar_list, "D1") + "] rekordy do D1.");
 			}
-			
-			// dodaj bary dniowe do tabeli:
-			LOGGER.info("   [CALC] Symbol [" + sym.getSymbolName() + "] - dodano [" + addDayData(day_bar_list, "D1") + "] rekordy do D1.");
-		}
-		
+
 		} catch (BaseServiceException e) {
 			e.printStackTrace();
 		}

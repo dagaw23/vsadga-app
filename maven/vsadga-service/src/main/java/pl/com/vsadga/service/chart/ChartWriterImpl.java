@@ -32,7 +32,11 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.HighLowRenderer;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.data.time.Day;
 import org.jfree.data.time.FixedMillisecond;
+import org.jfree.data.time.Hour;
+import org.jfree.data.time.Minute;
+import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.ohlc.OHLCSeries;
@@ -64,7 +68,7 @@ public class ChartWriterImpl implements ChartWriter {
 
 		@Override
 		public Stroke getSeriesStroke(int series) {
-			return new BasicStroke(4);
+			return new BasicStroke(3);
 		}
 
 	}
@@ -81,28 +85,31 @@ public class ChartWriterImpl implements ChartWriter {
 
 	private CurrencyDataService currencyDataService;
 
-	private String pathToJasperFile = "/My-workspaces/vsadga-workspace/jreports/chartreport.jrxml";
+	//"/My-workspaces/vsadga-workspace/jreports/chartreport.jrxml"
+	private String pathToJasperFile;
 
 	/**
 	 * ścieżka do plików JPG - zakończona znakiem '/'
 	 */
-	private String pathToJpgFile = "/My-workspaces/vsadga-workspace/work/";
+	private String pathToJpgFile;//"/My-workspaces/vsadga-workspace/work/"
 
-	private String pathToPdfFile = "/My-workspaces/vsadga-workspace/reports/";
+	//"/My-workspaces/vsadga-workspace/reports/"
+	private String pathToPdfFile;
 
 	private TimeSeries volumeOhlcSeries;
 
 	@Override
-	public boolean deleteChartJpg(CurrencySymbol symbol, TimeFrame timeFrame, String pathToWrite) throws BaseServiceException {
-		File file = getChartFile(pathToWrite, symbol, timeFrame);
+	public boolean deleteChartJpg(CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException {
+		File file = getChartFile(symbol, timeFrame);
 		
 		return file.delete();
 	}
 
 	@Override
-	public void initConfigParams() throws BaseServiceException {
-		// TODO Auto-generated method stub
-
+	public void initConfigParams(String pathToJasperFile, String pathToJpgFile, String pathToPdfFile) throws BaseServiceException {
+		this.pathToJasperFile = pathToJasperFile;
+		this.pathToJpgFile = pathToJpgFile;
+		this.pathToPdfFile = pathToPdfFile;
 	}
 
 	/**
@@ -114,16 +121,14 @@ public class ChartWriterImpl implements ChartWriter {
 	}
 
 	@Override
-	public void writeChartToJpg(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount, String pathToWrite)
-			throws BaseServiceException {
+	public void writeChartToJpg(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount) throws BaseServiceException {
 
 		try {
 			// utwórz wykres:
 			JFreeChart chart = createCombinedChart(symbol, timeFrame, barToPrintCount);
 
 			// zapisz wykres do JPG:
-			ChartUtilities.saveChartAsJPEG(getChartFile(pathToWrite, symbol, timeFrame), chart, CHART_WIDTH,
-					CHART_HEIGHT);
+			ChartUtilities.saveChartAsJPEG(getChartFile(symbol, timeFrame), chart, CHART_WIDTH,	CHART_HEIGHT);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -163,7 +168,7 @@ public class ChartWriterImpl implements ChartWriter {
 
 	private JFreeChart createCombinedChart(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount)
 			throws BaseServiceException {
-		LOGGER.info("createCombinedChart - START");
+		LOGGER.info("createCombinedChart - START for:" + symbol.getSymbolName() + " " + timeFrame.getTimeFrameDesc());
 
 		// wczytaj dane z tabeli:
 		fillDataset(symbol, timeFrame, barToPrintCount);
@@ -183,7 +188,7 @@ public class ChartWriterImpl implements ChartWriter {
 		plot1.setBackgroundPaint(Color.white);
 		plot1.setDomainGridlinePaint(Color.darkGray);
 		plot1.setRangeGridlinePaint(Color.darkGray);
-		plot1.setRangePannable(true);
+		//plot1.setRangePannable(true);
 
 		XYBarRenderer renderer2 = new XYBarRenderer();
 		renderer2.setBaseToolTipGenerator(new StandardXYToolTipGenerator(
@@ -205,7 +210,7 @@ public class ChartWriterImpl implements ChartWriter {
 		cplot.setGap(5.0);
 		cplot.setDomainGridlinePaint(Color.white);
 		cplot.setDomainGridlinesVisible(true);
-		cplot.setDomainPannable(true);
+		//cplot.setDomainPannable(true);
 
 		JFreeChart chart = new JFreeChart(getChartName(symbol, timeFrame), JFreeChart.DEFAULT_TITLE_FONT, cplot,
 				false);
@@ -216,12 +221,39 @@ public class ChartWriterImpl implements ChartWriter {
 		LOGGER.info("createCombinedChart - STOP");
 		return chart;
 	}
+	
+	@SuppressWarnings("deprecation")
+	private TimeSeries getTimeSeries(CurrencySymbol symbol, TimeFrame timeFrame) {
+		if (timeFrame.getTimeFrame() < 60)
+			return new TimeSeries(getDatasetName(symbol, timeFrame), Minute.class);
+		else if (timeFrame.getTimeFrame() >= 60 && timeFrame.getTimeFrame() < 1440)
+			return new TimeSeries(getDatasetName(symbol, timeFrame), Hour.class);
+		else
+			return new TimeSeries(getDatasetName(symbol, timeFrame), Day.class);
+		
+	}
+	
+	private RegularTimePeriod getTimePeriod(CurrencySymbol symbol, TimeFrame timeFrame, BarData barData) {
+		if (timeFrame.getTimeFrame() < 60)
+			return new Minute(barData.getBarTime());
+		else if (timeFrame.getTimeFrame() >= 60 && timeFrame.getTimeFrame() < 1440)
+			return new Hour(barData.getBarTime());
+		else
+			return new Day(barData.getBarTime());
+		
+	}
+	
+	private String getDatasetName(CurrencySymbol symbol, TimeFrame timeFrame) {
+		return symbol.getSymbolName() + "-" + timeFrame.getTimeFrameDesc();
+	}
 
 	private void fillDataset(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount)
 			throws BaseServiceException {
+		LOGGER.info("   fillDataset: " + symbol.getSymbolName() + " " + timeFrame.getTimeFrameDesc());
 		// dane bara i wolumen:
 		OHLCSeries s1 = new OHLCSeries(symbol.getSymbolName());
-		TimeSeries s2 = new TimeSeries(symbol.getSymbolName());
+		//TimeSeries s2 = new TimeSeries(symbol.getSymbolName(), Minute.class);
+		TimeSeries s2 = getTimeSeries(symbol, timeFrame);
 		barSeriesColor = new ArrayList<Color>();
 
 		// pobierz dane z tabeli:
@@ -240,7 +272,7 @@ public class ChartWriterImpl implements ChartWriter {
 
 			s1.add(new FixedMillisecond(bar_data.getBarTime()), 0, bar_data.getBarHigh().doubleValue(), bar_data
 					.getBarLow().doubleValue(), bar_data.getBarClose().doubleValue());
-			s2.add(new FixedMillisecond(bar_data.getBarTime()), bar_data.getBarVolume());
+			s2.add(getTimePeriod(symbol, timeFrame, bar_data), bar_data.getBarVolume());
 
 			// kolor dla bara danych:
 			if (prev_bar_close.compareTo(bar_data.getBarClose()) < 0)
@@ -264,8 +296,8 @@ public class ChartWriterImpl implements ChartWriter {
 		return coll;
 	}
 
-	private File getChartFile(String pathToWrite, CurrencySymbol symbol, TimeFrame timeFrame) {
-		return new File(pathToWrite + File.separator + getChartFileName(symbol, timeFrame));
+	private File getChartFile(CurrencySymbol symbol, TimeFrame timeFrame) {
+		return new File(pathToJpgFile + getChartFileName(symbol, timeFrame));
 	}
 
 	private String getChartFileName(CurrencySymbol symbol, TimeFrame timeFrame) {
@@ -284,9 +316,17 @@ public class ChartWriterImpl implements ChartWriter {
 		ChartPatameters params = new ChartPatameters();
 
 		params.setSymbolName1(symbolName1);
+		//params.setSymbol1D1Path(pathToJpgFile + getChartFileName(symbolName1, "D1"));
+		params.setSymbol1H4Path(pathToJpgFile + getChartFileName(symbolName1, "H4"));
+		params.setSymbol1H1Path(pathToJpgFile + getChartFileName(symbolName1, "H1"));
+		params.setSymbol1M15Path(pathToJpgFile + getChartFileName(symbolName1, "M15"));
 		params.setSymbol1M5Path(pathToJpgFile + getChartFileName(symbolName1, "M5"));
 
 		params.setSymbolName2(symbolName2);
+		//params.setSymbol2D1Path(pathToJpgFile + getChartFileName(symbolName2, "D1"));
+		params.setSymbol2H4Path(pathToJpgFile + getChartFileName(symbolName2, "H4"));
+		params.setSymbol2H1Path(pathToJpgFile + getChartFileName(symbolName2, "H1"));
+		params.setSymbol2M15Path(pathToJpgFile + getChartFileName(symbolName2, "M15"));
 		params.setSymbol2M5Path(pathToJpgFile + getChartFileName(symbolName2, "M5"));
 
 		return params;

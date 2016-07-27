@@ -355,8 +355,13 @@ values (30, 'HTTP_PROXY_HOST', 'proxy');
 insert into fxschema.config_data(id, param_name, param_value)
 values (31, 'IS_BATCH_REPORT_PRINTER', '1');
 insert into fxschema.config_data(id, param_name, param_value)
-values (32, 'CHART_JPG_WRITE_PATH', '/My-workspaces/vsadga-workspace/work');
+values (32, 'CHART_JPG_WRITE_PATH', '/Workspace/vsadga-workspace/work/');
 insert into fxschema.config_data(id, param_name, param_value)
 values (33, 'IS_BATCH_DATA_CALCULATE', '1');
 insert into fxschema.config_data(id, param_name, param_value)
 values (34, 'DATA_CALCULATE_MODE', 'ALL');
+insert into fxschema.config_data(id, param_name, param_value)
+values (35, 'CHART_PDF_WRITE_PATH', '/Workspace/vsadga-workspace/reports/');
+insert into fxschema.config_data(id, param_name, param_value)
+values (36, 'JASPER_XML_PATH', '/Workspace/vsadga-workspace/jreports/chartreport.jrxml');
+

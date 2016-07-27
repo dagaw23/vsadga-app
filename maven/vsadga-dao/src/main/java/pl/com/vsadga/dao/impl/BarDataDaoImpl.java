@@ -249,11 +249,11 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				+ getSeqName(frameDesc) + "'),?,?,?,?,?, ?,?,?,?,?,?, ?,?,?,?)";
 
 		return getJdbcTemplate().update(sql, data.getBarTime(), data.getBarLow(), data.getBarHigh(),
-				data.getBarClose(), data.getBarVolume(), data.getImaCount(), data.getBarType(),
+				data.getBarClose(), data.getBarVolume(), data.getImaCount(), convert(data.getBarType()),
 				data.getIndicatorNr(), data.getIsConfirm(), data.getTrendIndicator(), data.getTrendWeight(),
-				data.getVolumeAbsorb(), data.getVolumeSize(), data.getProcessPhase(), data.getSymbolId());
+				data.getVolumeAbsorb(), convert(data.getVolumeSize()), data.getProcessPhase(), data.getSymbolId());
 	}
-
+	
 	@Override
 	public int update(String frameDesc, BarData barData) {
 		String sql = "update " + getTableName(frameDesc)
