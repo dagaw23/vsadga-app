@@ -28,6 +28,8 @@ public class ReportPrinterBatch extends BaseBatch {
 
 	@Autowired
 	private ChartWriter chartWriter;
+	
+	private TimeFrame d1TimeFrame;
 
 	@Scheduled(cron = "0 1 0,7-23 * * SUN-FRI")
 	public void cronJob() {
@@ -90,6 +92,9 @@ public class ReportPrinterBatch extends BaseBatch {
 				chartWriter.writeChartToJpg(symbol, timeFrame, 85);
 				chart_count++;
 			}
+			
+			// dodanie jeszcze wykresu dla D1:
+			chartWriter.writeChartToJpg(symbol, d1TimeFrame, 50);
 		}
 
 		return chart_count;
@@ -133,6 +138,11 @@ public class ReportPrinterBatch extends BaseBatch {
 			}
 			
 			chartWriter.initConfigParams(jasper_path, jpg_path, pdf_path);
+			
+			// inicjalizacja D1 timeFrame:
+			d1TimeFrame = new TimeFrame();
+			d1TimeFrame.setTimeFrame(1440);
+			d1TimeFrame.setTimeFrameDesc("D1");
 
 			return true;
 		} catch (BaseServiceException e) {

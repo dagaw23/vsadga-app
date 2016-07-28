@@ -97,7 +97,7 @@ public class ChartWriterImpl implements ChartWriter {
 	private String pathToPdfFile;
 
 	private TimeSeries volumeOhlcSeries;
-
+	
 	@Override
 	public boolean deleteChartJpg(CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException {
 		File file = getChartFile(symbol, timeFrame);
@@ -168,8 +168,6 @@ public class ChartWriterImpl implements ChartWriter {
 
 	private JFreeChart createCombinedChart(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount)
 			throws BaseServiceException {
-		LOGGER.info("createCombinedChart - START for:" + symbol.getSymbolName() + " " + timeFrame.getTimeFrameDesc());
-
 		// wczytaj dane z tabeli:
 		fillDataset(symbol, timeFrame, barToPrintCount);
 
@@ -218,7 +216,6 @@ public class ChartWriterImpl implements ChartWriter {
 		renderer2.setShadowVisible(false);
 		renderer2.setBarPainter(new StandardXYBarPainter());
 
-		LOGGER.info("createCombinedChart - STOP");
 		return chart;
 	}
 	
@@ -247,9 +244,11 @@ public class ChartWriterImpl implements ChartWriter {
 		return symbol.getSymbolName() + "-" + timeFrame.getTimeFrameDesc();
 	}
 
-	private void fillDataset(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount)
-			throws BaseServiceException {
+	private void fillDataset(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount) throws BaseServiceException {
 		LOGGER.info("   fillDataset: " + symbol.getSymbolName() + " " + timeFrame.getTimeFrameDesc());
+		
+		//TODO dodac parametryzowane wpisywanie z rozna iloscia barow dla D1, H4, H1, M15, M5
+		
 		// dane bara i wolumen:
 		OHLCSeries s1 = new OHLCSeries(symbol.getSymbolName());
 		//TimeSeries s2 = new TimeSeries(symbol.getSymbolName(), Minute.class);
@@ -316,14 +315,14 @@ public class ChartWriterImpl implements ChartWriter {
 		ChartPatameters params = new ChartPatameters();
 
 		params.setSymbolName1(symbolName1);
-		//params.setSymbol1D1Path(pathToJpgFile + getChartFileName(symbolName1, "D1"));
+		params.setSymbol1D1Path(pathToJpgFile + getChartFileName(symbolName1, "D1"));
 		params.setSymbol1H4Path(pathToJpgFile + getChartFileName(symbolName1, "H4"));
 		params.setSymbol1H1Path(pathToJpgFile + getChartFileName(symbolName1, "H1"));
 		params.setSymbol1M15Path(pathToJpgFile + getChartFileName(symbolName1, "M15"));
 		params.setSymbol1M5Path(pathToJpgFile + getChartFileName(symbolName1, "M5"));
 
 		params.setSymbolName2(symbolName2);
-		//params.setSymbol2D1Path(pathToJpgFile + getChartFileName(symbolName2, "D1"));
+		params.setSymbol2D1Path(pathToJpgFile + getChartFileName(symbolName2, "D1"));
 		params.setSymbol2H4Path(pathToJpgFile + getChartFileName(symbolName2, "H4"));
 		params.setSymbol2H1Path(pathToJpgFile + getChartFileName(symbolName2, "H1"));
 		params.setSymbol2M15Path(pathToJpgFile + getChartFileName(symbolName2, "M15"));
