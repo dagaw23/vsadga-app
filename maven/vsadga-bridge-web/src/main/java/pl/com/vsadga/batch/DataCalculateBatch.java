@@ -34,7 +34,7 @@ public class DataCalculateBatch extends BaseBatch {
 	public DataCalculateBatch() {
 	}
 	
-	@Scheduled(cron = "45 0 0,7-23 * * SUN-FRI")
+	@Scheduled(cron = "45 0 0,7-23 * * MON-FRI")
 	public void cronJob() {
 		
 		try {
@@ -285,7 +285,7 @@ public class DataCalculateBatch extends BaseBatch {
 			if (bar_data.getBarHigh().compareTo(bar_high) > 0)
 				bar_high = bar_data.getBarHigh();
 			
-			if (bar_data.getBarLow().compareTo(bar_high) < 0)
+			if (bar_data.getBarLow().compareTo(bar_low) < 0)
 				bar_low = bar_data.getBarLow();
 			
 			bar_close = bar_data.getBarClose();
@@ -325,7 +325,7 @@ public class DataCalculateBatch extends BaseBatch {
 			if (bar_data.getBarHigh().compareTo(bar_high) > 0)
 				bar_high = bar_data.getBarHigh();
 			
-			if (bar_data.getBarLow().compareTo(bar_high) < 0)
+			if (bar_data.getBarLow().compareTo(bar_low) < 0)
 				bar_low = bar_data.getBarLow();
 			
 			bar_close = bar_data.getBarClose();
