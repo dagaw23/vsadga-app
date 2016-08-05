@@ -226,7 +226,14 @@ set is_active=true
 
 -------------------------------------------------------------------------------
 
-update fxschema.config_data
-set param_value='50'
-where id=4
 
+insert into fxschema.config_data(id, param_name, param_value)
+values (37, 'CHART_BAR_COUNT_D1', '80');
+insert into fxschema.config_data(id, param_name, param_value)
+values (38, 'CHART_BAR_COUNT_H4', '90');
+insert into fxschema.config_data(id, param_name, param_value)
+values (39, 'CHART_BAR_COUNT_H1', '100');
+insert into fxschema.config_data(id, param_name, param_value)
+values (40, 'CHART_BAR_COUNT_M15', '110');
+insert into fxschema.config_data(id, param_name, param_value)
+values (41, 'CHART_BAR_COUNT_M5', '120');

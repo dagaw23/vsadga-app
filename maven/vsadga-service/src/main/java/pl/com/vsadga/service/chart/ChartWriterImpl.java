@@ -8,11 +8,11 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
@@ -26,28 +26,23 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.axis.SegmentedTimeline;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.HighLowRenderer;
-import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.data.time.Day;
-import org.jfree.data.time.FixedMillisecond;
-import org.jfree.data.time.Hour;
-import org.jfree.data.time.Minute;
-import org.jfree.data.time.RegularTimePeriod;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.time.ohlc.OHLCSeries;
-import org.jfree.data.time.ohlc.OHLCSeriesCollection;
-import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.AbstractIntervalXYDataset;
+import org.jfree.data.xy.DefaultOHLCDataset;
+import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.OHLCDataItem;
+import org.jfree.data.xy.OHLCDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.data.TimeFrameName;
 import pl.com.vsadga.dto.ChartPatameters;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.data.CurrencyDataService;
@@ -68,14 +63,28 @@ public class ChartWriterImpl implements ChartWriter {
 
 		@Override
 		public Stroke getSeriesStroke(int series) {
-			return new BasicStroke(3);
+			return new BasicStroke(2);
+		}
+	}
+
+	private class CustomXYBarRenderer extends XYBarRenderer {
+		/**
+		 * wygenerowany UID
+		 */
+		private static final long serialVersionUID = -7363861519971368725L;
+
+		@Override
+		public Paint getItemPaint(int row, int column) {
+			return barSeriesColor.get(column);
 		}
 
+		@Override
+		public Stroke getSeriesStroke(int series) {
+			return new BasicStroke(2);
+		}
 	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ChartWriterImpl.class);
-
-	private OHLCSeries barOhlcSeries;
 
 	private List<Color> barSeriesColor;
 
@@ -85,31 +94,40 @@ public class ChartWriterImpl implements ChartWriter {
 
 	private CurrencyDataService currencyDataService;
 
-	//"/My-workspaces/vsadga-workspace/jreports/chartreport.jrxml"
+	/**
+	 * parametry konfiguracyjne dla ramki
+	 */
+	private Map<TimeFrameName, Integer> frameConfigMap;
+
+	/**
+	 * pełna ścieżka do pliku konfiguracyjnego JASPER
+	 */
 	private String pathToJasperFile;
 
 	/**
 	 * ścieżka do plików JPG - zakończona znakiem '/'
 	 */
-	private String pathToJpgFile;//"/My-workspaces/vsadga-workspace/work/"
+	private String pathToJpgFile;
 
-	//"/My-workspaces/vsadga-workspace/reports/"
+	/**
+	 * ścieżka do plików PDF - zakończona znakiem '/'
+	 */
 	private String pathToPdfFile;
 
-	private TimeSeries volumeOhlcSeries;
-	
 	@Override
 	public boolean deleteChartJpg(CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException {
 		File file = getChartFile(symbol, timeFrame);
-		
+
 		return file.delete();
 	}
 
 	@Override
-	public void initConfigParams(String pathToJasperFile, String pathToJpgFile, String pathToPdfFile) throws BaseServiceException {
+	public void initConfigParams(String pathToJasperFile, String pathToJpgFile, String pathToPdfFile,
+			Map<TimeFrameName, Integer> frameConfigMap) throws BaseServiceException {
 		this.pathToJasperFile = pathToJasperFile;
 		this.pathToJpgFile = pathToJpgFile;
 		this.pathToPdfFile = pathToPdfFile;
+		this.frameConfigMap = frameConfigMap;
 	}
 
 	/**
@@ -121,14 +139,21 @@ public class ChartWriterImpl implements ChartWriter {
 	}
 
 	@Override
-	public void writeChartToJpg(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount) throws BaseServiceException {
+	public void writeChartToJpg(CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException {
+		int bar_count = 0;
 
 		try {
+			// pobierz liczbę drukowanych barów:
+			bar_count = getBarCount(timeFrame);
+
+			if (bar_count == 0)
+				return;
+
 			// utwórz wykres:
-			JFreeChart chart = createCombinedChart(symbol, timeFrame, barToPrintCount);
+			JFreeChart chart = createCombinedChart(symbol, timeFrame, bar_count);
 
 			// zapisz wykres do JPG:
-			ChartUtilities.saveChartAsJPEG(getChartFile(symbol, timeFrame), chart, CHART_WIDTH,	CHART_HEIGHT);
+			ChartUtilities.saveChartAsJPEG(getChartFile(symbol, timeFrame), chart, CHART_WIDTH, CHART_HEIGHT);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -169,130 +194,89 @@ public class ChartWriterImpl implements ChartWriter {
 	private JFreeChart createCombinedChart(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount)
 			throws BaseServiceException {
 		// wczytaj dane z tabeli:
-		fillDataset(symbol, timeFrame, barToPrintCount);
+		OHLCDataset bar_dataset = getDataset(symbol, timeFrame, barToPrintCount);
 
-		CustomHighLowRenderer renderer1 = new CustomHighLowRenderer();
-		renderer1.setBaseToolTipGenerator(new StandardXYToolTipGenerator(
-				StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT, new SimpleDateFormat("dd-MMM-yyyy"),
-				new DecimalFormat("0.00")));
-		renderer1.setDrawOpenTicks(false);
-		DateAxis domainAxis = new DateAxis("Data");
+		// 1) Axis:
+		DateAxis domainAxis = new DateAxis("Czas");
+		domainAxis.setLowerMargin(0.02); // reduce the default margins
+		domainAxis.setUpperMargin(0.02);
+		domainAxis.setTimeline(SegmentedTimeline.newMondayThroughFridayTimeline());
+		// ---
 		NumberAxis rangeAxis = new NumberAxis("Cena");
-		rangeAxis.setNumberFormatOverride(new DecimalFormat("0.00"));
-		rangeAxis.setAutoRange(true);
 		rangeAxis.setAutoRangeIncludesZero(false);
+		rangeAxis.setNumberFormatOverride(new DecimalFormat("0.0000"));
+		rangeAxis.setAutoRange(true);
+		// ---
+		NumberAxis volumeAxis = new NumberAxis("Wolumen");
 
-		XYPlot plot1 = new XYPlot(getBarDataset(), domainAxis, rangeAxis, renderer1);
-		plot1.setBackgroundPaint(Color.white);
-		plot1.setDomainGridlinePaint(Color.darkGray);
-		plot1.setRangeGridlinePaint(Color.darkGray);
-		//plot1.setRangePannable(true);
+		// 2) Renderer:
+		CustomHighLowRenderer chartRenderer = new CustomHighLowRenderer();
+		// renderer1.setBaseToolTipGenerator(new StandardXYToolTipGenerator(
+		// StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
+		// new SimpleDateFormat("dd-MMM-yyyy"),
+		// new DecimalFormat("0.00")));
+		chartRenderer.setDrawOpenTicks(false);
+		// ---
+		CustomXYBarRenderer volumeRenderer = new CustomXYBarRenderer();
+		volumeRenderer.setSeriesPaint(0, Color.black);
+		volumeRenderer.setShadowVisible(false);
 
-		XYBarRenderer renderer2 = new XYBarRenderer();
-		renderer2.setBaseToolTipGenerator(new StandardXYToolTipGenerator(
-				StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT, new SimpleDateFormat("dd-MMM-yyyy"),
-				new DecimalFormat("0,000.00")));
-		renderer2.setDrawBarOutline(false);
-		renderer2.setSeriesPaint(0, Color.black);
-		renderer2.setSeriesStroke(0, new BasicStroke(2));
+		// 3) Main & volume plot:
+		XYPlot mainPlot = new XYPlot(bar_dataset, domainAxis, rangeAxis, chartRenderer);
+		// mainPlot.setRenderer(chartRenderer);
+		// plot1.setBackgroundPaint(Color.white);
+		// plot1.setDomainGridlinePaint(Color.darkGray);
+		// plot1.setRangeGridlinePaint(Color.darkGray);
+		// ---
+		XYPlot volumePlot = new XYPlot(getVolumeDataset(bar_dataset, 10 * 1000), domainAxis, volumeAxis,
+				volumeRenderer);
+		volumePlot.setBackgroundPaint(Color.white);
+		// plot2.setDomainGridlinePaint(Color.darkGray);
+		// plot2.setRangeGridlinePaint(Color.darkGray);
 
-		XYPlot plot2 = new XYPlot(new TimeSeriesCollection(volumeOhlcSeries), null, new NumberAxis("Wolumen"),
-				renderer2);
-		plot2.setBackgroundPaint(Color.white);
-		plot2.setDomainGridlinePaint(Color.darkGray);
-		plot2.setRangeGridlinePaint(Color.darkGray);
+		// 4) Zlozenie wykresow:
+		CombinedDomainXYPlot combinedPlot = new CombinedDomainXYPlot(domainAxis);
+		combinedPlot.add(mainPlot, 4);
+		combinedPlot.add(volumePlot, 1);
+		// cplot.setGap(5.0);
+		// cplot.setDomainGridlinePaint(Color.white);
+		// cplot.setDomainGridlinesVisible(true);
 
-		CombinedDomainXYPlot cplot = new CombinedDomainXYPlot(domainAxis);
-		cplot.add(plot1, 3);
-		cplot.add(plot2, 2);
-		cplot.setGap(5.0);
-		cplot.setDomainGridlinePaint(Color.white);
-		cplot.setDomainGridlinesVisible(true);
-		//cplot.setDomainPannable(true);
-
-		JFreeChart chart = new JFreeChart(getChartName(symbol, timeFrame), JFreeChart.DEFAULT_TITLE_FONT, cplot,
-				false);
-		// ChartUtilities.applyCurrentTheme(chart);
-		renderer2.setShadowVisible(false);
-		renderer2.setBarPainter(new StandardXYBarPainter());
+		// 5) Utworzenie wykresu:
+		JFreeChart chart = new JFreeChart(getChartName(symbol, timeFrame), null, combinedPlot, false);
+		chart.setBackgroundPaint(Color.white);
 
 		return chart;
 	}
-	
-	@SuppressWarnings("deprecation")
-	private TimeSeries getTimeSeries(CurrencySymbol symbol, TimeFrame timeFrame) {
-		if (timeFrame.getTimeFrame() < 60)
-			return new TimeSeries(getDatasetName(symbol, timeFrame), Minute.class);
-		else if (timeFrame.getTimeFrame() >= 60 && timeFrame.getTimeFrame() < 1440)
-			return new TimeSeries(getDatasetName(symbol, timeFrame), Hour.class);
-		else
-			return new TimeSeries(getDatasetName(symbol, timeFrame), Day.class);
-		
-	}
-	
-	private RegularTimePeriod getTimePeriod(CurrencySymbol symbol, TimeFrame timeFrame, BarData barData) {
-		if (timeFrame.getTimeFrame() < 60)
-			return new Minute(barData.getBarTime());
-		else if (timeFrame.getTimeFrame() >= 60 && timeFrame.getTimeFrame() < 1440)
-			return new Hour(barData.getBarTime());
-		else
-			return new Day(barData.getBarTime());
-		
-	}
-	
-	private String getDatasetName(CurrencySymbol symbol, TimeFrame timeFrame) {
-		return symbol.getSymbolName() + "-" + timeFrame.getTimeFrameDesc();
-	}
 
-	private void fillDataset(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount) throws BaseServiceException {
-		LOGGER.info("   fillDataset: " + symbol.getSymbolName() + " " + timeFrame.getTimeFrameDesc());
-		
-		//TODO dodac parametryzowane wpisywanie z rozna iloscia barow dla D1, H4, H1, M15, M5
-		
-		// dane bara i wolumen:
-		OHLCSeries s1 = new OHLCSeries(symbol.getSymbolName());
-		//TimeSeries s2 = new TimeSeries(symbol.getSymbolName(), Minute.class);
-		TimeSeries s2 = getTimeSeries(symbol, timeFrame);
-		barSeriesColor = new ArrayList<Color>();
+	private int getBarCount(TimeFrame timeFrame) {
+		Integer value = null;
+		String desc = timeFrame.getTimeFrameDesc();
 
-		// pobierz dane z tabeli:
-		List<BarData> barData_list = currencyDataService.getLastNbarData(barToPrintCount + 1, symbol, timeFrame);
-		BarData bar_data = null;
-		BigDecimal prev_bar_close = null;
-
-		for (int i = 0; i < barData_list.size(); i++) {
-			bar_data = barData_list.get(i);
-
-			// pierwszy bar pomijany do danych:
-			if (i == 0) {
-				prev_bar_close = bar_data.getBarClose();
-				continue;
-			}
-
-			s1.add(new FixedMillisecond(bar_data.getBarTime()), 0, bar_data.getBarHigh().doubleValue(), bar_data
-					.getBarLow().doubleValue(), bar_data.getBarClose().doubleValue());
-			s2.add(getTimePeriod(symbol, timeFrame, bar_data), bar_data.getBarVolume());
-
-			// kolor dla bara danych:
-			if (prev_bar_close.compareTo(bar_data.getBarClose()) < 0)
-				barSeriesColor.add(Color.blue);
-			else if (prev_bar_close.compareTo(bar_data.getBarClose()) > 0)
-				barSeriesColor.add(Color.red);
-			else
-				barSeriesColor.add(Color.black);
-
-			prev_bar_close = bar_data.getBarClose();
+		// czy jest mapa wypełniona:
+		if (frameConfigMap == null) {
+			LOGGER.error("   [CHART] Brak konfiguracji dla liczby barow [" + frameConfigMap + "].");
+			return 0;
 		}
 
-		this.barOhlcSeries = s1;
-		this.volumeOhlcSeries = s2;
-	}
+		if (desc.equals("D1")) {
+			value = frameConfigMap.get(TimeFrameName.D1);
+		} else if (desc.equals("H4")) {
+			value = frameConfigMap.get(TimeFrameName.H4);
+		} else if (desc.equals("H1")) {
+			value = frameConfigMap.get(TimeFrameName.H1);
+		} else if (desc.equals("M15")) {
+			value = frameConfigMap.get(TimeFrameName.M15);
+		} else if (desc.equals("M5")) {
+			value = frameConfigMap.get(TimeFrameName.M5);
+		}
 
-	private XYDataset getBarDataset() {
-		OHLCSeriesCollection coll = new OHLCSeriesCollection();
-		coll.addSeries(barOhlcSeries);
+		if (value == null) {
+			LOGGER.error("   [CHART] Brak konfiguracji dla [" + desc + "] w mapie frameConfigMap.");
+			return 0;
+		}
 
-		return coll;
+		return value.intValue();
 	}
 
 	private File getChartFile(CurrencySymbol symbol, TimeFrame timeFrame) {
@@ -309,6 +293,49 @@ public class ChartWriterImpl implements ChartWriter {
 
 	private String getChartName(CurrencySymbol symbol, TimeFrame timeFrame) {
 		return "Wykres " + symbol.getSymbolName() + " - " + timeFrame.getTimeFrameDesc();
+	}
+
+	private OHLCDataset getDataset(CurrencySymbol symbol, TimeFrame timeFrame, int barToPrintCount)
+			throws BaseServiceException {
+		LOGGER.info("   getDataset: " + symbol.getSymbolName() + " " + timeFrame.getTimeFrameDesc());
+
+		// kolorowanie barów:
+		barSeriesColor = new ArrayList<Color>();
+
+		List<OHLCDataItem> dataItems = new ArrayList<OHLCDataItem>();
+		OHLCDataItem item = null;
+
+		// pobierz dane z tabeli:
+		List<BarData> barData_list = currencyDataService.getLastNbarData(barToPrintCount + 1, symbol, timeFrame);
+		BarData bar_data = null;
+		BigDecimal prev_bar_close = null;
+
+		for (int i = 0; i < barData_list.size(); i++) {
+			bar_data = barData_list.get(i);
+
+			// pierwszy bar pomijany do danych:
+			if (i == 0) {
+				prev_bar_close = bar_data.getBarClose();
+				continue;
+			}
+
+			item = new OHLCDataItem(bar_data.getBarTime(), 0, bar_data.getBarHigh().doubleValue(), bar_data
+					.getBarLow().doubleValue(), bar_data.getBarClose().doubleValue(), bar_data.getBarVolume());
+
+			// kolor dla bara danych:
+			if (prev_bar_close.compareTo(bar_data.getBarClose()) < 0)
+				barSeriesColor.add(Color.blue);
+			else if (prev_bar_close.compareTo(bar_data.getBarClose()) > 0)
+				barSeriesColor.add(Color.red);
+			else
+				barSeriesColor.add(Color.black);
+
+			dataItems.add(item);
+			prev_bar_close = bar_data.getBarClose();
+		}
+
+		return new DefaultOHLCDataset(symbol.getSymbolName(),
+				dataItems.toArray(new OHLCDataItem[dataItems.size()]));
 	}
 
 	private ChartPatameters getParameters(String symbolName1, String symbolName2) {
@@ -335,6 +362,56 @@ public class ChartWriterImpl implements ChartWriter {
 		return symbolName1 + "_" + symbolName2 + "_" + DateConverter.dateToString(new Date(), "yyMMdd-HHmm")
 				+ ".pdf";
 
+	}
+
+	private IntervalXYDataset getVolumeDataset(final OHLCDataset priceDataset, final long barWidthInMilliseconds) {
+		return new AbstractIntervalXYDataset() {
+
+			@Override
+			public Number getEndX(int series, int item) {
+				return priceDataset.getX(series, item).doubleValue() + barWidthInMilliseconds / 2;
+			}
+
+			@Override
+			public Number getEndY(int series, int item) {
+				return priceDataset.getVolume(series, item);
+			}
+
+			@Override
+			public int getItemCount(int series) {
+				return priceDataset.getItemCount(series);
+			}
+
+			@Override
+			public int getSeriesCount() {
+				return priceDataset.getSeriesCount();
+			}
+
+			@Override
+			public Comparable getSeriesKey(int series) {
+				return priceDataset.getSeriesKey(series) + "-Volume";
+			}
+
+			@Override
+			public Number getStartX(int series, int item) {
+				return priceDataset.getX(series, item).doubleValue() - barWidthInMilliseconds / 2;
+			}
+
+			@Override
+			public Number getStartY(int series, int item) {
+				return new Double(0.0);
+			}
+
+			@Override
+			public Number getX(int series, int item) {
+				return priceDataset.getX(series, item);
+			}
+
+			@Override
+			public Number getY(int series, int item) {
+				return priceDataset.getVolume(series, item);
+			}
+		};
 	}
 
 }

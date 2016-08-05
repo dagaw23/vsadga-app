@@ -1,6 +1,8 @@
 package pl.com.vsadga.batch;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.data.TimeFrameName;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.chart.ChartWriter;
 import pl.com.vsadga.service.symbol.SymbolService;
@@ -31,7 +34,7 @@ public class ReportPrinterBatch extends BaseBatch {
 	
 	private TimeFrame d1TimeFrame;
 
-	@Scheduled(cron = "0 1 0,7-23 * * SUN-FRI")
+	@Scheduled(cron = "0 1 0,7-23 * * MON-FRI")
 	public void cronJob() {
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;
@@ -89,12 +92,12 @@ public class ReportPrinterBatch extends BaseBatch {
 		int chart_count = 0;
 		for (CurrencySymbol symbol : symbolList) {
 			for (TimeFrame timeFrame : timeFrameList) {
-				chartWriter.writeChartToJpg(symbol, timeFrame, 85);
+				chartWriter.writeChartToJpg(symbol, timeFrame);
 				chart_count++;
 			}
 			
 			// dodanie jeszcze wykresu dla D1:
-			chartWriter.writeChartToJpg(symbol, d1TimeFrame, 50);
+			chartWriter.writeChartToJpg(symbol, d1TimeFrame);
 		}
 
 		return chart_count;
@@ -117,6 +120,8 @@ public class ReportPrinterBatch extends BaseBatch {
 		String jpg_path = null;
 		String pdf_path = null;
 		String jasper_path = null;
+		Integer bar_count = 0;
+		Map<TimeFrameName, Integer> config_map = new HashMap<TimeFrameName, Integer>();
 
 		try {
 			jpg_path = getStringParamValue("CHART_JPG_WRITE_PATH");
@@ -137,7 +142,42 @@ public class ReportPrinterBatch extends BaseBatch {
 				return false;
 			}
 			
-			chartWriter.initConfigParams(jasper_path, jpg_path, pdf_path);
+			bar_count = getIntParamValue("CHART_BAR_COUNT_D1");
+			if (bar_count == null) {
+				LOGGER.error("   [REPORT] Brak parametru CHART_BAR_COUNT_D1 w tabeli parametrow.");
+				return false;
+			}
+			config_map.put(TimeFrameName.D1, bar_count);
+			
+			bar_count = getIntParamValue("CHART_BAR_COUNT_H4");
+			if (bar_count == null) {
+				LOGGER.error("   [REPORT] Brak parametru CHART_BAR_COUNT_H4 w tabeli parametrow.");
+				return false;
+			}
+			config_map.put(TimeFrameName.H4, bar_count);
+			
+			bar_count = getIntParamValue("CHART_BAR_COUNT_H1");
+			if (bar_count == null) {
+				LOGGER.error("   [REPORT] Brak parametru CHART_BAR_COUNT_H1 w tabeli parametrow.");
+				return false;
+			}
+			config_map.put(TimeFrameName.H1, bar_count);
+			
+			bar_count = getIntParamValue("CHART_BAR_COUNT_M15");
+			if (bar_count == null) {
+				LOGGER.error("   [REPORT] Brak parametru CHART_BAR_COUNT_M15 w tabeli parametrow.");
+				return false;
+			}
+			config_map.put(TimeFrameName.M15, bar_count);
+			
+			bar_count = getIntParamValue("CHART_BAR_COUNT_M5");
+			if (bar_count == null) {
+				LOGGER.error("   [REPORT] Brak parametru CHART_BAR_COUNT_M5 w tabeli parametrow.");
+				return false;
+			}
+			config_map.put(TimeFrameName.M5, bar_count);
+			
+			chartWriter.initConfigParams(jasper_path, jpg_path, pdf_path, config_map);
 			
 			// inicjalizacja D1 timeFrame:
 			d1TimeFrame = new TimeFrame();
