@@ -6,5 +6,9 @@ import pl.com.vsadga.data.TimeFrame;
 
 public interface TimeFrameDao {
 
-	public List<TimeFrame> getAllActive();
+	List<TimeFrame> getAll();
+	
+	List<TimeFrame> getAllActive();
+	
+	List<TimeFrame> getByTime(Integer fromTimeFrame, Integer toTimeFrame);
 }

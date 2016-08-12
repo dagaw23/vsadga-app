@@ -23,6 +23,19 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 	}
 
 	@Override
+	public List<TimeFrame> getAll() {
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " order by time_frame desc";
+
+		return getJdbcTemplate().query(sql, new RowMapper<TimeFrame>() {
+
+			@Override
+			public TimeFrame mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2TimeFrameList(rs);
+			}
+		});
+	}
+
+	@Override
 	public List<TimeFrame> getAllActive() {
 		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where is_active is true order by time_frame";
 
@@ -33,6 +46,19 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 				return rs2TimeFrameList(rs);
 			}
 		});
+	}
+
+	@Override
+	public List<TimeFrame> getByTime(Integer fromTimeFrame, Integer toTimeFrame) {
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where time_frame>=? and time_frame<=? order by time_frame desc";
+
+		return getJdbcTemplate().query(sql, new RowMapper<TimeFrame>() {
+
+			@Override
+			public TimeFrame mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2TimeFrameList(rs);
+			}
+		}, fromTimeFrame, toTimeFrame);
 	}
 
 	private TimeFrame rs2TimeFrameList(final ResultSet rs) throws SQLException {

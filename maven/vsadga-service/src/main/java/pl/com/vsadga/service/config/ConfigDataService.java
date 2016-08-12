@@ -1,8 +1,18 @@
 package pl.com.vsadga.service.config;
 
+import java.util.List;
+
+import pl.com.vsadga.data.ConfigData;
 import pl.com.vsadga.service.BaseServiceException;
 
 public interface ConfigDataService {
 
-	public String getParam(String paramName) throws BaseServiceException;
+	List<ConfigData> getAll() throws BaseServiceException;
+	
+	ConfigData get(Integer id) throws BaseServiceException;
+
+	String getParam(String paramName) throws BaseServiceException;
+	
+	int update(Integer id, String paramValue) throws BaseServiceException;
+
 }

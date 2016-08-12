@@ -49,38 +49,47 @@ public class PrintBarDataController extends BaseController {
 	public ModelAndView processEurUsd() {
 		return process("EURUSD");
 	}
-
-	@RequestMapping("/gbpaud")
-	public ModelAndView processGbpAud() {
-		return process("GBPAUD");
-	}
-
-	@RequestMapping("/gbpcad")
-	public ModelAndView processGbpCad() {
-		return process("GBPCAD");
-	}
-
+	
 	@RequestMapping("/gbpusd")
 	public ModelAndView processGbpUsd() {
 		return process("GBPUSD");
 	}
 
+	@RequestMapping("/ger30")
+	public ModelAndView processGer30() {
+		return process("GER30");
+	}
+	
 	@RequestMapping("/gold")
 	public ModelAndView processGold() {
 		return process("GOLD");
+	}
 
+	@RequestMapping("/nzdusd")
+	public ModelAndView processNzdUsd() {
+		return process("NZDUSD");
 	}
 
 	@RequestMapping("/oil")
 	public ModelAndView processOil() {
 		return process("OIL");
 	}
-
+	
+	@RequestMapping("/silver")
+	public ModelAndView processSilver() {
+		return process("SILVER");
+	}
+	
+	@RequestMapping("/us500")
+	public ModelAndView processUs500() {
+		return process("US500");
+	}
+	
 	@RequestMapping("/usdcad")
 	public ModelAndView processUsdCad() {
 		return process("USDCAD");
 	}
-
+	
 	@RequestMapping("/usdchf")
 	public ModelAndView processUsdChf() {
 		return process("USDCHF");

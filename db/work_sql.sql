@@ -237,3 +237,23 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (40, 'CHART_BAR_COUNT_M15', '110');
 insert into fxschema.config_data(id, param_name, param_value)
 values (41, 'CHART_BAR_COUNT_M5', '120');
+
+-------------------------------------------------------------------------------
+PIVOT POINTS - w ujęciu dziennym lub tygodniowym - najlepsze daje rezultaty.
+
+	Pivot point (PP) = (Cena maksymalna + Cena minimalna + Cena zamknięcia) / 3
+
+﻿Pierwsze poziomy wsparcia i oporu:
+	﻿Pierwszy opór (R1) = (2 x PP) – Cena minimalna
+	﻿Drugie wsparcie (S1) = (2 x PP) – Cena maksymalna
+
+Drugie poziomy wsparcia i oporu:
+	﻿Drugi opór (R2) = PP + (Cena maksymalna – Cena minimalna)
+	﻿Drugie wsparcie (S2) = PP - (Cena maksymalna – Cena minimalna)
+
+﻿Trzecie poziomy wsparcia i oporu:
+	﻿Trzeci opór (R3) = Cena maksymalna + 2(PP – Cena minimalna)
+	Trzecie wsparcie (S3) = Cena minimalna - 2(Cena maksymalna – PP)
+
+Pivot_AllLevels - MT4
+-------------------------------------------------------------------------------

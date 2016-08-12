@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.dto.bar.BarSimpleDto;
 import pl.com.vsadga.service.BaseServiceException;
 
 public interface CurrencyDataService {
@@ -45,6 +46,8 @@ public interface CurrencyDataService {
 	List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime) throws BaseServiceException;
 
 	List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException;
+	
+	List<BarSimpleDto> getLastNbarData(int size, Integer symbolId, String timeFrameDesc) throws BaseServiceException;
 
 	List<BarData> getLastNbarDataToDate(int size, CurrencySymbol symbol, TimeFrame timeFrame, Date fromTime)
 			throws BaseServiceException;

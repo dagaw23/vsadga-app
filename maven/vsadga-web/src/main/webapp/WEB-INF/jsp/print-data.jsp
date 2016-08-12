@@ -18,20 +18,24 @@
 			<td>::</td>
 			<td><a href="<c:url value="/gbpusd.html"/>">GBPUSD</a></td>
 			<td>::</td>
-			<td><a href="<c:url value="/usdjpy.html"/>">USDJPY</a></td>
+			<td><a href="<c:url value="/ger30.html"/>">GER30</a></td>
 			<td>::</td>
-			<td><a href="<c:url value="/usdchf.html"/>">USDCHF</a></td>
+			<td><a href="<c:url value="/gold.html"/>">GOLD</a></td>
+			<td>::</td>
+			<td><a href="<c:url value="/nzdusd.html"/>">NZDUSD</a></td>
+		</tr>
+		<tr>
+			<td><a href="<c:url value="/oil.html"/>">OIL</a></td>
+			<td>::</td>
+			<td><a href="<c:url value="/silver.html"/>">SILVER</a></td>
+			<td>::</td>
+			<td><a href="<c:url value="/us500.html"/>">US500</a></td>
 			<td>::</td>
 			<td><a href="<c:url value="/usdcad.html"/>">USDCAD</a></td>
 			<td>::</td>
-			<td><a href="<c:url value="/gbpcad.html"/>">GBPCAD</a></td>
+			<td><a href="<c:url value="/usdchf.html"/>">USDCHF</a></td>
 			<td>::</td>
-			<td><a href="<c:url value="/gbpaud.html"/>">GBPAUD</a></td>
-		</tr>
-		<tr>
-			<td><a href="<c:url value="/gold.html"/>">GOLD</a></td>
-			<td>::</td>
-			<td><a href="<c:url value="/oil.html"/>">OIL</a></td>
+			<td><a href="<c:url value="/usdjpy.html"/>">USDJPY</a></td>
 		</tr>
 		<tr>
 			<td><a href="<c:url value="/alert.html"/>">Print alerts</a></td>

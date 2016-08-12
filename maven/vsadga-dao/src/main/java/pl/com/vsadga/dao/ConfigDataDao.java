@@ -1,6 +1,16 @@
 package pl.com.vsadga.dao;
 
-public interface ConfigDataDao {
+import java.util.List;
 
-	public String getParam(String paramName);
+import pl.com.vsadga.data.ConfigData;
+
+public interface ConfigDataDao {
+	
+	List<ConfigData> getAll();
+	
+	ConfigData get(Integer id);
+
+	String getParam(String paramName);
+	
+	int update(Integer id, String paramValue);
 }

@@ -1,5 +1,6 @@
 package pl.com.vsadga.service.data;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -12,6 +13,7 @@ import pl.com.vsadga.dao.BarDataDao;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.dto.bar.BarSimpleDto;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.utils.DateConverter;
 
@@ -81,12 +83,14 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	}
 
 	@Override
-	public List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime) throws BaseServiceException {
+	public List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime)
+			throws BaseServiceException {
 		return barDataDao.getBarDataList(symbolId, timeFrameDesc, startTime);
 	}
 
 	@Override
-	public List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime, Date endTime) throws BaseServiceException {
+	public List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime, Date endTime)
+			throws BaseServiceException {
 		return barDataDao.getBarDataList(symbolId, timeFrameDesc, startTime, endTime);
 	}
 
@@ -106,6 +110,20 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 			th.printStackTrace();
 			throw new BaseServiceException("::getLastNbarData:: wyjatek " + th.getCause() + "!", th);
 		}
+	}
+
+	@Override
+	public List<BarSimpleDto> getLastNbarData(int size, Integer symbolId, String timeFrameDesc)
+			throws BaseServiceException {
+		List<BarData> data_list = barDataDao.getLastNbarsData(symbolId, timeFrameDesc, size);
+		List<BarSimpleDto> dto_list = new ArrayList<BarSimpleDto>();
+
+		for (BarData bar_data : data_list)
+			dto_list.add(new BarSimpleDto(DateConverter.dateToString(bar_data.getBarTime(), "yy/MM/dd HH:mm"),
+					bar_data.getBarHigh(), bar_data.getBarLow(), bar_data.getBarClose(), bar_data.getBarVolume(),
+					bar_data.getProcessPhase()));
+
+		return dto_list;
 	}
 
 	@Override
