@@ -62,8 +62,8 @@ public class DataCalculateBatch extends BaseBatch {
 				processAllBarData();
 			} else if (param_value.equals("STEP")) {
 				processStepBarData();
-			} else if (param_value.startsWith("FROM")) {
-				// TODO
+			} else if (param_value.startsWith("SYMBOL")) {
+				processAllBarBySymbol(param_value.substring(7));
 			} else {
 				LOGGER.error("TRYB [" + param_value + "] nie jest obslugiwany.");
 				return;
@@ -155,13 +155,26 @@ public class DataCalculateBatch extends BaseBatch {
 		}
 	}
 	
+	private void processAllBarBySymbol(String symbolName) {
+		CurrencySymbol sym = null;
+		
+		sym = symbolService.getCurrencySymbolByName(symbolName);
+		if (sym == null) {
+			LOGGER.info("   [CALC] Brak symbolu [" + sym + "] wg nazwy [" + symbolName + "].");
+			return;
+		}
+		
+		// usuń dane z D1 - dla symbolu:
+		if (!deleteD1barData(sym))
+			return;
+		
+		// wylicz D1 wg H1 i wpisz do tabeli:
+		if (!processAndWriteHourBars(sym))
+			return;
+	}
+	
 	private void processAllBarData() {
 		List<CurrencySymbol> symbol_list = null;
-		List<BarData> bar_list = null;
-		GregorianCalendar bar_time = null;
-		int day_of_mth = 0;
-		List<BarData> hour_bar_list = null;
-		List<BarData> day_bar_list = null;
 
 		// pobierz listę aktywnych symboli:
 		symbol_list = symbolService.getActiveSymbols();
@@ -170,62 +183,101 @@ public class DataCalculateBatch extends BaseBatch {
 			return;
 		}
 
+		for (CurrencySymbol sym : symbol_list) {
+			// usuń dane z D1 - dla symbolu:
+			if (!deleteD1barData(sym))
+				return;
+
+			// wylicz D1 wg H1 i wpisz do tabeli:
+			if (!processAndWriteHourBars(sym))
+				return;
+		}
+
+	}
+	
+	private boolean processAndWriteHourBars(CurrencySymbol symbol) {
+		List<BarData> bar_list = null;
+		GregorianCalendar bar_time = null;
+		int day_of_mth = 0;
+		List<BarData> hour_bar_list = new ArrayList<BarData>();
+		List<BarData> day_bar_list = new ArrayList<BarData>();
+		
 		try {
-			for (CurrencySymbol sym : symbol_list) {
-				int del_cnt = 0;
-				hour_bar_list = new ArrayList<BarData>();
-				day_bar_list = new ArrayList<BarData>();
-				day_of_mth = 0;
 
-				// usuń dane z D1 - dla symbolu:
-				bar_list = currencyDataService.getBarDataList(sym.getId(), "D1");
-				if (bar_list.isEmpty()) {
-					LOGGER.info("   [CALC] Brak danych dla [" + sym.getId() + "," + sym.getSymbolName()
-							+ "] i D1.");
-				} else {
-					del_cnt = currencyDataService.deleteAll("D1", bar_list);
-					LOGGER.info("   [CALC] Usunieto rekordy dla [" + sym.getId() + "," + sym.getSymbolName()
-							+ "] i D1 - w liczbie [" + del_cnt + "].");
-				}
+		// pobierz dane wg symbolu - z H1:
+		bar_list = currencyDataService.getBarDataList(symbol.getId(), "H1");
+		LOGGER.info("   [CALC] H1 dla [" + symbol.getId() + "," + symbol.getSymbolName() + "] w liczbie "
+				+ bar_list.size());
 
-				// pobierz dane wg symbolu - z H1:
-				bar_list = currencyDataService.getBarDataList(sym.getId(), "H1");
-				LOGGER.info("   [CALC] H1 dla [" + sym.getId() + "," + sym.getSymbolName() + "] w liczbie "
-						+ bar_list.size());
+		for (BarData bar_data : bar_list) {
+			bar_time = new GregorianCalendar();
+			bar_time.setTime(bar_data.getBarTime());
 
-				for (BarData bar_data : bar_list) {
-					bar_time = new GregorianCalendar();
-					bar_time.setTime(bar_data.getBarTime());
-
-					if (day_of_mth == 0) {
-						day_of_mth = bar_time.get(Calendar.DAY_OF_MONTH);
-						hour_bar_list.add(bar_data);
-						continue;
-					}
-
-					// zmiana dnia:
-					if (bar_time.get(Calendar.DAY_OF_MONTH) != day_of_mth) {
-						// pobierz bar dzienny:
-						day_bar_list.add(getSingleDayBar(hour_bar_list));
-
-						hour_bar_list = new ArrayList<BarData>();
-						day_of_mth = bar_time.get(Calendar.DAY_OF_MONTH);
-					}
-
-					hour_bar_list.add(bar_data);
-				}
-
-				// zapisanie jeszcze ostatniej porcji danych:
-				if (hour_bar_list.size() > 0)
-					day_bar_list.add(getSingleDayBar(hour_bar_list));
-
-				// dodaj bary dniowe do tabeli:
-				LOGGER.info("   [CALC] Symbol [" + sym.getSymbolName() + "] - dodano ["
-						+ addDayData(day_bar_list, "D1") + "] rekordy do D1.");
+			if (day_of_mth == 0) {
+				day_of_mth = bar_time.get(Calendar.DAY_OF_MONTH);
+				hour_bar_list.add(bar_data);
+				continue;
 			}
 
+			// zmiana dnia:
+			if (bar_time.get(Calendar.DAY_OF_MONTH) != day_of_mth) {
+				// pobierz bar dzienny:
+				day_bar_list.add(getSingleDayBar(hour_bar_list));
+
+				hour_bar_list = new ArrayList<BarData>();
+				day_of_mth = bar_time.get(Calendar.DAY_OF_MONTH);
+			}
+
+			hour_bar_list.add(bar_data);
+		}
+
+		// zapisanie jeszcze ostatniej porcji danych:
+		if (hour_bar_list.size() > 0)
+			day_bar_list.add(getSingleDayBar(hour_bar_list));
+
+		// dodaj bary dniowe do tabeli:
+		LOGGER.info("   [CALC] Symbol [" + symbol.getSymbolName() + "] - dodano ["
+				+ addDayData(day_bar_list, "D1") + "] rekordy do D1.");
+		
+		return true;
+		
 		} catch (BaseServiceException e) {
 			e.printStackTrace();
+			LOGGER.error("::processAndWriteHourBars:: wyjatek BaseServiceException!", e);
+			return false;
+		} catch (Throwable th) {
+			th.printStackTrace();
+			LOGGER.error("::processAndWriteHourBars:: wyjatek Throwable!", th);
+			return false;
+		} 
+	}
+	
+	private boolean deleteD1barData(CurrencySymbol symbol) {
+		List<BarData> bar_list = null;
+		int del_cnt = 0;
+		
+		try {
+			// usuń dane z D1 - dla symbolu:
+			bar_list = currencyDataService.getBarDataList(symbol.getId(), "D1");
+			
+			if (bar_list.isEmpty()) {
+				LOGGER.info("   [DELETE] Brak danych wg [" + symbol.getId() + "," + symbol.getSymbolName()
+				+ "] dla D1.");
+			} else {
+				del_cnt = currencyDataService.deleteAll("D1", bar_list);
+				LOGGER.info("   [DELETE] Usunieto rekordy wg [" + symbol.getId() + "," + symbol.getSymbolName()
+				+ "] dla D1 - w liczbie [" + del_cnt + "].");
+			}
+			
+			return true;
+		} catch (BaseServiceException e) {
+			e.printStackTrace();
+			LOGGER.error("::deleteD1barData:: wyjatek BaseServiceException!", e);
+			return false;
+		} catch (Throwable th) {
+			th.printStackTrace();
+			LOGGER.error("::deleteD1barData:: wyjatek Throwable!", th);
+			return false;
 		}
 	}
 	
