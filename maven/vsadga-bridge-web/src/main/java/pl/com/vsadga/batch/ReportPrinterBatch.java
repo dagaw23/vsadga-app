@@ -34,7 +34,7 @@ public class ReportPrinterBatch extends BaseBatch {
 	
 	private TimeFrame d1TimeFrame;
 
-	@Scheduled(cron = "0 1 0,7-23 * * MON-FRI")
+	@Scheduled(cron = "0 1/2 0,7-23 * * MON-FRI")
 	public void cronJob() {
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;
@@ -78,6 +78,7 @@ public class ReportPrinterBatch extends BaseBatch {
 	}
 
 	private void createPdfReport() throws BaseServiceException {
+		// zwykłe wykresy:
 		chartWriter.writeChartToPdf("AUDUSD", "GBPUSD");
 		chartWriter.writeChartToPdf("USDCAD", "EURUSD");
 		chartWriter.writeChartToPdf("USDJPY", "NZDUSD");
@@ -85,6 +86,15 @@ public class ReportPrinterBatch extends BaseBatch {
 		chartWriter.writeChartToPdf("USDCHF", "OIL");
 		chartWriter.writeChartToPdf("GOLD", "SILVER");
 		chartWriter.writeChartToPdf("US500", "GER30");
+		
+		// wykresy wolumenu skumulowanego:
+		chartWriter.writeAccumulateChartToPdf("AUDUSD", "GBPUSD");
+		chartWriter.writeAccumulateChartToPdf("USDCAD", "EURUSD");
+		chartWriter.writeAccumulateChartToPdf("USDJPY", "NZDUSD");
+
+		chartWriter.writeAccumulateChartToPdf("USDCHF", "OIL");
+		chartWriter.writeAccumulateChartToPdf("GOLD", "SILVER");
+		chartWriter.writeAccumulateChartToPdf("US500", "GER30");
 	}
 
 	private int writeChartsToJpg(List<CurrencySymbol> symbolList, List<TimeFrame> timeFrameList)
@@ -92,12 +102,18 @@ public class ReportPrinterBatch extends BaseBatch {
 		int chart_count = 0;
 		for (CurrencySymbol symbol : symbolList) {
 			for (TimeFrame timeFrame : timeFrameList) {
+				// zwykły wykres:
 				chartWriter.writeChartToJpg(symbol, timeFrame);
+				chart_count++;
+				
+				// wolumen skumulowany:
+				chartWriter.writeAccumulateChartToJpg(symbol, timeFrame);
 				chart_count++;
 			}
 			
 			// dodanie jeszcze wykresu dla D1:
 			chartWriter.writeChartToJpg(symbol, d1TimeFrame);
+			chart_count++;
 		}
 
 		return chart_count;
@@ -110,7 +126,13 @@ public class ReportPrinterBatch extends BaseBatch {
 			for (TimeFrame timeFrame : timeFrameList) {
 				if (chartWriter.deleteChartJpg(symbol, timeFrame))
 					chart_count++;
+				
+				if (chartWriter.deleteAccumulateChartJpg(symbol, timeFrame))
+					chart_count++;
 			}
+			
+			chartWriter.deleteChartJpg(symbol, d1TimeFrame);
+			chart_count++;
 		}
 
 		return chart_count;

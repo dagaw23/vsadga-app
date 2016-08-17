@@ -44,6 +44,8 @@ public interface CurrencyDataService {
 	 * @throws BaseServiceException
 	 */
 	List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime) throws BaseServiceException;
+	
+	int insertOrUpdate(String frameDesc, BarData barData) throws BaseServiceException;
 
 	List<BarData> getLastNbarData(int size, CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException;
 	
@@ -75,4 +77,6 @@ public interface CurrencyDataService {
 	 * @throws BaseServiceException
 	 */
 	int update(String frameDesc, BarData data, Integer processPhase) throws BaseServiceException;
+
+	int updateAbsorbVolume(String frameDesc, Integer id, Integer volumeAbsorb);
 }

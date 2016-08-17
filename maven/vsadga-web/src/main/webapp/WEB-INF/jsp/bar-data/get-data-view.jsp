@@ -1,5 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <html>
 <head>
 	<title>Printing all</title>
@@ -11,6 +12,16 @@
 </head>
 
 <body>
+	<spring:url value="get-bar-data.html" var="barDataUrl"/>
+	<spring:url value="show-config-data.html" var="confDataUrl"/>
+	
+	<table>
+		<tr>
+			<td><a href="${barDataUrl}">Dane bara</a></td>
+			<td><a href="${confDataUrl}">Konfiguracja</a></td>
+		</tr>
+	</table>
+
 	<br>
 	<br>
 	

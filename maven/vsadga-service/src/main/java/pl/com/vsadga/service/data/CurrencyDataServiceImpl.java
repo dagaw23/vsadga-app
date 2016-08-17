@@ -161,6 +161,15 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 		}
 	}
 
+	@Override
+	public int insertOrUpdate(String frameDesc, BarData barData) throws BaseServiceException {
+		// czy istnieje już bar:
+		if (barDataDao.existBarData(barData.getSymbolId(), frameDesc, barData.getBarTime()))
+			return barDataDao.update(frameDesc, barData);
+		else
+			return barDataDao.insert(frameDesc, barData);
+	}
+
 	/**
 	 * @param barDataDao
 	 *            the barDataDao to set
@@ -177,6 +186,11 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	@Override
 	public int update(String frameDesc, BarData barData, Integer processPhase) throws BaseServiceException {
 		return barDataDao.update(frameDesc, barData, processPhase);
+	}
+
+	@Override
+	public int updateAbsorbVolume(String frameDesc, Integer id, Integer volumeAbsorb) {
+		return barDataDao.updateVolumeAbsorbtion(frameDesc, id, volumeAbsorb);		
 	}
 
 }
