@@ -34,7 +34,7 @@ public class ReportPrinterBatch extends BaseBatch {
 	
 	private TimeFrame d1TimeFrame;
 
-	@Scheduled(cron = "0 1/2 0,7-23 * * MON-FRI")
+	@Scheduled(cron = "0 1 0,7-23 * * MON-FRI")
 	public void cronJob() {
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;

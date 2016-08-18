@@ -40,7 +40,7 @@ public class DataCalculateBatch extends BaseBatch {
 	public DataCalculateBatch() {
 	}
 
-	@Scheduled(cron = "45 0/2 0,7-23 * * MON-FRI")
+	@Scheduled(cron = "45 0 0,7-23 * * MON-FRI")
 	public void cronJob() {
 
 		try {
@@ -293,7 +293,7 @@ public class DataCalculateBatch extends BaseBatch {
 				return false;
 			
 			// dopisanie wolumenów:
-			updateAbsorbVolume();
+			//updateAbsorbVolume();
 		} catch (BaseServiceException e) {
 			e.printStackTrace();
 			return false;
