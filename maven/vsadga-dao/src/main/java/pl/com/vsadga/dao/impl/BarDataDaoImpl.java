@@ -25,7 +25,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 	private final String ALL_COLUMNS = "id, bar_time, bar_low, bar_high, bar_close, bar_volume, "
 			+ "ima_count, bar_type, indicator_nr, is_confirm, trend_indicator, trend_weight, "
-			+ "volume_absorb, volume_size, process_phase, symbol_id";
+			+ "volume_type, volume_absorb, volume_size, process_phase, symbol_id";
 
 	private final String SCHM_NME = "fxschema.";
 
@@ -77,8 +77,8 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		String sql = "select id, bar_time, bar_low, bar_high, bar_close, bar_volume, "
 				+ "ima_count, bar_type, indicator_nr, indicator_weight, is_confirm, "
 				+ "trend_indicator, trend_weight, volume_thermometer, volume_absorb, "
-				+ "volume_size, spread_size, process_phase, symbol_id from " + getTableName(frameDesc)
-				+ " where bar_time < ? order by bar_time asc";
+				+ "volume_type, volume_size, spread_size, process_phase, symbol_id from " 
+				+ getTableName(frameDesc) + " where bar_time < ? order by bar_time asc";
 
 		return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
 
@@ -156,7 +156,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	@Override
 	public List<BarData> getLastNbarsData(Integer symbolId, String frameDesc, int size) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
-				+ " where symbol_id=? order by bar_time desc";
+				+ " where symbol_id=? order by bar_time desc LIMIT ?";
 
 		List<BarData> data_list = getJdbcTemplate().query(sql, new RowMapper<BarData>() {
 
@@ -165,12 +165,9 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 				return rs2BarData(rs);
 			}
 
-		}, symbolId);
+		}, symbolId, size);
 
-		if (data_list.size() <= size)
-			return data_list;
-		else
-			return data_list.subList(0, size);
+		return data_list;
 	}
 
 	@Override
@@ -246,39 +243,39 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	@Override
 	public int insert(String frameDesc, BarData data) {
 		String sql = "insert into " + getTableName(frameDesc) + " (" + ALL_COLUMNS + ") values (nextval('"
-				+ getSeqName(frameDesc) + "'),?,?,?,?,?, ?,?,?,?,?,?, ?,?,?,?)";
+				+ getSeqName(frameDesc) + "'),?,?,?,?,?, ?,?,?,?,?,?, ?,?,?,?,?)";
 
 		return getJdbcTemplate().update(sql, data.getBarTime(), data.getBarLow(), data.getBarHigh(),
 				data.getBarClose(), data.getBarVolume(), data.getImaCount(), convert(data.getBarType()),
 				data.getIndicatorNr(), data.getIsConfirm(), data.getTrendIndicator(), data.getTrendWeight(),
-				data.getVolumeAbsorb(), convert(data.getVolumeSize()), data.getProcessPhase(), data.getSymbolId());
+				data.getVolumeType(), data.getVolumeAbsorb(), convert(data.getVolumeSize()), data.getProcessPhase(), data.getSymbolId());
 	}
 	
 	@Override
 	public int update(String frameDesc, BarData barData) {
 		String sql = "update " + getTableName(frameDesc)
-				+ " set bar_low=?, bar_high=?, bar_close=?, bar_volume=? where symbol_id=? and bar_time=?";
+				+ " set bar_low=?, bar_high=?, bar_close=?, bar_volume=?, volume_type=? where symbol_id=? and bar_time=?";
 
 		return getJdbcTemplate().update(sql, barData.getBarLow(), barData.getBarHigh(), barData.getBarClose(),
-				barData.getBarVolume(), barData.getSymbolId(), barData.getBarTime());
+				barData.getBarVolume(), barData.getVolumeType(), barData.getSymbolId(), barData.getBarTime());
 	}
 
 	@Override
 	public int update(String frameDesc, BarData barData, Integer processPhase) {
 		String sql = "update " + getTableName(frameDesc)
-				+ " set bar_low=?, bar_high=?, bar_close=?, bar_volume=?, process_phase=? where symbol_id=? and bar_time=?";
+				+ " set bar_low=?, bar_high=?, bar_close=?, bar_volume=?, volume_type=?, process_phase=? where symbol_id=? and bar_time=?";
 
 		return getJdbcTemplate().update(sql, barData.getBarLow(), barData.getBarHigh(), barData.getBarClose(),
-				barData.getBarVolume(), processPhase, barData.getSymbolId(), barData.getBarTime());
+				barData.getBarVolume(), barData.getVolumeType(), processPhase, barData.getSymbolId(), barData.getBarTime());
 	}
 
 	@Override
 	public int update(String frameDesc, Integer id, BarData barData) {
 		String sql = "update " + getTableName(frameDesc)
-				+ " set bar_low=?, bar_high=?, bar_close=?, bar_volume=?, ima_count=?, process_phase=? where id=?";
+				+ " set bar_low=?, bar_high=?, bar_close=?, bar_volume=?, volume_type=?, ima_count=?, process_phase=? where id=?";
 
 		return getJdbcTemplate().update(sql, barData.getBarLow(), barData.getBarHigh(), barData.getBarClose(),
-				barData.getBarVolume(), barData.getImaCount(), barData.getProcessPhase(), id);
+				barData.getBarVolume(), barData.getVolumeType(), barData.getImaCount(), barData.getProcessPhase(), id);
 	}
 
 	@Override
@@ -470,6 +467,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		data.setBarHigh(rs.getBigDecimal("bar_high"));
 		data.setBarClose(rs.getBigDecimal("bar_close"));
 		data.setBarVolume(rs.getInt("bar_volume"));
+		data.setVolumeType(rs.getString("volume_type"));
 
 		data.setImaCount(rs.getBigDecimal("ima_count"));
 		data.setBarType(convertBarType(rs.getString("bar_type")));
@@ -484,6 +482,46 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		data.setSymbolId(rs.getInt("symbol_id"));
 
 		return data;
+	}
+
+	@Override
+	public BarData getLastEndedBarData(Integer symbolId, String frameDesc) {
+		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
+				+ " where symbol_id=? and process_phase > 0 order by bar_time desc limit 1";
+
+		List<BarData> data_list = getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+			@Override
+			public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2BarData(rs);
+			}
+
+		}, symbolId);
+
+		if (data_list.size() < 1)
+			return null;
+		else
+			return data_list.get(0);
+	}
+
+	@Override
+	public BarData getLastNotEndedBarData(Integer symbolId, String frameDesc) {
+		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
+				+ " where symbol_id=? and process_phase = 0 order by bar_time desc limit 1";
+
+		List<BarData> data_list = getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+			@Override
+			public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2BarData(rs);
+			}
+
+		}, symbolId);
+
+		if (data_list.size() < 1)
+			return null;
+		else
+			return data_list.get(0);
 	}
 
 }

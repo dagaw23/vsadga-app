@@ -20,6 +20,7 @@ create table fxschema.data_m5(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	volume_type			varchar(1)		not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
 	is_confirm			boolean			null,
@@ -41,6 +42,7 @@ create table fxschema.data_m15(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	volume_type			varchar(1)		not null,
 	bar_type			varchar(1)		null,	
 	indicator_nr		integer			null,
 	is_confirm			boolean			null,
@@ -62,6 +64,7 @@ create table fxschema.data_h1(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	volume_type			varchar(1)		not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
 	is_confirm			boolean			null,
@@ -83,6 +86,7 @@ create table fxschema.data_h4(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	volume_type			varchar(1)		not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
 	is_confirm			boolean			null,
@@ -104,6 +108,7 @@ create table fxschema.data_d1(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	volume_type			varchar(1)		not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
 	is_confirm			boolean			null,
@@ -125,6 +130,7 @@ create table fxschema.data_w1(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	volume_type			varchar(1)		not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
 	is_confirm			boolean			null,
@@ -212,10 +218,13 @@ create table fxschema.trade_alert(
 	id					integer			not null PRIMARY KEY,
 	alert_time			timestamp		not null,
 	alert_message		varchar(500)	not null,
-	symbol_id			smallint		not null
+	symbol_id			smallint		not null,
+	time_frame_id		smallint		not null,
+	bar_time			timestamp		not null,
+	bar_status			varchar(1)		not null
 						REFERENCES fxschema.currency_symbol(id)
 );
-
+create unique index trade_alert_idx ON fxschema.trade_alert (bar_time, symbol_id, time_frame_id);
 
 CREATE SEQUENCE fxschema.data_m5_seq 
 	INCREMENT BY 1

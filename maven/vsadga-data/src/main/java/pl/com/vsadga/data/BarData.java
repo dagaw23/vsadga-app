@@ -35,7 +35,7 @@ public class BarData implements Serializable {
 	private BarType barType;
 
 	/**
-	 * wolumen rzeczywisty lub tickowy
+	 * wielkość wolumenu
 	 */
 	private Integer barVolume;
 
@@ -105,6 +105,15 @@ public class BarData implements Serializable {
 	 * </ul>
 	 */
 	private VolumeSize volumeSize;
+
+	/**
+	 * rodzaj wolumenu:
+	 * <ul>
+	 * <li>rzeczywisty: R,
+	 * <li>tickowy: T.
+	 * </ul>
+	 */
+	private String volumeType;
 
 	/*
 	 * (non-Javadoc)
@@ -193,6 +202,11 @@ public class BarData implements Serializable {
 		} else if (!volumeAbsorb.equals(other.volumeAbsorb))
 			return false;
 		if (volumeSize != other.volumeSize)
+			return false;
+		if (volumeType == null) {
+			if (other.volumeType != null)
+				return false;
+		} else if (!volumeType.equals(other.volumeType))
 			return false;
 		return true;
 	}
@@ -294,6 +308,13 @@ public class BarData implements Serializable {
 		return volumeSize;
 	}
 
+	/**
+	 * @return the volumeType
+	 */
+	public String getVolumeType() {
+		return volumeType;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -319,6 +340,7 @@ public class BarData implements Serializable {
 		result = prime * result + ((trendWeight == null) ? 0 : trendWeight.hashCode());
 		result = prime * result + ((volumeAbsorb == null) ? 0 : volumeAbsorb.hashCode());
 		result = prime * result + ((volumeSize == null) ? 0 : volumeSize.hashCode());
+		result = prime * result + ((volumeType == null) ? 0 : volumeType.hashCode());
 		return result;
 	}
 
@@ -434,6 +456,14 @@ public class BarData implements Serializable {
 		this.volumeSize = volumeSize;
 	}
 
+	/**
+	 * @param volumeType
+	 *            the volumeType to set
+	 */
+	public void setVolumeType(String volumeType) {
+		this.volumeType = volumeType;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -442,11 +472,11 @@ public class BarData implements Serializable {
 	@Override
 	public String toString() {
 		return "BarData [barClose=" + barClose + ", barHigh=" + barHigh + ", barLow=" + barLow + ", barTime="
-				+ barTime + ", barType=" + barType + ", barVolume=" + barVolume + ", id=" + id + ", imaCount="
-				+ imaCount + ", indicatorNr=" + indicatorNr + ", isConfirm=" + isConfirm + ", processPhase="
-				+ processPhase + ", symbolId=" + symbolId + ", trendIndicator=" + trendIndicator
-				+ ", trendWeight=" + trendWeight + ", volumeAbsorb=" + volumeAbsorb + ", volumeSize=" + volumeSize
-				+ "]";
+				+ barTime + ", barType=" + barType + ", barVolume=" + barVolume + ", volumeType=" + volumeType
+				+ ", id=" + id + ", imaCount=" + imaCount + ", indicatorNr=" + indicatorNr + ", isConfirm="
+				+ isConfirm + ", processPhase=" + processPhase + ", symbolId=" + symbolId + ", trendIndicator="
+				+ trendIndicator + ", trendWeight=" + trendWeight + ", volumeAbsorb=" + volumeAbsorb
+				+ ", volumeSize=" + volumeSize + "]";
 	}
 
 }

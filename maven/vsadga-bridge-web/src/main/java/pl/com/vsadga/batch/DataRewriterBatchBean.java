@@ -1,7 +1,6 @@
 package pl.com.vsadga.batch;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,7 +24,6 @@ import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.dto.HttpProxy;
 import pl.com.vsadga.dto.Mt4FileRecord;
-import pl.com.vsadga.dto.VolumeData;
 import pl.com.vsadga.io.BarDataFileReader;
 import pl.com.vsadga.io.ReaderException;
 import pl.com.vsadga.service.BaseServiceException;
@@ -201,9 +199,6 @@ public class DataRewriterBatchBean extends BaseBatch {
 
 		for (CurrencySymbol sym : symbol_list) {
 			for (TimeFrame frm : tmefrm_list) {
-				LOGGER.info("   [WRITE] Symbol [" + sym.getSymbolName() + "], ramka [" + frm.getTimeFrameDesc()
-						+ "].");
-
 				rewriteFileContent2db(sym, frm, shift_date);
 				file_count++;
 			}
@@ -251,7 +246,7 @@ public class DataRewriterBatchBean extends BaseBatch {
 			value = getStringParamValue("HTTP_PROXY_HOST");
 			if (value == null)
 				return false;
-			
+
 			this.httpProxy = new HttpProxy(true, value.trim(), 8080);
 		}
 
@@ -261,13 +256,11 @@ public class DataRewriterBatchBean extends BaseBatch {
 	private void rewriteFileContent2db(CurrencySymbol symbol, TimeFrame timeFrame, GregorianCalendar shiftDate) throws BatchProcessException {
 		List<Mt4FileRecord> rec_list = null;
 		List<Mt4FileRecord> rec_volume_list = null;
+		List<BarData> bar_data_list = null;
 
 		try {
-			
-
 			// pobierz całą zawartość pliku:
-			rec_list = barDataFileReader.readAll(mt4LocalPath, symbol.getSymbolName(),
-					timeFrame.getTimeFrameDesc());
+			rec_list = barDataFileReader.readAll(mt4LocalPath, symbol.getSymbolName(), timeFrame.getTimeFrameDesc());
 
 			// jeśli pusta lista rekordów: przejdź do następnego
 			if (rec_list.isEmpty()) {
@@ -279,8 +272,11 @@ public class DataRewriterBatchBean extends BaseBatch {
 			// zaczytaj wolumen rzeczywisty:
 			rec_volume_list = updateBarVolumes(rec_list, symbol, timeFrame, shiftDate);
 
+			// konwersja rekordów - na obiekty BarData:
+			bar_data_list = convert(rec_volume_list, symbol.getId());
+
 			// wpisz rekordy lub aktualizuj w DB:
-			currencyDbWriterService.write(symbol, timeFrame, rec_volume_list, shiftDate);
+			currencyDbWriterService.writeOrUpdate(symbol, timeFrame, bar_data_list);
 
 		} catch (ReaderException e) {
 			e.printStackTrace();
@@ -297,8 +293,52 @@ public class DataRewriterBatchBean extends BaseBatch {
 		}
 	}
 
-	private List<Mt4FileRecord> updateBarVolumes(List<Mt4FileRecord> recordList, CurrencySymbol symbol,
-			TimeFrame timeFrame, GregorianCalendar actualTime) throws BatchProcessException {
+	/**
+	 * Konwertuje rekordy z pliku płaskiego - na listę rekordów typu {@link BarData} z wypełnioną
+	 * tylko częścią informacji w poszczególnych barach, która pochodzi z pliku płaskiego.
+	 * 
+	 * @param recordList
+	 *            lista rekordów z pliku płaskiego
+	 * @param symbolId
+	 *            ID symbolu, którego dotyczą rekordu w pliku płaskim
+	 * 
+	 * @return lista rekordów typu {@link BarData} z wypełnioną tylko częścią informacji w
+	 *         poszczególnych barach, która pochodzi z pliku płaskiego
+	 */
+	private List<BarData> convert(List<Mt4FileRecord> recordList, Integer symbolId) {
+		List<BarData> bar_data_list = new ArrayList<BarData>();
+		BarData bar_data = null;
+		int rec_position = 0;
+
+		for (Mt4FileRecord rec : recordList) {
+			bar_data = new BarData();
+
+			bar_data.setBarTime(rec.getBarTime().getTime());
+			bar_data.setBarHigh(rec.getBarHigh());
+			bar_data.setBarLow(rec.getBarLow());
+
+			bar_data.setBarClose(rec.getBarClose());
+			bar_data.setBarVolume(rec.getBarVolume());
+			bar_data.setImaCount(rec.getImaCount());
+
+			bar_data.setSymbolId(symbolId);
+			bar_data.setVolumeType(rec.getVolumeType());
+
+			if (rec_position == 0)
+				bar_data.setProcessPhase(0);
+			else
+				bar_data.setProcessPhase(1);
+
+			bar_data_list.add(bar_data);
+			rec_position++;
+			
+			LOGGER.info("         " + symbolId + ": " + DateConverter.dateToString(bar_data.getBarTime()));
+		}
+
+		return bar_data_list;
+	}
+
+	private List<Mt4FileRecord> updateBarVolumes(List<Mt4FileRecord> recordList, CurrencySymbol symbol, TimeFrame timeFrame, GregorianCalendar shiftDate) throws BatchProcessException {
 		List<Mt4FileRecord> result_list = new ArrayList<Mt4FileRecord>();
 		GregorianCalendar min_time = null;
 		int k = 0;
@@ -320,7 +360,8 @@ public class DataRewriterBatchBean extends BaseBatch {
 		}
 
 		try {
-			http_response = httpReader.readFromUrl(symbol, timeFrame, actualTime.getTime(), min_time.getTime(), httpAccessKey, httpProxy);
+			http_response = httpReader.readFromUrl(symbol, timeFrame, shiftDate.getTime(), min_time.getTime(),
+					httpAccessKey, httpProxy);
 			if (StringUtils.isBlank(http_response)) {
 				LOGGER.info("   Pusta odpowiedz HTTP [" + http_response + "] dla symbolu,ramki: ["
 						+ symbol.getSymbolName() + "," + timeFrame + "].");
@@ -342,8 +383,10 @@ public class DataRewriterBatchBean extends BaseBatch {
 			for (Mt4FileRecord file_rec : recordList) {
 				real_volume = volume_map.get(file_rec.getBarTime());
 
-				if (real_volume != null && real_volume.intValue() > 0)
+				if (real_volume != null && real_volume.intValue() > 0) {
 					file_rec.setBarVolume(real_volume);
+					file_rec.setVolumeType("R");
+				}
 
 				result_list.add(file_rec);
 			}

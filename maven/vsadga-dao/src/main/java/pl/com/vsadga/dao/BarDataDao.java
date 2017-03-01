@@ -52,6 +52,24 @@ public interface BarDataDao {
 	 */
 	BarData getLastProcessBarData(Integer symbolId, String frameDesc);
 	
+	/**
+	 * Pobiera ostatni zakończony już bar (processPhase > 0).
+	 * 
+	 * @param symbolId
+	 * @param frameDesc opis dotyczący ramki czasowej
+	 * @return
+	 */
+	BarData getLastEndedBarData(Integer symbolId, String frameDesc);
+	
+	/**
+	 * Pobiera ostatni nie zakończony jeszcze bar (processPhase = 0).
+	 * 
+	 * @param symbolId
+	 * @param frameDesc opis dotyczący ramki czasowej
+	 * @return
+	 */
+	BarData getLastNotEndedBarData(Integer symbolId, String frameDesc);
+	
 	Integer getMaxVolume(Integer symbolId, String frameDesc, Date maxDate, int limit);
 
 	/**

@@ -26,7 +26,7 @@ public class Mt4FileRecord {
 	private GregorianCalendar barTime;
 
 	/**
-	 * wolumen rzeczywisty lub tickowy
+	 * wielkość wolumenu
 	 */
 	private Integer barVolume;
 
@@ -34,6 +34,15 @@ public class Mt4FileRecord {
 	 * wyliczona średnia krocząca
 	 */
 	private BigDecimal imaCount;
+
+	/**
+	 * rodzaj wolumenu:
+	 * <ul>
+	 * <li>rzeczywisty: R,
+	 * <li>tickowy: T.
+	 * </ul>
+	 */
+	private String volumeType;
 
 	/*
 	 * (non-Javadoc)
@@ -78,6 +87,11 @@ public class Mt4FileRecord {
 			if (other.imaCount != null)
 				return false;
 		} else if (!imaCount.equals(other.imaCount))
+			return false;
+		if (volumeType == null) {
+			if (other.volumeType != null)
+				return false;
+		} else if (!volumeType.equals(other.volumeType))
 			return false;
 		return true;
 	}
@@ -124,6 +138,13 @@ public class Mt4FileRecord {
 		return imaCount;
 	}
 
+	/**
+	 * @return the volumeType
+	 */
+	public String getVolumeType() {
+		return volumeType;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -139,6 +160,7 @@ public class Mt4FileRecord {
 		result = prime * result + ((barTime == null) ? 0 : barTime.hashCode());
 		result = prime * result + ((barVolume == null) ? 0 : barVolume.hashCode());
 		result = prime * result + ((imaCount == null) ? 0 : imaCount.hashCode());
+		result = prime * result + ((volumeType == null) ? 0 : volumeType.hashCode());
 		return result;
 	}
 
@@ -190,6 +212,14 @@ public class Mt4FileRecord {
 		this.imaCount = imaCount;
 	}
 
+	/**
+	 * @param volumeType
+	 *            the volumeType to set
+	 */
+	public void setVolumeType(String volumeType) {
+		this.volumeType = volumeType;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -197,8 +227,9 @@ public class Mt4FileRecord {
 	 */
 	@Override
 	public String toString() {
-		return "Mt4FileRecord [barTime=" + barTime + ", barClose=" + barClose + ", barHigh=" + barHigh
-				+ ", barLow=" + barLow + ", barVolume=" + barVolume + ", imaCount=" + imaCount + "]";
+		return "Mt4FileRecord [barClose=" + barClose + ", barHigh=" + barHigh + ", barLow=" + barLow
+				+ ", barTime=" + barTime + ", barVolume=" + barVolume + ", volumeType=" + volumeType
+				+ ", imaCount=" + imaCount + "]";
 	}
 
 }

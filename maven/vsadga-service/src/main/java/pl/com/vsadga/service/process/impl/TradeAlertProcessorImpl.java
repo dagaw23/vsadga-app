@@ -1,5 +1,6 @@
 package pl.com.vsadga.service.process.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import pl.com.vsadga.dao.TradeAlertDao;
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.data.TradeAlert;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.process.TradeAlertProcessor;
 
@@ -21,8 +23,8 @@ public class TradeAlertProcessorImpl implements TradeAlertProcessor {
 
 	private TradeAlertDao tradeAlertDao;
 
-	@Override
-	public void checkTradeAlert(CurrencySymbol symbol, List<TimeFrame> timeFrameList) throws BaseServiceException {
+	/*
+	private void checkTradeAlert(CurrencySymbol symbol, List<TimeFrame> timeFrameList) throws BaseServiceException {
 		BarData bar_data = null;
 		String[] trend_tab = new String[4];
 		String msg = null;
@@ -110,47 +112,95 @@ public class TradeAlertProcessorImpl implements TradeAlertProcessor {
 		}
 
 	}
+	*/
+	
+	private void addVolumeTradeAlert(TradeAlert tradeAlert, int volSize, CurrencySymbol symbol, TimeFrame timeFrame, Date barTime, String barStatus) {
+		String message = "Alert wolumenowy [";
+		
+		if (volSize == 1)
+			message += "HI";
+		else if (volSize == 2)
+			message += "VERY HI";
+		else if (volSize == 3)
+			message += "EXTREMELY";
+		
+		message += "] dla [" + symbol.getSymbolName() + "-" + timeFrame.getTimeFrameDesc() + "].";
+		
+		if (tradeAlert == null)
+			tradeAlertDao.insert(message, symbol.getId(), timeFrame.getId(), barTime, barStatus);
+		else
+			tradeAlertDao.update(tradeAlert.getId(), message, barStatus);
+		
+	}
 
 	@Override
-	public void checkVolumeSize(CurrencySymbol symbol, List<TimeFrame> timeFrameList, int timeMinute)
-			throws BaseServiceException {
+	public void checkVolumeSize(CurrencySymbol symbol, List<TimeFrame> timeFrameList) throws BaseServiceException {
 		BarData bar_data = null;
-		Integer[] vol_size = new Integer[4];
-
+		TradeAlert trade_alert = null;
+		int max_1 = 0;
+		int max_2 = 0;
+		int max_3 = 0;
+		int bar_vol = 0;
+		int vol_typ = 0;
+		
+		// 1) bary zakończone już:
 		for (TimeFrame tme_frm : timeFrameList) {
-			bar_data = barDataDao.getLastProcessBarData(symbol.getId(), tme_frm.getTimeFrameDesc());
-
-			// zapisanie wielkości wolumenu:
-			if (tme_frm.getTimeFrame().intValue() == 5)
-				vol_size[0] = bar_data.getBarVolume();
-			else if (tme_frm.getTimeFrame().intValue() == 15)
-				vol_size[1] = bar_data.getBarVolume();
-			else if (tme_frm.getTimeFrame().intValue() == 60)
-				vol_size[2] = bar_data.getBarVolume();
-			else if (tme_frm.getTimeFrame().intValue() == 240)
-				vol_size[3] = bar_data.getBarVolume();
+			max_1 = 0;
+			max_2 = 0;
+			max_3 = 0;
+			vol_typ = 0;
+			
+			bar_data = barDataDao.getLastEndedBarData(symbol.getId(), tme_frm.getTimeFrameDesc());
+			bar_vol = bar_data.getBarVolume().intValue();
+			trade_alert = tradeAlertDao.exist(symbol.getId(), tme_frm.getId(), bar_data.getBarTime());
+			
+			// a) czy dany bar - ma już alert:
+			if (trade_alert == null || trade_alert.getBarStatus().equals("T")) {
+				max_1 = barDataDao.getMaxVolume(symbol.getId(), tme_frm.getTimeFrameDesc(), bar_data.getBarTime(), 50);
+				max_2 = barDataDao.getMaxVolume(symbol.getId(), tme_frm.getTimeFrameDesc(), bar_data.getBarTime(), 100);
+				max_3 = barDataDao.getMaxVolume(symbol.getId(), tme_frm.getTimeFrameDesc(), bar_data.getBarTime(), 300);
+				
+				if (bar_vol > max_3)
+					vol_typ = 3;
+				else if (bar_vol > max_2)
+					vol_typ = 2;
+				else if (bar_vol > max_1)
+					vol_typ = 1;
+				else
+					vol_typ = 0;
+				
+				if (vol_typ > 0)
+					addVolumeTradeAlert(trade_alert, vol_typ, symbol, tme_frm, bar_data.getBarTime(), "E");
+			}
 		}
-
-		// 5 minut ZAWSZE:
-		if (vol_size[0] != null && vol_size[0].intValue() > 2)
-			tradeAlertDao.insert("VOLUME by 5M in [" + symbol.getSymbolName() + "] = [" + vol_size[0] + "].",
-					symbol.getId());
-
-		if (timeMinute % 15 == 0) {
-			// 15 minut:
-			if (vol_size[1] != null && vol_size[1].intValue() > 2)
-				tradeAlertDao.insert("VOLUME by 15M in [" + symbol.getSymbolName() + "] = [" + vol_size[1] + "].",
-						symbol.getId());
-		} else if (timeMinute == 0) {
-			// 1H:
-			if (vol_size[2] != null && vol_size[2].intValue() > 2)
-				tradeAlertDao.insert("VOLUME by 1H in [" + symbol.getSymbolName() + "] = [" + vol_size[2] + "].",
-						symbol.getId());
-
-			// 4H:
-			if (vol_size[3] != null && vol_size[3].intValue() > 2)
-				tradeAlertDao.insert("VOLUME by 4H in [" + symbol.getSymbolName() + "] = [" + vol_size[3] + "].",
-						symbol.getId());
+		
+		// 2) bary jeszcze nie zakończone:
+		for (TimeFrame tme_frm : timeFrameList) {
+			max_1 = 0;
+			max_2 = 0;
+			max_3 = 0;
+			vol_typ = 0;
+			
+			bar_data = barDataDao.getLastNotEndedBarData(symbol.getId(), tme_frm.getTimeFrameDesc());
+			bar_vol = bar_data.getBarVolume().intValue();
+			trade_alert = tradeAlertDao.exist(symbol.getId(), tme_frm.getId(), bar_data.getBarTime());
+			
+			// a) wyliczenie poziomów:
+			max_1 = barDataDao.getMaxVolume(symbol.getId(), tme_frm.getTimeFrameDesc(), bar_data.getBarTime(), 50);
+			max_2 = barDataDao.getMaxVolume(symbol.getId(), tme_frm.getTimeFrameDesc(), bar_data.getBarTime(), 100);
+			max_3 = barDataDao.getMaxVolume(symbol.getId(), tme_frm.getTimeFrameDesc(), bar_data.getBarTime(), 300);
+			
+			if (bar_vol > max_3)
+				vol_typ = 3;
+			else if (bar_vol > max_2)
+				vol_typ = 2;
+			else if (bar_vol > max_1)
+				vol_typ = 1;
+			else
+				vol_typ = 0;
+			
+			if (vol_typ > 0)
+				addVolumeTradeAlert(trade_alert, vol_typ, symbol, tme_frm, bar_data.getBarTime(), "T");
 		}
 	}
 

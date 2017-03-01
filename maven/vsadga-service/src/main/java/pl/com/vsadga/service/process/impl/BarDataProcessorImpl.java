@@ -1,6 +1,7 @@
 package pl.com.vsadga.service.process.impl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -193,11 +194,11 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	
 	private IndicatorData getIndyData(BarData barData) {
 		BigDecimal bar_spread = barData.getBarHigh().subtract(barData.getBarLow());
-		BigDecimal bar_spr_vol = bar_spread.multiply(
-				new BigDecimal(volumeSpreadRatio)).multiply(
-				new BigDecimal(barData.getBarVolume()));
-		bar_spr_vol = bar_spr_vol.add(new BigDecimal(barData.getBarVolume()));
-		bar_spr_vol.setScale(4);
+		BigDecimal bar_spr_vol = bar_spread.multiply(new BigDecimal(barData.getBarVolume()));
+		//bar_spr_vol = bar_spr_vol.add(new BigDecimal(barData.getBarVolume()));
+		
+		bar_spread.setScale(5, RoundingMode.HALF_UP);
+		bar_spr_vol.setScale(5, RoundingMode.HALF_UP);
 		
 		return new IndicatorData(barData.getBarVolume(), bar_spread, bar_spr_vol);
 	}

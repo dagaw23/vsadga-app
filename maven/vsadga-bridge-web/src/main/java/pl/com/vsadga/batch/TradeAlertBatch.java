@@ -54,17 +54,17 @@ public class TradeAlertBatch extends BaseBatch {
 			}
 			
 			// aktualny czas:
-			GregorianCalendar act_date = new GregorianCalendar();
-			act_date.setTime(new Date());
+			//GregorianCalendar act_date = new GregorianCalendar();
+			//act_date.setTime(new Date());
 			// aktualna minuta:
-			int min_nr = act_date.get(Calendar.MINUTE);
+			//int min_nr = act_date.get(Calendar.MINUTE);
 
 			for (CurrencySymbol symbol : symbol_list) {
 				LOGGER.info("   [ALERT] Symbol [" + symbol.getSymbolName() + "].");
 
-				tradeAlertProcessor.checkTradeAlert(symbol, tmefrm_list);
+				//tradeAlertProcessor.checkTradeAlert(symbol, tmefrm_list);
 				
-				tradeAlertProcessor.checkVolumeSize(symbol, tmefrm_list, min_nr);
+				tradeAlertProcessor.checkVolumeSize(symbol, tmefrm_list);
 			}
 
 		} catch (BaseServiceException e) {

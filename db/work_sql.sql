@@ -38,8 +38,54 @@ drop table fxschema.data_m5;
 select * from fxschema.arch_data_h1_1  
 order by bar_time desc
 
+private boolean isGreaterVolume(BarData actualBar, TimeFrame timeFrame, int limit) {
+		Integer max_vol = barDataDao.getMaxVolume(actualBar.getSymbolId(), timeFrame.getTimeFrameDesc(),
+				actualBar.getBarTime(), limit);
+
+		if (actualBar.getBarVolume().intValue() > max_vol.intValue())
+			return true;
+		else
+			return false;
+	}
 
 1) 
+ALTER TABLE fxschema.trade_alert ADD COLUMN bar_time timestamp not null;
+ALTER TABLE fxschema.trade_alert ADD COLUMN bar_status varchar(1) not null;
+
+select * from fxschema.data_m5
+where symbol_id=2
+order by bar_time desc
+
+limit 500
+select * from fxschema.trade_alert
+
+select max(bar_volume) from fxschema.data_m5
+where symbol_id=2
+order by bar_time desc
+
+limit 50
+
+select * from fxschema.data_m5
+where symbol_id=2
+order by bar_time desc
+
+limit 400
+
+delete from fxschema.data_m5
+
+delete from fxschema.data_m15
+
+delete from fxschema.data_h1
+
+delete from fxschema.data_h4
+
+delete from fxschema.data_d1
+
+delete from fxschema.data_w1
+
+delete from fxschema.trade_alert
+
+
 drop table fxschema.currency_symbol
 
 drop table fxschema.trade_alert

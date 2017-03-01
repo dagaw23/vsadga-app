@@ -31,9 +31,31 @@ public class CurrencyDbWriterServiceImpl implements CurrencyDbWriterService {
 	public void setBarDataDao(BarDataDao barDataDao) {
 		this.barDataDao = barDataDao;
 	}
-
+	
 	@Override
-	public void write(CurrencySymbol symbol, TimeFrame timeFrame, List<Mt4FileRecord> recordList, GregorianCalendar sysTime) throws BaseServiceException {
+	public void writeOrUpdate(CurrencySymbol symbol, TimeFrame timeFrame, List<BarData> barDataList) throws BaseServiceException {
+		BarData bar_exist = null;
+		int add_cnt = 0;
+		int upd_cnt = 0;
+
+		for (BarData barData : barDataList) {
+			bar_exist = barDataDao.getBySymbolAndTime(barData.getSymbolId(), timeFrame.getTimeFrameDesc(), barData.getBarTime());
+
+			// brak bara w tabeli - wpisujemy nowy tak jak jest:
+			if (bar_exist == null) {
+				barDataDao.insert(timeFrame.getTimeFrameDesc(), barData);
+				add_cnt++;
+			} else if (bar_exist.getProcessPhase().intValue() == 0) {
+				barDataDao.update(timeFrame.getTimeFrameDesc(), bar_exist.getId(), barData);
+				upd_cnt++;
+			}
+		}
+
+		LOGGER.info("   [" + symbol.getSymbolName() + "-" + timeFrame.getTimeFrameDesc() + "] Bary dodane [" + add_cnt + "], zaktualizowane ["
+				+ upd_cnt + "].");
+	}
+
+	private void write(CurrencySymbol symbol, TimeFrame timeFrame, List<Mt4FileRecord> recordList, GregorianCalendar sysTime) throws BaseServiceException {
 		int tme_frm = timeFrame.getTimeFrame().intValue();
 
 		// aktualna minuta z czasu systomego:

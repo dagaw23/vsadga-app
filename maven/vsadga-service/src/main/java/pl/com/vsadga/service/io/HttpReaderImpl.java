@@ -10,12 +10,17 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
 import pl.com.vsadga.dto.HttpProxy;
 
 public class HttpReaderImpl implements HttpReader {
 	private final String ZERO_DATE = "1970.01.01%2000:00";
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(HttpReaderImpl.class);
 
 	@Override
 	public String readFromUrl(CurrencySymbol symbol, TimeFrame frame, Date actualDate, Date lastOpen,
@@ -82,6 +87,7 @@ public class HttpReaderImpl implements HttpReader {
 		else
 			sb.append(format(lastOpen));
 
+		//LOGGER.info("   URL=" + sb.toString() );
 		return sb.toString();
 	}
 

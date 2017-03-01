@@ -1,5 +1,7 @@
 package pl.com.vsadga.dto.cache;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,7 +9,7 @@ import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.dto.BarType;
 
 public class DataCache {
-	
+
 	/**
 	 * ilość barów wpisywanych do CACHE
 	 */
@@ -48,18 +50,44 @@ public class DataCache {
 	public void addBarData(BarData barData) {
 		addBarDataToCache(barData);
 	}
-	
+
 	public void addBarDataWithIndy(BarData barData, IndicatorData indyData) {
 		addBarDataToCache(barData);
-		
+
 		addIndicatorData(indyData);
 
 	}
+
 	public void addIndicatorData(IndicatorData indyData) {
 		// przesuń aktualny wskaźnik w mapach:
 		moveIndicatorPositions();
-		
+
 		indyDataMap.put(indyDataPos, indyData);
+	}
+
+	/**
+	 * Zwraca średnią z wolumenu i spreadu - z podanego zakresu.
+	 * 
+	 * @param size
+	 * @return
+	 */
+	public BigDecimal getVolumeSpreadAvg(int size) {
+		if (size > indyDataLength)
+			return null;
+		
+		BigDecimal temp = new BigDecimal(0);
+		int pos = indyDataPos;
+		
+		for (int i=0; i < size; i++) {
+			temp = temp.add(indyDataMap.get(pos).getBarSpreadVolume());
+			
+			if (pos == 1)
+				pos = indyDataLength;
+			else
+				pos--;
+		}
+		
+		return temp.divide(new BigDecimal(size), 5, RoundingMode.HALF_UP);
 	}
 
 	/**
@@ -71,6 +99,10 @@ public class DataCache {
 
 		this.barDataCachePos = 0;
 		this.indyDataPos = 0;
+	}
+
+	public int getIndicatorCacheSize() {
+		return indyDataMap.size();
 	}
 
 	/**
@@ -173,11 +205,11 @@ public class DataCache {
 		else
 			return barDataCacheMap.get(barDataCachePos - prevNr);
 	}
-	
+
 	public boolean isVolumeLessThen2(BarData barData, BarData lastBar, BarData prevBar) {
 		int bar_vol = barData.getBarVolume();
-		
-		if (bar_vol < lastBar.getBarVolume().intValue() 
+
+		if (bar_vol < lastBar.getBarVolume().intValue()
 				&& lastBar.getBarVolume().intValue() < prevBar.getBarVolume().intValue())
 			return true;
 		else
@@ -186,6 +218,13 @@ public class DataCache {
 
 	public boolean isReadyBarDataCache() {
 		if (barDataCacheMap.size() < barDataCacheLength)
+			return false;
+		else
+			return true;
+	}
+
+	public boolean isReadyIndyDataCache() {
+		if (indyDataMap.size() < indyDataLength)
 			return false;
 		else
 			return true;

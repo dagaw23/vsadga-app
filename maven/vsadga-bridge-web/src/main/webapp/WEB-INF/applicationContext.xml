@@ -27,7 +27,7 @@
 	
 	<!-- Data -->
 	<bean id="dataCache" class="pl.com.vsadga.dto.cache.DataCache">
-		<constructor-arg name="indyDataLength" value="14" />
+		<constructor-arg name="indyDataLength" value="10" />
 		<constructor-arg name="barDataCacheLength" value="5" />
 	</bean>
 

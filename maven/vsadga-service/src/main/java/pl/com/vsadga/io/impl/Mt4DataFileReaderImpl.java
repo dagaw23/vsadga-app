@@ -56,6 +56,7 @@ public class Mt4DataFileReaderImpl extends BaseReader implements BarDataFileRead
 
 		mt4_rec.setBarClose(new BigDecimal(rec_tab[3]));
 		mt4_rec.setBarVolume(Integer.valueOf(rec_tab[4]));
+		mt4_rec.setVolumeType("T");
 		mt4_rec.setImaCount(new BigDecimal(rec_tab[5]));
 
 		return mt4_rec;

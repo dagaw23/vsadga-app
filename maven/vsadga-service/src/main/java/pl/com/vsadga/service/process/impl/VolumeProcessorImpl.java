@@ -1,5 +1,7 @@
 package pl.com.vsadga.service.process.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
@@ -90,98 +92,26 @@ public class VolumeProcessorImpl implements VolumeProcessor {
 
 	@Override
 	public VolumeSize getVolumeSize(BarData actualBar, TimeFrame timeFrame) throws BaseServiceException {
-		// aktualna data:
-		GregorianCalendar act_cal = new GregorianCalendar();
-		act_cal.setTime(actualBar.getBarTime());
-
-		// liczba barow wstecz:
-		int row_count = barDataDao.getRowNumber(actualBar.getSymbolId(), timeFrame.getTimeFrameDesc(), act_cal.getTime());
-
-		// *** 5 minut ***
-		if (timeFrame.getTimeFrame().intValue() == 5) {
-			// Ultra Long:
-			if (row_count >= m5PositionUltraLong && isGreaterVolume(actualBar, timeFrame, m5PositionUltraLong))
-				return VolumeSize.VH;
-
-			// Long:
-			if (row_count >= m5PositionLong && isGreaterVolume(actualBar, timeFrame, m5PositionLong))
-				return VolumeSize.Hi;
-
-			// Medium:
-			if (row_count >= m5PositionMedium && isGreaterVolume(actualBar, timeFrame, m5PositionMedium))
-				return VolumeSize.AV;
-
-			// Short:
-			if (row_count >= m5PositionShort && isGreaterVolume(actualBar, timeFrame, m5PositionShort))
-				return VolumeSize.Lo;
-			
-			return VolumeSize.N;
+		// czy jest już wystarczająca ilość elementów w CACHE:
+		if (!dataCache.isReadyIndyDataCache()) {
+			LOGGER.info("   [VOL] Not ready yet... [" + dataCache.getIndicatorCacheSize() + "].");
+			return null;
 		}
-
-		// *** 15 minut ***
-		if (timeFrame.getTimeFrame().intValue() == 15) {
-			// Ultra Long:
-			if (row_count >= m15PositionUltraLong && isGreaterVolume(actualBar, timeFrame, m15PositionUltraLong))
-				return VolumeSize.VH;
-			
-			// Long:
-			if (row_count >= m15PositionLong && isGreaterVolume(actualBar, timeFrame, m15PositionLong))
-				return VolumeSize.Hi;
-			
-			// Medium:
-			if (row_count >= m15PositionMedium && isGreaterVolume(actualBar, timeFrame, m15PositionMedium))
-				return VolumeSize.AV;
-			
-			// Short:
-			if (row_count >= m15PositionShort && isGreaterVolume(actualBar, timeFrame, m15PositionShort))
-				return VolumeSize.Lo;
-
-			return VolumeSize.N;
-		}
-
-		// *** 1 godzina ***
-		if (timeFrame.getTimeFrame().intValue() == 60) {
-			// Ultra Long:
-			if (row_count >= h1PositionUltraLong && isGreaterVolume(actualBar, timeFrame, h1PositionUltraLong))
-				return VolumeSize.VH;
-			
-			// Long:
-			if (row_count >= h1PositionLong && isGreaterVolume(actualBar, timeFrame, h1PositionLong))
-				return VolumeSize.Hi;
-			
-			// Medium:
-			if (row_count >= h1PositionMedium && isGreaterVolume(actualBar, timeFrame, h1PositionMedium))
-				return VolumeSize.AV;
-			
-			// Short:
-			if (row_count >= h1PositionShort && isGreaterVolume(actualBar, timeFrame, h1PositionShort))
-				return VolumeSize.Lo;
-
-			return VolumeSize.N;
-		}
-
-		// *** 4 godziny ***
-		if (timeFrame.getTimeFrame().intValue() == 240) {
-			// Ultra Long:
-			if (row_count >= h4PositionUltraLong && isGreaterVolume(actualBar, timeFrame, h4PositionUltraLong))
-				return VolumeSize.VH;
-			
-			// Long:
-			if (row_count >= h4PositionLong && isGreaterVolume(actualBar, timeFrame, h4PositionLong))
-				return VolumeSize.Hi;
-			
-			// Medium:
-			if (row_count >= h4PositionMedium && isGreaterVolume(actualBar, timeFrame, h4PositionMedium))
-				return VolumeSize.AV;
-			
-			// Short:
-			if (row_count >= h4PositionShort && isGreaterVolume(actualBar, timeFrame, h4PositionShort))
-				return VolumeSize.Lo;
-
-			return VolumeSize.N;
-		}
-
-		return null;
+		
+		BigDecimal vsa_3 = dataCache.getVolumeSpreadAvg(3);
+		BigDecimal vsa_10 = dataCache.getVolumeSpreadAvg(10);
+		
+		BigDecimal spread_act = actualBar.getBarHigh().subtract(actualBar.getBarLow());
+		BigDecimal vol_act = new BigDecimal(actualBar.getBarVolume()).multiply(spread_act);
+		vol_act.setScale(5, RoundingMode.HALF_UP);
+		LOGGER.info("   [VOL] " + timeFrame.getTimeFrameDesc() + ":" + vsa_3.toString() + "," + vsa_10.toString() + "->" + vol_act + ".");
+		
+		if (vol_act.compareTo(vsa_3) == 1 && vol_act.compareTo(vsa_10) == 1)
+			return VolumeSize.Hi;
+		else if (vol_act.compareTo(vsa_3) == -1 && vol_act.compareTo(vsa_10) == -1)
+			return VolumeSize.Lo;
+		else
+			return VolumeSize.AV;
 	}
 
 	@Override
