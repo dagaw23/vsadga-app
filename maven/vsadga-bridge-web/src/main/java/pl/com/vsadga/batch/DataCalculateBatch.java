@@ -125,6 +125,7 @@ public class DataCalculateBatch extends BaseBatch {
 		BigDecimal bar_high = null;
 		BigDecimal bar_low = null;
 		BigDecimal bar_close = null;
+		String volume_type = null;
 		Integer bar_volume = 0;
 
 		for (BarData bar_data : barDataList) {
@@ -133,6 +134,7 @@ public class DataCalculateBatch extends BaseBatch {
 				bar_high = bar_data.getBarHigh();
 				bar_low = bar_data.getBarLow();
 				bar_volume += bar_data.getBarVolume();
+				volume_type = bar_data.getVolumeType();
 				continue;
 			}
 
@@ -156,6 +158,7 @@ public class DataCalculateBatch extends BaseBatch {
 		barData.setBarTime(barD1Time);
 		barData.setSymbolId(symbolId);
 		barData.setProcessPhase(processPhase);
+		barData.setVolumeType(volume_type);
 
 		return barData;
 	}

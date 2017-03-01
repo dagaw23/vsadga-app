@@ -331,8 +331,6 @@ public class DataRewriterBatchBean extends BaseBatch {
 
 			bar_data_list.add(bar_data);
 			rec_position++;
-			
-			LOGGER.info("         " + symbolId + ": " + DateConverter.dateToString(bar_data.getBarTime()));
 		}
 
 		return bar_data_list;
