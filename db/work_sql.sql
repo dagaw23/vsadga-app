@@ -304,7 +304,7 @@ Drugie poziomy wsparcia i oporu:
 Pivot_AllLevels - MT4
 -------------------------------------------------------------------------------
 
-ALTER TABLE fxschema.data_m5 ADD COLUMN volume_type varchar(1)	null;
+ALTER TABLE fxschema.data_m5 ADD COLUMN volume_type varchar(1) null;
 
 ALTER TABLE fxschema.data_m15 ADD COLUMN volume_type varchar(1)	null;
 
