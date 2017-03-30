@@ -1,4 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <html>
 <head>
 	<title>Printing all</title>
@@ -33,17 +34,59 @@
 			<td>::</td>
 			<td><a href="<c:url value="/oil.html"/>">OIL</a></td>
 		</tr>
-		<tr>
-			<td><a href="<c:url value="/alert.html"/>">Print alerts</a></td>
-		</tr>
 	</table>
 	<br>
 	<br>
-	
-	${html_tab}
-	
-	<br>
-	<br>
-	
+
+	<table>
+	<tr>
+		<td>
+			<table>
+				<tr><td>
+					<a href="<c:url value="/alert.html"/>">Print alerts</a>
+				</td></tr>
+				<tr><td>
+					<a href="<c:url value="/show-config-data.html"/>">Parametry konfiguracyjne</a>
+				</td></tr>
+				<tr><td>
+					<a href="<c:url value="/show-symbol-list.html"/>">Lista symboli</a>
+				</td></tr>
+			</table>
+		</td>
+		<td>
+			<table>
+				<tr>
+					<form:form action="alert-filter.html" method="POST" modelAttribute="alertDataModel">
+					<td>Ramki czasowe:</td>
+					<td>
+						<form:select path="frameSelected">
+							<form:option value="ALL" label="--- wszystkie ---"/>
+							<form:options items="${frameList}" itemValue="id" itemLabel="timeFrame"/>
+						</form:select>
+					</td>
+					<td>Symbole:</td>
+					<td>
+						<form:select path="symbolSelected">
+							<form:option value="ALL" label="--- wszystkie ---"/>
+							<form:options items="${symbolList}" itemValue="id" itemLabel="symbolName"/>
+						</form:select>
+					</td>
+					<td><input type="submit" name="submit" value="Filtruj"/></td>
+					</form:form>
+				</tr>
+			</table>
+			
+			<table>
+				<c:forEach items="${alertList}" var="alert">
+				<tr>
+					<td>${alert.alertMessage}</td>
+					<td>${alert.alertType}</td>
+				</tr>
+				</c:forEach>
+			</table>
+		</td>
+	</tr>
+	</table>
+
 </body>
 </html>

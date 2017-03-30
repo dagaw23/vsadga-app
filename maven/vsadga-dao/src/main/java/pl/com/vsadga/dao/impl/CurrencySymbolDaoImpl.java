@@ -40,6 +40,37 @@ public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbol
 	}
 
 	@Override
+	public List<CurrencySymbol> getAll() {
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " order by symbol_name";
+
+		return getJdbcTemplate().query(sql, new RowMapper<CurrencySymbol>() {
+
+			@Override
+			public CurrencySymbol mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2SymbolList(rs);
+			}
+
+		});
+	}
+
+	@Override
+	public CurrencySymbol getById(Integer id) {
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where id=?";
+
+		return getJdbcTemplate().query(sql, new ResultSetExtractor<CurrencySymbol>() {
+
+			@Override
+			public CurrencySymbol extractData(ResultSet rs) throws SQLException, DataAccessException {
+				if (rs.next())
+					return rs2SymbolList(rs);
+				else
+					return null;
+			}
+
+		}, id);
+	}
+
+	@Override
 	public CurrencySymbol getCurrencySymbolByName(String symbolName) {
 		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where symbol_name=?";
 
@@ -65,6 +96,13 @@ public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbol
 		result.setFuturesSymbol(rs.getString("futures_symbol"));
 
 		return result;
+	}
+
+	@Override
+	public int update(String symbolName, boolean isActive, String futuresSymbol, Integer id) {
+		String sql = "update " + TAB_NME + " set symbol_name=?, is_active=?, futures_symbol=? where id=?";
+		
+		return getJdbcTemplate().update(sql, symbolName, isActive, futuresSymbol, id);
 	}
 
 }

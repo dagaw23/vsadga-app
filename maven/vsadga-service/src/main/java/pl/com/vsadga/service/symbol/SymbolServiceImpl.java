@@ -27,4 +27,19 @@ public class SymbolServiceImpl implements SymbolService {
 		this.symbolListDao = symbolListDao;
 	}
 
+	@Override
+	public List<CurrencySymbol> getAll() {
+		return symbolListDao.getAll();
+	}
+
+	@Override
+	public CurrencySymbol getById(Integer id) {
+		return symbolListDao.getById(id);
+	}
+
+	@Override
+	public int update(CurrencySymbol currencySymbol) {
+		return symbolListDao.update(currencySymbol.getSymbolName(), currencySymbol.getIsActive(), currencySymbol.getFuturesSymbol(), currencySymbol.getId());
+	}
+
 }

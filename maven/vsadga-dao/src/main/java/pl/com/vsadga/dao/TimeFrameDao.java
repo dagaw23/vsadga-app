@@ -11,4 +11,6 @@ public interface TimeFrameDao {
 	List<TimeFrame> getAllActive();
 	
 	List<TimeFrame> getByTime(Integer fromTimeFrame, Integer toTimeFrame);
+	
+	TimeFrame getByTimeFrameDesc(String timeFrameDesc);
 }

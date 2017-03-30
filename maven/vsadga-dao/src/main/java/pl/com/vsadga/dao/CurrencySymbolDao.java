@@ -8,5 +8,11 @@ public interface CurrencySymbolDao {
 
 	List<CurrencySymbol> getActiveSymbols();
 	
+	List<CurrencySymbol> getAll();
+	
 	CurrencySymbol getCurrencySymbolByName(String symbolName);
+	
+	CurrencySymbol getById(Integer id);
+	
+	int update(String symbolName, boolean isActive, String futuresSymbol, Integer id);
 }

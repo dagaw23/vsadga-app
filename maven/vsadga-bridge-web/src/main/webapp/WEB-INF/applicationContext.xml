@@ -85,6 +85,7 @@
 	<bean id="tradeAlertProcessor" class="pl.com.vsadga.service.process.impl.TradeAlertProcessorImpl">
 		<property name="barDataDao" ref="barDataDao" />
 		<property name="tradeAlertDao" ref="tradeAlertDao" />
+		<property name="timeFrameDao" ref="timeFrameListDao" />
 	</bean>
 	<bean id="trendProcessor" class="pl.com.vsadga.service.process.impl.TrendProcessorImpl">
 		<property name="configDataService" ref="configDataService" />

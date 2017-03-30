@@ -159,6 +159,7 @@ create table fxschema.arch_data_m5_1(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	volume_type			varchar(1)		not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
 	is_confirm			boolean			null,
@@ -180,6 +181,7 @@ create table fxschema.arch_data_m15_1(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	volume_type			varchar(1)		not null,
 	bar_type			varchar(1)		null,	
 	indicator_nr		integer			null,
 	is_confirm			boolean			null,
@@ -201,6 +203,7 @@ create table fxschema.arch_data_h1_1(
 	bar_close			numeric(10,5)	not null,
 	bar_volume			integer			not null,
 	ima_count			numeric(10,5)	not null,
+	volume_type			varchar(1)		not null,
 	bar_type			varchar(1)		null,
 	indicator_nr		integer			null,
 	is_confirm			boolean			null,
@@ -218,13 +221,15 @@ create table fxschema.trade_alert(
 	id					integer			not null PRIMARY KEY,
 	alert_time			timestamp		not null,
 	alert_message		varchar(500)	not null,
-	symbol_id			smallint		not null,
-	time_frame_id		smallint		not null,
+	alert_type			varchar(1)		not null,	
+	symbol_id			smallint		not null
+						REFERENCES fxschema.currency_symbol(id),
+	time_frame_id		smallint		not null
+						REFERENCES fxschema.time_frame(id),
 	bar_time			timestamp		not null,
 	bar_status			varchar(1)		not null
-						REFERENCES fxschema.currency_symbol(id)
 );
-create unique index trade_alert_idx ON fxschema.trade_alert (bar_time, symbol_id, time_frame_id);
+create unique index trade_alert_idx ON fxschema.trade_alert (bar_time, symbol_id, time_frame_id, alert_type);
 
 CREATE SEQUENCE fxschema.data_m5_seq 
 	INCREMENT BY 1

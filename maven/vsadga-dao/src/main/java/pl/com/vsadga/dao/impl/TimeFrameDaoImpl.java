@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
 import pl.com.vsadga.dao.JdbcDaoBase;
@@ -50,7 +52,8 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 
 	@Override
 	public List<TimeFrame> getByTime(Integer fromTimeFrame, Integer toTimeFrame) {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where time_frame>=? and time_frame<=? order by time_frame desc";
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME
+				+ " where time_frame>=? and time_frame<=? order by time_frame desc";
 
 		return getJdbcTemplate().query(sql, new RowMapper<TimeFrame>() {
 
@@ -59,6 +62,23 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 				return rs2TimeFrameList(rs);
 			}
 		}, fromTimeFrame, toTimeFrame);
+	}
+
+	@Override
+	public TimeFrame getByTimeFrameDesc(String timeFrameDesc) {
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where time_frame_desc=?";
+
+		return getJdbcTemplate().query(sql, new ResultSetExtractor<TimeFrame>() {
+
+			@Override
+			public TimeFrame extractData(ResultSet rs) throws SQLException, DataAccessException {
+				if (rs.next())
+					return rs2TimeFrameList(rs);
+				else
+					return null;
+			}
+			
+		}, timeFrameDesc);
 	}
 
 	private TimeFrame rs2TimeFrameList(final ResultSet rs) throws SQLException {

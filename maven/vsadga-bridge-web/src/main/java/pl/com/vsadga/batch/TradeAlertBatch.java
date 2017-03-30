@@ -1,5 +1,6 @@
 package pl.com.vsadga.batch;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import pl.com.vsadga.data.CurrencySymbol;
 import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.dto.alert.VolumeAlert;
 import pl.com.vsadga.service.BaseServiceException;
 import pl.com.vsadga.service.process.TradeAlertProcessor;
 import pl.com.vsadga.service.symbol.SymbolService;
@@ -32,10 +34,10 @@ public class TradeAlertBatch extends BaseBatch {
 	@Autowired
 	private TradeAlertProcessor tradeAlertProcessor;
 
-	@Scheduled(cron = "15 0/5 * * * SUN-FRI")
+	@Scheduled(cron = "25 0/5 * * * SUN-FRI")
 	public void cronJob() {
 		List<CurrencySymbol> symbol_list = null;
-		List<TimeFrame> tmefrm_list = null;
+		List<VolumeAlert> volAlertList = null;
 
 		try {
 			// sprawdzenie, czy BATCH nie jest zatrzymany:
@@ -44,12 +46,15 @@ public class TradeAlertBatch extends BaseBatch {
 
 			// pobierz listę aktywnych symboli:
 			symbol_list = symbolService.getActiveSymbols();
-			// pobierz listę aktywnych timeframe:
-			tmefrm_list = timeFrameService.getAllActive();
-
-			if (symbol_list.isEmpty() || tmefrm_list.isEmpty()) {
-				LOGGER.info("   [BATCH] Zadne symbole nie sa aktywne [" + symbol_list.size()
-						+ "] ani ramy czasowe [" + tmefrm_list.size() + "].");
+			if (symbol_list.isEmpty()) {
+				LOGGER.info("   [BATCH] Zadne symbole nie sa aktywne [" + symbol_list.size() + "].");
+				return;
+			}
+			
+			// pobierz parametry konfiguracyjne dla wolumenow:
+			volAlertList = getVolumeConfig();
+			if (volAlertList == null) {
+				LOGGER.info("   [BATCH] Brak konfiguracji alertow wolumenu [" + volAlertList + "].");
 				return;
 			}
 			
@@ -64,12 +69,44 @@ public class TradeAlertBatch extends BaseBatch {
 
 				//tradeAlertProcessor.checkTradeAlert(symbol, tmefrm_list);
 				
-				tradeAlertProcessor.checkVolumeSize(symbol, tmefrm_list);
+				tradeAlertProcessor.checkVolumeSize(symbol, volAlertList);
 			}
 
 		} catch (BaseServiceException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private List<VolumeAlert> getVolumeConfig() throws BaseServiceException {
+		String param = getStringParamValue("ALERT_BY_VOLUME_SIZE");
+		
+		if (param == null)
+			throw new BaseServiceException("::getVolumeConfig:: brak parametru ALERT_BY_VOLUME_SIZE [" + param
+					+ "] w tabeli parametrow.");
+		
+		return splitVolumeParams(param);
+	}
+	
+	private static List<VolumeAlert> splitVolumeParams(String volumeParams) {
+		List<VolumeAlert> result = new ArrayList<VolumeAlert>();
+		String[] frame_tab =  volumeParams.split(",");
+		String[] size_tab = null;
+		
+		if (frame_tab.length == 0) {
+			LOGGER.error("   [ALERT] Brak listy parametrow [" + volumeParams + "] oddzielonych znakiem ',' !");
+			return null;
+		}
+		
+		for (String frame : frame_tab) {
+			size_tab = frame.split(":");
+			
+			if (size_tab.length != 2)
+				continue;
+			
+			result.add(new VolumeAlert(size_tab[0], Integer.parseInt(size_tab[1])));
+		}
+		
+		return result;
 	}
 
 	private boolean isProcessBatch() throws BaseServiceException {

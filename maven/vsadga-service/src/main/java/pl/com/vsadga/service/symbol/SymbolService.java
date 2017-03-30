@@ -8,5 +8,11 @@ public interface SymbolService {
 
 	List<CurrencySymbol> getActiveSymbols();
 	
+	List<CurrencySymbol> getAll();
+	
+	CurrencySymbol getById(Integer id);
+	
 	CurrencySymbol getCurrencySymbolByName(String symbolName);
+	
+	int update(CurrencySymbol currencySymbol);
 }

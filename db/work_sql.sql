@@ -283,6 +283,8 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (40, 'CHART_BAR_COUNT_M15', '110');
 insert into fxschema.config_data(id, param_name, param_value)
 values (41, 'CHART_BAR_COUNT_M5', '120');
+insert into fxschema.config_data(id, param_name, param_value)
+values (42, 'ALERT_BY_VOLUME_SIZE', 'M5:300,M15:120,H1:50,H4:15');
 
 -------------------------------------------------------------------------------
 PIVOT POINTS - w ujęciu dziennym lub tygodniowym - najlepsze daje rezultaty.

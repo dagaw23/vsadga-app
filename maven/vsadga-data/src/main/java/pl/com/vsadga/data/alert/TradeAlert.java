@@ -1,4 +1,4 @@
-package pl.com.vsadga.data;
+package pl.com.vsadga.data.alert;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -18,6 +18,11 @@ public class TradeAlert implements Serializable {
 	 * data wystąpienia alertu
 	 */
 	private Date alertTime;
+
+	/**
+	 * typ alertu
+	 */
+	private AlertType alertType;
 
 	/**
 	 * status bara:
@@ -72,6 +77,8 @@ public class TradeAlert implements Serializable {
 				return false;
 		} else if (!alertTime.equals(other.alertTime))
 			return false;
+		if (alertType != other.alertType)
+			return false;
 		if (barStatus == null) {
 			if (other.barStatus != null)
 				return false;
@@ -112,6 +119,13 @@ public class TradeAlert implements Serializable {
 	 */
 	public Date getAlertTime() {
 		return alertTime;
+	}
+
+	/**
+	 * @return the alertType
+	 */
+	public AlertType getAlertType() {
+		return alertType;
 	}
 
 	/**
@@ -160,6 +174,7 @@ public class TradeAlert implements Serializable {
 		int result = 1;
 		result = prime * result + ((alertMessage == null) ? 0 : alertMessage.hashCode());
 		result = prime * result + ((alertTime == null) ? 0 : alertTime.hashCode());
+		result = prime * result + ((alertType == null) ? 0 : alertType.hashCode());
 		result = prime * result + ((barStatus == null) ? 0 : barStatus.hashCode());
 		result = prime * result + ((barTime == null) ? 0 : barTime.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
@@ -182,6 +197,14 @@ public class TradeAlert implements Serializable {
 	 */
 	public void setAlertTime(Date alertTime) {
 		this.alertTime = alertTime;
+	}
+
+	/**
+	 * @param alertType
+	 *            the alertType to set
+	 */
+	public void setAlertType(AlertType alertType) {
+		this.alertType = alertType;
 	}
 
 	/**
@@ -231,9 +254,9 @@ public class TradeAlert implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "TradeAlert [alertMessage=" + alertMessage + ", alertTime=" + alertTime + ", barTime=" + barTime
-				+ ", id=" + id + ", symbolId=" + symbolId + ", timeFrameId=" + timeFrameId + ", barStatus="
-				+ barStatus + "]";
+		return "TradeAlert [alertMessage=" + alertMessage + ", alertTime=" + alertTime + ", alertType="
+				+ alertType + ", barStatus=" + barStatus + ", barTime=" + barTime + ", id=" + id + ", symbolId="
+				+ symbolId + ", timeFrameId=" + timeFrameId + "]";
 	}
 
 }
