@@ -51,6 +51,9 @@
 				<tr><td>
 					<a href="<c:url value="/show-symbol-list.html"/>">Lista symboli</a>
 				</td></tr>
+				<tr><td>
+					<a href="<c:url value="/show-bar-data-list.html"/>">Lista barów</a>
+				</td></tr>
 			</table>
 		</td>
 		<td>

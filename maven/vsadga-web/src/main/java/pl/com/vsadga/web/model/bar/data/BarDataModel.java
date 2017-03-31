@@ -10,9 +10,19 @@ public class BarDataModel {
 	/**
 	 * nazwa symbolu waloru
 	 */
-	private String symbolId;
+	private Integer symbolId;
 
 	public BarDataModel() {
+	}
+	
+	/**
+	 * @param frame
+	 * @param symbolId
+	 */
+	public BarDataModel(String frame, Integer symbolId) {
+		super();
+		this.frame = frame;
+		this.symbolId = symbolId;
 	}
 
 	/**
@@ -25,7 +35,7 @@ public class BarDataModel {
 	/**
 	 * @return the symbolId
 	 */
-	public String getSymbolId() {
+	public Integer getSymbolId() {
 		return symbolId;
 	}
 
@@ -41,7 +51,7 @@ public class BarDataModel {
 	 * @param symbolId
 	 *            the symbolId to set
 	 */
-	public void setSymbolId(String symbolId) {
+	public void setSymbolId(Integer symbolId) {
 		this.symbolId = symbolId;
 	}
 

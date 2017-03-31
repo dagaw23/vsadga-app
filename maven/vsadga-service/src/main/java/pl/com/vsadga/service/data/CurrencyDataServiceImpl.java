@@ -193,4 +193,9 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 		return barDataDao.updateVolumeAbsorbtion(frameDesc, id, volumeAbsorb);		
 	}
 
+	@Override
+	public List<BarData> getPartialData(Integer symbolId, String timeFrameDesc, int limit, Integer rowIdFrom) {
+		return barDataDao.getPartialData(symbolId, timeFrameDesc, limit, rowIdFrom);
+	}
+
 }

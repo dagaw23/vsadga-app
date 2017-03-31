@@ -7,6 +7,8 @@ import java.util.List;
 import pl.com.vsadga.data.BarData;
 
 public interface BarDataDao {
+
+	List<BarData> getPartialData(Integer symbolId, String timeFrameDesc, int limit, Integer rowIdFrom);
 	
 	/**
 	 * Usuwa wszystkie rekordy wg ID, które zostałe przesłane na liście

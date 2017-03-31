@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <html>
@@ -31,7 +32,7 @@
 		</td>
 		<td>
 			<table>
-			<form:form action="symbol-edit-done.html" method="POST" modelAttribute="currencySymbol">
+			<form:form action="../../symbol-edit-done.html" method="POST" modelAttribute="currencySymbol">
 				<tr>
 					<td width="70"/>
 					<td align="right" width="220"/>
@@ -66,6 +67,7 @@
 					<td>
 						<input type="submit" value="Modyfikuj"/>
 					</td>
+					
 				</tr>
 			</form:form>
 			</table>

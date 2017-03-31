@@ -25,6 +25,13 @@ public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbol
 	}
 
 	@Override
+	public int delete(Integer id) {
+		String sql = "delete from " + TAB_NME + " where id=?";
+
+		return getJdbcTemplate().update(sql, id);
+	}
+
+	@Override
 	public List<CurrencySymbol> getActiveSymbols() {
 		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME
 				+ " where is_active is true order by symbol_name";
@@ -87,6 +94,38 @@ public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbol
 		}, symbolName);
 	}
 
+	@Override
+	public Integer getLastId() {
+		String sql = "select max(id) from " + TAB_NME;
+
+		return getJdbcTemplate().query(sql, new ResultSetExtractor<Integer>() {
+
+			@Override
+			public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
+				if (rs.next())
+					return rs.getInt(1);
+				else
+					return null;
+			}
+
+		});
+	}
+
+	@Override
+	public int insert(CurrencySymbol currencySymbol) {
+		String sql = "insert into " + TAB_NME + "(" + ALL_COLUMNS + ") values (?,?,?,?)";
+
+		return getJdbcTemplate().update(sql, currencySymbol.getId(), currencySymbol.getSymbolName(),
+				currencySymbol.getIsActive(), currencySymbol.getFuturesSymbol());
+	}
+
+	@Override
+	public int update(String symbolName, boolean isActive, String futuresSymbol, Integer id) {
+		String sql = "update " + TAB_NME + " set symbol_name=?, is_active=?, futures_symbol=? where id=?";
+
+		return getJdbcTemplate().update(sql, symbolName, isActive, futuresSymbol, id);
+	}
+
 	private CurrencySymbol rs2SymbolList(final ResultSet rs) throws SQLException {
 		CurrencySymbol result = new CurrencySymbol();
 
@@ -96,13 +135,6 @@ public class CurrencySymbolDaoImpl extends JdbcDaoBase implements CurrencySymbol
 		result.setFuturesSymbol(rs.getString("futures_symbol"));
 
 		return result;
-	}
-
-	@Override
-	public int update(String symbolName, boolean isActive, String futuresSymbol, Integer id) {
-		String sql = "update " + TAB_NME + " set symbol_name=?, is_active=?, futures_symbol=? where id=?";
-		
-		return getJdbcTemplate().update(sql, symbolName, isActive, futuresSymbol, id);
 	}
 
 }

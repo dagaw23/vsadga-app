@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <html>
@@ -26,6 +27,9 @@
 				</td></tr>
 				<tr><td>
 					<a href="<c:url value="/show-symbol-list.html"/>">Lista symboli</a>
+				</td></tr>
+				<tr><td>
+					<a href="<c:url value="/show-bar-data-list.html"/>">Lista barów</a>
 				</td></tr>
 			</table>
 		</td>

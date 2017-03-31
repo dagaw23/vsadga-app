@@ -524,4 +524,34 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 			return data_list.get(0);
 	}
 
+	@Override
+	public List<BarData> getPartialData(Integer symbolId, String timeFrameDesc, int limit, Integer rowIdFrom) {
+		String sql = "select " + ALL_COLUMNS + " from " + getTableName(timeFrameDesc) + " where symbol_id=?";
+
+		if (rowIdFrom != null && rowIdFrom.intValue() > 0)
+			sql += " and id<?";
+
+		sql += " order by bar_time asc limit ?";
+
+		if (rowIdFrom != null && rowIdFrom.intValue() > 0) {
+			return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+				@Override
+				public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+					return rs2BarData(rs);
+				}
+
+			}, symbolId, rowIdFrom, limit);
+		} else {
+			return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+				@Override
+				public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+					return rs2BarData(rs);
+				}
+
+			}, symbolId, limit);
+		}
+	}
+
 }

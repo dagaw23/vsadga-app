@@ -13,6 +13,8 @@ import pl.com.vsadga.dto.bar.BarSimpleDto;
 import pl.com.vsadga.service.BaseServiceException;
 
 public interface CurrencyDataService {
+	
+	List<BarData> getPartialData(Integer symbolId, String timeFrameDesc, int limit, Integer rowIdFrom);
 
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = { BaseServiceException.class })
 	void backupArchiveData(String frameDesc, Date barDate, Integer tableNr) throws BaseServiceException;
