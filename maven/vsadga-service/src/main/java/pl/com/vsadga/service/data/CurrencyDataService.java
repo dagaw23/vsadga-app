@@ -14,7 +14,7 @@ import pl.com.vsadga.service.BaseServiceException;
 
 public interface CurrencyDataService {
 	
-	List<BarData> getPartialData(Integer symbolId, String timeFrameDesc, int limit, Integer rowIdFrom);
+	List<BarData> getPartialData(Integer symbolId, String timeFrameDesc, int limit, String dateFrom, String mode);
 
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = { BaseServiceException.class })
 	void backupArchiveData(String frameDesc, Date barDate, Integer tableNr) throws BaseServiceException;
@@ -46,6 +46,8 @@ public interface CurrencyDataService {
 	 * @throws BaseServiceException
 	 */
 	List<BarData> getBarDataList(Integer symbolId, String timeFrameDesc, Date startTime) throws BaseServiceException;
+	
+	List<BarData> getLastBarDataSortAsc(Integer symbolId, String frameDesc, int barCount) throws BaseServiceException;
 	
 	int insertOrUpdate(String frameDesc, BarData barData) throws BaseServiceException;
 

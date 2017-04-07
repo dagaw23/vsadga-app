@@ -77,7 +77,7 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		String sql = "select id, bar_time, bar_low, bar_high, bar_close, bar_volume, "
 				+ "ima_count, bar_type, indicator_nr, indicator_weight, is_confirm, "
 				+ "trend_indicator, trend_weight, volume_thermometer, volume_absorb, "
-				+ "volume_type, volume_size, spread_size, process_phase, symbol_id from " 
+				+ "volume_type, volume_size, spread_size, process_phase, symbol_id from "
 				+ getTableName(frameDesc) + " where bar_time < ? order by bar_time asc";
 
 		return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
@@ -171,6 +171,21 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
+	public List<BarData> getLastBarDataSortAsc(Integer symbolId, String frameDesc, int barCount) {
+		String sql = "select IN1.* from (select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
+				+ " where symbol_id=? order by bar_time desc LIMIT ?) as IN1 order by bar_time asc";
+
+		return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+			@Override
+			public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2BarData(rs);
+			}
+
+		}, symbolId, barCount);
+	}
+
+	@Override
 	public List<BarData> getLastNbarsDataToDate(Integer symbolId, String frameDesc, int size, Date cutoffDate) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(frameDesc)
 				+ " where symbol_id=? and bar_time<=? order by bar_time desc";
@@ -248,12 +263,14 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 		return getJdbcTemplate().update(sql, data.getBarTime(), data.getBarLow(), data.getBarHigh(),
 				data.getBarClose(), data.getBarVolume(), data.getImaCount(), convert(data.getBarType()),
 				data.getIndicatorNr(), data.getIsConfirm(), data.getTrendIndicator(), data.getTrendWeight(),
-				data.getVolumeType(), data.getVolumeAbsorb(), convert(data.getVolumeSize()), data.getProcessPhase(), data.getSymbolId());
+				data.getVolumeType(), data.getVolumeAbsorb(), convert(data.getVolumeSize()),
+				data.getProcessPhase(), data.getSymbolId());
 	}
-	
+
 	@Override
 	public int update(String frameDesc, BarData barData) {
-		String sql = "update " + getTableName(frameDesc)
+		String sql = "update "
+				+ getTableName(frameDesc)
 				+ " set bar_low=?, bar_high=?, bar_close=?, bar_volume=?, volume_type=? where symbol_id=? and bar_time=?";
 
 		return getJdbcTemplate().update(sql, barData.getBarLow(), barData.getBarHigh(), barData.getBarClose(),
@@ -262,20 +279,24 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 
 	@Override
 	public int update(String frameDesc, BarData barData, Integer processPhase) {
-		String sql = "update " + getTableName(frameDesc)
+		String sql = "update "
+				+ getTableName(frameDesc)
 				+ " set bar_low=?, bar_high=?, bar_close=?, bar_volume=?, volume_type=?, process_phase=? where symbol_id=? and bar_time=?";
 
 		return getJdbcTemplate().update(sql, barData.getBarLow(), barData.getBarHigh(), barData.getBarClose(),
-				barData.getBarVolume(), barData.getVolumeType(), processPhase, barData.getSymbolId(), barData.getBarTime());
+				barData.getBarVolume(), barData.getVolumeType(), processPhase, barData.getSymbolId(),
+				barData.getBarTime());
 	}
 
 	@Override
 	public int update(String frameDesc, Integer id, BarData barData) {
-		String sql = "update " + getTableName(frameDesc)
+		String sql = "update "
+				+ getTableName(frameDesc)
 				+ " set bar_low=?, bar_high=?, bar_close=?, bar_volume=?, volume_type=?, ima_count=?, process_phase=? where id=?";
 
 		return getJdbcTemplate().update(sql, barData.getBarLow(), barData.getBarHigh(), barData.getBarClose(),
-				barData.getBarVolume(), barData.getVolumeType(), barData.getImaCount(), barData.getProcessPhase(), id);
+				barData.getBarVolume(), barData.getVolumeType(), barData.getImaCount(), barData.getProcessPhase(),
+				id);
 	}
 
 	@Override
@@ -525,15 +546,15 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 	}
 
 	@Override
-	public List<BarData> getPartialData(Integer symbolId, String timeFrameDesc, int limit, Integer rowIdFrom) {
+	public List<BarData> getPartialDataNext(Integer symbolId, String timeFrameDesc, int limit, Date dateFrom) {
 		String sql = "select " + ALL_COLUMNS + " from " + getTableName(timeFrameDesc) + " where symbol_id=?";
 
-		if (rowIdFrom != null && rowIdFrom.intValue() > 0)
-			sql += " and id<?";
+		if (dateFrom != null)
+			sql += " and bar_time < ?";
 
-		sql += " order by bar_time asc limit ?";
+		sql += " order by bar_time desc limit ?";
 
-		if (rowIdFrom != null && rowIdFrom.intValue() > 0) {
+		if (dateFrom != null) {
 			return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
 
 				@Override
@@ -541,7 +562,38 @@ public class BarDataDaoImpl extends JdbcDaoBase implements BarDataDao {
 					return rs2BarData(rs);
 				}
 
-			}, symbolId, rowIdFrom, limit);
+			}, symbolId, new Timestamp(dateFrom.getTime()), limit);
+		} else {
+			return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+				@Override
+				public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+					return rs2BarData(rs);
+				}
+
+			}, symbolId, limit);
+		}
+	}
+
+	@Override
+	public List<BarData> getPartialDataPrev(Integer symbolId, String timeFrameDesc, int limit, Date dateFrom) {
+		String sql = "select IN1.* from (" + "select " + ALL_COLUMNS + " from " + getTableName(timeFrameDesc)
+				+ " where symbol_id=?";
+
+		if (dateFrom != null)
+			sql += " and bar_time > ?";
+
+		sql += " order by bar_time asc limit ?) as IN1 order by bar_time desc";
+
+		if (dateFrom != null) {
+			return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
+
+				@Override
+				public BarData mapRow(ResultSet rs, int rowNum) throws SQLException {
+					return rs2BarData(rs);
+				}
+
+			}, symbolId, new Timestamp(dateFrom.getTime()), limit);
 		} else {
 			return getJdbcTemplate().query(sql, new RowMapper<BarData>() {
 

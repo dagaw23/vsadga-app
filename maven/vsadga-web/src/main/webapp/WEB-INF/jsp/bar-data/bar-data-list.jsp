@@ -32,12 +32,15 @@
 				<tr><td>
 					<a href="<c:url value="/show-bar-data-list.html"/>">Lista barów</a>
 				</td></tr>
+				<tr><td>
+					<a href="<c:url value="/show-bar-data-chart.html"/>">Wykres barów</a>
+				</td></tr>
 			</table>
 		</td>
 		<td>
 			<table>
 				<tr>
-					<form:form action="bar-data-filter.html" method="POST" modelAttribute="barDataModel">
+					<form:form action="${pageContext.request.contextPath}/bar-data-filter.html" method="POST" modelAttribute="barDataModel">
 					<td>Ramki czasowe:</td>
 					<td>
 						<form:select path="frame">
@@ -95,32 +98,37 @@
 					<td><c:out value="${row.volumeSize}"></c:out></td>
 				</tr>
 				</c:forEach>
+
+				<c:if test="${barDataList.size() > 0}">
+					<spring:url value="/bar-data/${barDataModel.symbolId}/${barDataModel.frame}/first.html" var="firstUrl"/>
+					<spring:url value="/bar-data/${barDateEnd}/${barDataModel.symbolId}/${barDataModel.frame}/next.html" var="nextUrl"/>
+					<spring:url value="/bar-data/${barDateBegin}/${barDataModel.symbolId}/${barDataModel.frame}/prev.html" var="prevUrl"/>
+					<spring:url value="/bar-data/${barDataModel.symbolId}/${barDataModel.frame}/last.html" var="lastUrl"/>
 				
-				<spring:url value="/bar-data/${rowId}/${barDataModel.symbolId}/${barDataModel.frame}/next.html" var="nextUrl"/>
-				<spring:url value="/bar-data/${rowId}/${barDataModel.symbolId}/${barDataModel.frame}/prev.html" var="prevUrl"/>
-				<tr>
-					<td width="70">
-						<c:out value="<<<"/>
-					</td>
-					<td width="70">
-						<a href="${nextUrl}"><c:out value="<"/></a>
-					</td>
-					<td width="70">
-						<a href="${nextUrl}"><c:out value=">"/></a>
-					</td>
-					<td width="70">
-						<c:out value=">>>"/>
-					</td>
-					<td width="70"/>
-					<td width="70"/>
-					<td width="70"/>
-					<td width="70"/>
-					<td width="70"/>
-					<td width="70"/>
-					<td width="70"/>
-					<td width="70"/>
-					<td width="70"/>
-				</tr>
+					<tr>
+						<td width="70">
+							<a href="${firstUrl}"><c:out value="<<<"/></a>
+						</td>
+						<td width="70">
+							<a href="${prevUrl}"><c:out value="<"/></a>
+						</td>
+						<td width="70">
+							<a href="${nextUrl}"><c:out value=">"/></a>
+						</td>
+						<td width="70">
+							<a href="${lastUrl}"><c:out value=">>>"/></a>
+						</td>
+						<td width="70"/>
+						<td width="70"/>
+						<td width="70"/>
+						<td width="70"/>
+						<td width="70"/>
+						<td width="70"/>
+						<td width="70"/>
+						<td width="70"/>
+						<td width="70"/>
+					</tr>
+				</c:if>
 			</table>
 		</td>
 	</tr>

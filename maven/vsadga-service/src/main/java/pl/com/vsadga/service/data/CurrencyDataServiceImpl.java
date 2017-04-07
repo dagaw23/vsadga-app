@@ -1,11 +1,13 @@
 package pl.com.vsadga.service.data;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,6 +113,17 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 			throw new BaseServiceException("::getLastNbarData:: wyjatek " + th.getCause() + "!", th);
 		}
 	}
+	
+	@Override
+	public List<BarData> getLastBarDataSortAsc(Integer symbolId, String frameDesc, int barCount) throws BaseServiceException {
+		
+		try {
+			return barDataDao.getLastBarDataSortAsc(symbolId, frameDesc, barCount);
+		} catch (Throwable th) {
+			th.printStackTrace();
+			throw new BaseServiceException("::getLastBarDataSortAsc:: wyjatek " + th.getCause() + "!", th);
+		}
+	}
 
 	@Override
 	public List<BarSimpleDto> getLastNbarData(int size, Integer symbolId, String timeFrameDesc)
@@ -194,8 +207,26 @@ public class CurrencyDataServiceImpl implements CurrencyDataService {
 	}
 
 	@Override
-	public List<BarData> getPartialData(Integer symbolId, String timeFrameDesc, int limit, Integer rowIdFrom) {
-		return barDataDao.getPartialData(symbolId, timeFrameDesc, limit, rowIdFrom);
+	public List<BarData> getPartialData(Integer symbolId, String timeFrameDesc, int limit, String dateFrom,
+			String mode) {
+		Date date_from = null;
+
+		try {
+			if (dateFrom != null && !dateFrom.trim().isEmpty())
+				date_from = DateConverter.stringToDate(dateFrom, "yyMMdd-HH:mm");
+		} catch (ParseException e) {
+			e.printStackTrace();
+			LOGGER.error("::getPartialData:: wyjatek ParseException podczas konwersji [" + dateFrom + "]!");
+		}
+
+		if (mode.toUpperCase().equals("NEXT")) {
+			return barDataDao.getPartialDataNext(symbolId, timeFrameDesc, limit, date_from);
+		} else if (mode.toUpperCase().equals("PREV")) {
+			return barDataDao.getPartialDataPrev(symbolId, timeFrameDesc, limit, date_from);
+		} else {
+			// domyślnie NEXT:
+			return barDataDao.getPartialDataNext(symbolId, timeFrameDesc, limit, date_from);
+		}
 	}
 
 }

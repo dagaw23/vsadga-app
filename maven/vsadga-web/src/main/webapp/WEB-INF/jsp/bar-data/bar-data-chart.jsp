@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <html>
 <head>
@@ -14,7 +15,7 @@
 <body>
 	<br>
 	<br>
-	
+
 	<table>
 	<tr>
 		<td>
@@ -39,39 +40,35 @@
 		<td>
 			<table>
 				<tr>
-					<td width="70"/>
-					<td width="150" align="center" style="">Nazwa symbolu</td>
-					<td width="150" align="center">Symbol z kontraktu</td>
-					<td width="150" align="center">Aktywność</td>
-					<td width="70"/>
-					<td width="70"/>
-				</tr>
-				<c:forEach var="row" items="${symbolList}">
-				<tr>
-					<td/>
-					<td><c:out value="${row.symbolName}"></c:out></td>
-					<td><c:out value="${row.futuresSymbol}"></c:out></td>
-					<td><c:out value="${row.isActive}"></c:out></td>
+					<form:form action="bar-data-chart.html" method="POST" modelAttribute="barDataChartModel">
+					<td>Ramki czasowe:</td>
 					<td>
-						<spring:url value="symbol-edit/${row.id}/update.html" var="updateUrl"/>
-						<button onclick="location.href='${updateUrl}'">Modyfikuj</button>
+						<form:select path="frame">
+							<form:option value="ALL" label="--- wybierz ---"/>
+							<form:options items="${frameList}" itemValue="timeFrameDesc" itemLabel="timeFrame"/>
+						</form:select>
 					</td>
+					<td>Symbole:</td>
 					<td>
-						<spring:url value="symbol-edit/${row.id}/delete.html" var="deleteUrl"/>
-						<button onclick="location.href='${deleteUrl}'">Usuń</button>
+						<form:select path="symbolId">
+							<form:option value="ALL" label="--- wybierz ---"/>
+							<form:options items="${symbolList}" itemValue="id" itemLabel="symbolName"/>
+						</form:select>
 					</td>
-				</tr>
-				</c:forEach>
-				<tr>
-					<td/>
+					<td>Ilosc:</td>
 					<td>
-						<spring:url value="symbol-edit/add.html" var="addUrl"/>
-						<button onclick="location.href='${addUrl}'">Dodaj nowy</button>
+						<form:select path="barCount">
+							<form:option value="50" label="25"/>
+							<form:option value="50" label="50"/>
+							<form:option value="100" label="100"/>
+							<form:option value="150" label="150"/>
+							<form:option value="200" label="200"/>
+							<form:option value="200" label="250"/>
+							<form:option value="200" label="300"/>
+						</form:select>
 					</td>
-					<td/>
-					<td/>
-					<td/>
-					<td/>
+					<td><input type="submit" name="submit" value="Chart"/></td>
+					</form:form>
 				</tr>
 			</table>
 		</td>

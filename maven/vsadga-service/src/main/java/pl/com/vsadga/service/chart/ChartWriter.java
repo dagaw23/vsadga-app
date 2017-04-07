@@ -1,5 +1,6 @@
 package pl.com.vsadga.service.chart;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
 import pl.com.vsadga.data.CurrencySymbol;
@@ -15,8 +16,14 @@ public interface ChartWriter {
 
 	public void initConfigParams(String pathToJasperFile, String pathToJpgFile, String pathToPdfFile,
 			Map<TimeFrameName, Integer> frameConfigMap) throws BaseServiceException;
+	
+	public void initConfigParams(String pathToJasperFile, String pathToJpgFile) throws BaseServiceException;
+	
+	public boolean isNotInitConfig();
 
 	public void writeChartToJpg(CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException;
+	
+	public ByteArrayOutputStream writeChartToJpg(CurrencySymbol symbol, String timeFrameDesc, int barCount) throws BaseServiceException;
 	
 	public void writeAccumulateChartToJpg(CurrencySymbol symbol, TimeFrame timeFrame) throws BaseServiceException;
 

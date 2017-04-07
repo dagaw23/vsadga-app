@@ -8,7 +8,9 @@ import pl.com.vsadga.data.BarData;
 
 public interface BarDataDao {
 
-	List<BarData> getPartialData(Integer symbolId, String timeFrameDesc, int limit, Integer rowIdFrom);
+	List<BarData> getPartialDataNext(Integer symbolId, String timeFrameDesc, int limit, Date dateFrom);
+	
+	List<BarData> getPartialDataPrev(Integer symbolId, String timeFrameDesc, int limit, Date dateFrom);
 	
 	/**
 	 * Usuwa wszystkie rekordy wg ID, które zostałe przesłane na liście
@@ -42,6 +44,17 @@ public interface BarDataDao {
 	int getRowNumber(Integer symbolId, String frameDesc, Date barTime);
 
 	List<BarData> getLastNbarsData(Integer symbolId, String frameDesc, int size);
+	
+	/**
+	 * Pobiera najwcześniej zapisane bary do tabeli w podanej ilości oraz posortowane rosnąco wg daty bara.
+	 * 
+	 * @param symbolId
+	 * @param frameDesc
+	 * @param barCount ilość pobieranych barów
+	 * 
+	 * @return
+	 */
+	List<BarData> getLastBarDataSortAsc(Integer symbolId, String frameDesc, int barCount);
 	
 	List<BarData> getLastNbarsDataToDate(Integer symbolId, String frameDesc, int size, Date cutoffDate);
 
