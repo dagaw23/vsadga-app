@@ -145,10 +145,12 @@ create table fxschema.data_w1(
 create unique index data_w1_idx ON fxschema.data_w1 (bar_time, symbol_id);
 
 create table fxschema.time_frame(
-	id				smallint		not null PRIMARY KEY,
-	time_frame		integer			not null,
-	time_frame_desc varchar(10)		not null,
-	is_active		boolean			not null
+	id					smallint		not null PRIMARY KEY,
+	time_frame			integer			not null,
+	time_frame_desc 	varchar(10)		not null,
+	is_file_frame		boolean			not null,
+	is_logical_frame	boolean			not null,
+	is_active			boolean			not null
 );
 
 create table fxschema.arch_data_m5_1(
@@ -388,4 +390,6 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (40, 'CHART_BAR_COUNT_M15', '110');
 insert into fxschema.config_data(id, param_name, param_value)
 values (41, 'CHART_BAR_COUNT_M5', '120');
+insert into fxschema.config_data(id, param_name, param_value)
+values (42, 'ALERT_BY_VOLUME_SIZE', 'M5:300,M15:120,H1:50,H4:15');
 

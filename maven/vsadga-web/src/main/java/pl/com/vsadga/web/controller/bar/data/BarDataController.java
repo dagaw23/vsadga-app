@@ -52,7 +52,7 @@ public class BarDataController extends BaseController {
 		model.addAttribute("symbolList", symbolService.getActiveSymbols());
 
 		// lista ramek:
-		model.addAttribute("frameList", timeFrameService.getAllActive());
+		model.addAttribute("frameList", timeFrameService.getAll());
 
 		// lista danych:
 		List<BarData> data_list = currencyDataService.getPartialData(barDataModel.getSymbolId(),
@@ -81,7 +81,7 @@ public class BarDataController extends BaseController {
 		model.addAttribute("symbolList", symbolService.getActiveSymbols());
 
 		// lista ramek:
-		model.addAttribute("frameList", timeFrameService.getAllActive());
+		model.addAttribute("frameList", timeFrameService.getAll());
 
 		// lista danych:
 		List<BarData> data_list = currencyDataService.getPartialData(symbolId, frame, 20, null, "next");
@@ -110,7 +110,7 @@ public class BarDataController extends BaseController {
 		model.addAttribute("symbolList", symbolService.getActiveSymbols());
 
 		// lista ramek:
-		model.addAttribute("frameList", timeFrameService.getAllActive());
+		model.addAttribute("frameList", timeFrameService.getAll());
 
 		// lista danych:
 		List<BarData> data_list = currencyDataService.getPartialData(symbolId, frame, 20, null, "prev");
@@ -139,7 +139,7 @@ public class BarDataController extends BaseController {
 		model.addAttribute("symbolList", symbolService.getActiveSymbols());
 
 		// lista ramek:
-		model.addAttribute("frameList", timeFrameService.getAllActive());
+		model.addAttribute("frameList", timeFrameService.getAll());
 
 		// lista danych:
 		List<BarData> data_list = currencyDataService.getPartialData(symbolId, frame, 20, dateFrom, "next");
@@ -168,7 +168,7 @@ public class BarDataController extends BaseController {
 		model.addAttribute("symbolList", symbolService.getActiveSymbols());
 
 		// lista ramek:
-		model.addAttribute("frameList", timeFrameService.getAllActive());
+		model.addAttribute("frameList", timeFrameService.getAll());
 
 		// lista danych:
 		List<BarData> data_list = currencyDataService.getPartialData(symbolId, frame, 20, dateFrom, "prev");
@@ -241,7 +241,7 @@ public class BarDataController extends BaseController {
 		mav.addObject("symbolList", symbolService.getActiveSymbols());
 
 		// lista ramek:
-		mav.addObject("frameList", timeFrameService.getAllActive());
+		mav.addObject("frameList", timeFrameService.getAll());
 
 		mav.addObject("barDataModel", new BarDataModel());
 

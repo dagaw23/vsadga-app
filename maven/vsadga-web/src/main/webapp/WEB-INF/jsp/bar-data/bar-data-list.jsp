@@ -30,6 +30,9 @@
 					<a href="<c:url value="/show-symbol-list.html"/>">Lista symboli</a>
 				</td></tr>
 				<tr><td>
+					<a href="<c:url value="/show-frame-list.html"/>">Lista ramek</a>
+				</td></tr>
+				<tr><td>
 					<a href="<c:url value="/show-bar-data-list.html"/>">Lista barów</a>
 				</td></tr>
 				<tr><td>
@@ -45,7 +48,7 @@
 					<td>
 						<form:select path="frame">
 							<form:option value="ALL" label="--- wybierz ---"/>
-							<form:options items="${frameList}" itemValue="timeFrameDesc" itemLabel="timeFrame"/>
+							<form:options items="${frameList}" itemValue="timeFrameDesc" itemLabel="timeFrameDesc"/>
 						</form:select>
 					</td>
 					<td>Symbole:</td>

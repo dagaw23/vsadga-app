@@ -3,7 +3,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <html>
 <head>
-	<title>Konfiguracja pojedynczego symbolu</title>
+	<title>Konfiguracja pojedynczej ramki</title>
 	<style type="text/css">
 	body {
 		background-image: url('images/bg.png');
@@ -41,7 +41,7 @@
 		</td>
 		<td>
 			<table>
-			<form:form action="../../symbol-edit-done.html" method="POST" modelAttribute="currencySymbol">
+			<form:form action="../../frame-edit-done.html" method="POST" modelAttribute="timeFrame">
 				<tr>
 					<td width="70"/>
 					<td align="right" width="220"/>
@@ -51,16 +51,30 @@
 				</tr>
 				<tr>
 					<td/>
-					<td align="right" width="220">Nazwa symbolu:</td>
+					<td align="right" width="220">Minuty ramki:</td>
 					<td width="220">
-						<form:input path="symbolName"/>
+						<form:input path="timeFrame"/>
 					</td>
 				</tr>
 				<tr>
 					<td width="70"/>
-					<td align="right" width="220">Nazwa kontraktu:</td>
+					<td align="right" width="220">Opis ramki:</td>
 					<td width="220">
-						<form:input path="futuresSymbol"/>
+						<form:input path="timeFrameDesc"/>
+					</td>
+				</tr>
+				<tr>
+					<td width="70"/>
+					<td align="right" width="220">Ramka wg pliku:</td>
+					<td width="220">
+						<form:checkbox path="isFileFrame"/>
+					</td>
+				</tr>
+				<tr>
+					<td width="70"/>
+					<td align="right" width="220">Ramka logiczna:</td>
+					<td width="220">
+						<form:checkbox path="isLogicalFrame"/>
 					</td>
 				</tr>
 				<tr>

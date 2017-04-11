@@ -12,6 +12,10 @@ public class TimeFrame implements Serializable {
 
 	private Boolean isActive;
 
+	private Boolean isFileFrame;
+
+	private Boolean isLogicalFrame;
+
 	private Integer timeFrame;
 
 	private String timeFrameDesc;
@@ -39,6 +43,16 @@ public class TimeFrame implements Serializable {
 			if (other.isActive != null)
 				return false;
 		} else if (!isActive.equals(other.isActive))
+			return false;
+		if (isFileFrame == null) {
+			if (other.isFileFrame != null)
+				return false;
+		} else if (!isFileFrame.equals(other.isFileFrame))
+			return false;
+		if (isLogicalFrame == null) {
+			if (other.isLogicalFrame != null)
+				return false;
+		} else if (!isLogicalFrame.equals(other.isLogicalFrame))
 			return false;
 		if (timeFrame == null) {
 			if (other.timeFrame != null)
@@ -68,6 +82,20 @@ public class TimeFrame implements Serializable {
 	}
 
 	/**
+	 * @return the isFileFrame
+	 */
+	public Boolean getIsFileFrame() {
+		return isFileFrame;
+	}
+
+	/**
+	 * @return the isLogicalFrame
+	 */
+	public Boolean getIsLogicalFrame() {
+		return isLogicalFrame;
+	}
+
+	/**
 	 * @return the timeFrame
 	 */
 	public Integer getTimeFrame() {
@@ -92,6 +120,8 @@ public class TimeFrame implements Serializable {
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
+		result = prime * result + ((isFileFrame == null) ? 0 : isFileFrame.hashCode());
+		result = prime * result + ((isLogicalFrame == null) ? 0 : isLogicalFrame.hashCode());
 		result = prime * result + ((timeFrame == null) ? 0 : timeFrame.hashCode());
 		result = prime * result + ((timeFrameDesc == null) ? 0 : timeFrameDesc.hashCode());
 		return result;
@@ -111,6 +141,22 @@ public class TimeFrame implements Serializable {
 	 */
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
+	}
+
+	/**
+	 * @param isFileFrame
+	 *            the isFileFrame to set
+	 */
+	public void setIsFileFrame(Boolean isFileFrame) {
+		this.isFileFrame = isFileFrame;
+	}
+
+	/**
+	 * @param isLogicalFrame
+	 *            the isLogicalFrame to set
+	 */
+	public void setIsLogicalFrame(Boolean isLogicalFrame) {
+		this.isLogicalFrame = isLogicalFrame;
 	}
 
 	/**
@@ -136,8 +182,9 @@ public class TimeFrame implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "TimeFrameList [id=" + id + ", timeFrame=" + timeFrame + ", timeFrameDesc=" + timeFrameDesc
-				+ ", isActive=" + isActive + "]";
+		return "TimeFrame [id=" + id + ", isActive=" + isActive + ", isFileFrame=" + isFileFrame
+				+ ", isLogicalFrame=" + isLogicalFrame + ", timeFrame=" + timeFrame + ", timeFrameDesc="
+				+ timeFrameDesc + "]";
 	}
 
 }

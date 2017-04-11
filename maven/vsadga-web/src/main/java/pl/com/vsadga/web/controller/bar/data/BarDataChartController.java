@@ -52,7 +52,7 @@ public class BarDataChartController extends BaseController {
 		mav.addObject("symbolList", symbolService.getActiveSymbols());
 
 		// lista ramek:
-		mav.addObject("frameList", timeFrameService.getAllActive());
+		mav.addObject("frameList", timeFrameService.getAll());
 
 		mav.addObject("barDataChartModel", new BarDataChartModel());
 

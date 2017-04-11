@@ -16,7 +16,7 @@ import pl.com.vsadga.data.TimeFrame;
 
 public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 
-	private final String ALL_COLUMNS = "id, time_frame, time_frame_desc, is_active";
+	private final String ALL_COLUMNS = "id, time_frame, time_frame_desc, is_file_frame, is_logical_frame, is_active";
 
 	private final String TAB_NME = "fxschema.time_frame";
 
@@ -26,7 +26,7 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 
 	@Override
 	public List<TimeFrame> getAll() {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " order by time_frame desc";
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " order by time_frame asc";
 
 		return getJdbcTemplate().query(sql, new RowMapper<TimeFrame>() {
 
@@ -39,7 +39,36 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 
 	@Override
 	public List<TimeFrame> getAllActive() {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where is_active is true order by time_frame";
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME
+				+ " where is_active is true order by time_frame asc";
+
+		return getJdbcTemplate().query(sql, new RowMapper<TimeFrame>() {
+
+			@Override
+			public TimeFrame mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2TimeFrameList(rs);
+			}
+		});
+	}
+
+	@Override
+	public List<TimeFrame> getAllFile() {
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME
+				+ " where is_file_frame is true order by time_frame asc";
+
+		return getJdbcTemplate().query(sql, new RowMapper<TimeFrame>() {
+
+			@Override
+			public TimeFrame mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2TimeFrameList(rs);
+			}
+		});
+	}
+
+	@Override
+	public List<TimeFrame> getAllLogical() {
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME
+				+ " where is_logical_frame is true order by time_frame asc";
 
 		return getJdbcTemplate().query(sql, new RowMapper<TimeFrame>() {
 
@@ -77,7 +106,7 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 				else
 					return null;
 			}
-			
+
 		}, timeFrameDesc);
 	}
 
@@ -86,6 +115,8 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 
 		obj.setId(rs.getInt("id"));
 		obj.setIsActive(rs.getBoolean("is_active"));
+		obj.setIsFileFrame(rs.getBoolean("is_file_frame"));
+		obj.setIsLogicalFrame(rs.getBoolean("is_logical_frame"));
 		obj.setTimeFrame(rs.getInt("time_frame"));
 		obj.setTimeFrameDesc(rs.getString("time_frame_desc"));
 

@@ -10,6 +10,10 @@ public interface TimeFrameDao {
 	
 	List<TimeFrame> getAllActive();
 	
+	List<TimeFrame> getAllLogical();
+	
+	List<TimeFrame> getAllFile();
+	
 	List<TimeFrame> getByTime(Integer fromTimeFrame, Integer toTimeFrame);
 	
 	TimeFrame getByTimeFrameDesc(String timeFrameDesc);

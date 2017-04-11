@@ -43,24 +43,28 @@
 			<table>
 				<tr>
 					<td width="70"/>
-					<td width="150" align="center" style="">Nazwa symbolu</td>
-					<td width="150" align="center">Symbol z kontraktu</td>
+					<td width="150" align="center" style="">Minuty ramki</td>
+					<td width="150" align="center">Opis ramki</td>
+					<td width="150" align="center">Ramka wg pliku</td>
+					<td width="150" align="center">Ramka logiczna</td>
 					<td width="150" align="center">Aktywność</td>
 					<td width="70"/>
 					<td width="70"/>
 				</tr>
-				<c:forEach var="row" items="${symbolList}">
+				<c:forEach var="row" items="${frameList}">
 				<tr>
 					<td/>
-					<td><c:out value="${row.symbolName}"></c:out></td>
-					<td><c:out value="${row.futuresSymbol}"></c:out></td>
+					<td><c:out value="${row.timeFrame}"></c:out></td>
+					<td><c:out value="${row.timeFrameDesc}"></c:out></td>
+					<td><c:out value="${row.isFileFrame}"></c:out></td>
+					<td><c:out value="${row.isLogicalFrame}"></c:out></td>
 					<td><c:out value="${row.isActive}"></c:out></td>
 					<td>
-						<spring:url value="symbol-edit/${row.id}/update.html" var="updateUrl"/>
+						<spring:url value="frame-edit/${row.id}/update.html" var="updateUrl"/>
 						<button onclick="location.href='${updateUrl}'">Modyfikuj</button>
 					</td>
 					<td>
-						<spring:url value="symbol-edit/${row.id}/delete.html" var="deleteUrl"/>
+						<spring:url value="frame-edit/${row.id}/delete.html" var="deleteUrl"/>
 						<button onclick="location.href='${deleteUrl}'">Usuń</button>
 					</td>
 				</tr>
@@ -68,9 +72,11 @@
 				<tr>
 					<td/>
 					<td>
-						<spring:url value="symbol-edit/add.html" var="addUrl"/>
+						<spring:url value="frame-edit/add.html" var="addUrl"/>
 						<button onclick="location.href='${addUrl}'">Dodaj nowy</button>
 					</td>
+					<td/>
+					<td/>
 					<td/>
 					<td/>
 					<td/>
