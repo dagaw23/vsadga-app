@@ -2,7 +2,7 @@ package pl.com.vsadga.service.alert;
 
 import java.util.List;
 
-import pl.com.vsadga.data.alert.TradeAlert;
+import pl.com.vsadga.dto.alert.TradeAlertDto;
 
 public interface TradeAlertService {
 
@@ -11,7 +11,7 @@ public interface TradeAlertService {
 	 * 
 	 * @return
 	 */
-	List<TradeAlert> getActualTradeAlertList();
+	List<TradeAlertDto> getActualTradeAlertList(int dayBackLimit);
 	
-	List<TradeAlert> getByFrameAndSymbol(String symbol, String frame);
+	List<TradeAlertDto> getByFrameAndSymbol(String symbol, String frame, int dayBackLimit);
 }

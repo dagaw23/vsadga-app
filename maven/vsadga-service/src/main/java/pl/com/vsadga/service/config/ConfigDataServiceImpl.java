@@ -40,6 +40,22 @@ public class ConfigDataServiceImpl implements ConfigDataService {
 		}
 	}
 
+	@Override
+	public int getParamWithDefaultValue(String paramName, String defaultValue) {
+		try {
+			String value = configDataDao.getParam(paramName);
+
+			if (value == null || value.trim().isEmpty())
+				return Integer.valueOf(defaultValue);
+			else
+				return Integer.valueOf(value);
+
+		} catch (Throwable th) {
+			th.printStackTrace();
+			return Integer.valueOf(defaultValue);
+		}
+	}
+
 	/**
 	 * @param configDataDao
 	 *            the configDataDao to set

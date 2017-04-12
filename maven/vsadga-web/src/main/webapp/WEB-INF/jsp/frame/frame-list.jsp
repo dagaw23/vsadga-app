@@ -43,7 +43,7 @@
 			<table>
 				<tr>
 					<td width="70"/>
-					<td width="150" align="center" style="">Minuty ramki</td>
+					<td width="150" align="center">Minuty ramki</td>
 					<td width="150" align="center">Opis ramki</td>
 					<td width="150" align="center">Ramka wg pliku</td>
 					<td width="150" align="center">Ramka logiczna</td>

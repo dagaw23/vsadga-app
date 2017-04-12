@@ -70,7 +70,7 @@
 					<td>
 						<form:select path="frameSelected">
 							<form:option value="ALL" label="--- wszystkie ---"/>
-							<form:options items="${frameList}" itemValue="id" itemLabel="timeFrame"/>
+							<form:options items="${frameList}" itemValue="id" itemLabel="timeFrameDesc"/>
 						</form:select>
 					</td>
 					<td>Symbole:</td>
@@ -88,8 +88,10 @@
 			<table>
 				<c:forEach items="${alertList}" var="alert">
 				<tr>
-					<td>${alert.alertMessage}</td>
-					<td>${alert.alertType}</td>
+					<td width="120" align="center">${alert.timeFrameDesc}</td>
+					<td width="120" align="center">${alert.symbolName}</td>
+					<td width="120" align="center">${alert.barTime}</td>
+					<td width="120" align="center">${alert.alertType}</td>
 				</tr>
 				</c:forEach>
 			</table>

@@ -11,8 +11,7 @@ public class TimeFrameServiceImpl implements TimeFrameService {
 
 	@Override
 	public int delete(Integer id) {
-		// TODO Auto-generated method stub
-		return 0;
+		return timeFrameListDao.delete(id);
 	}
 
 	@Override
@@ -37,8 +36,7 @@ public class TimeFrameServiceImpl implements TimeFrameService {
 
 	@Override
 	public TimeFrame getById(Integer id) {
-		// TODO Auto-generated method stub
-		return null;
+		return timeFrameListDao.getById(id);
 	}
 
 	@Override
@@ -48,8 +46,19 @@ public class TimeFrameServiceImpl implements TimeFrameService {
 
 	@Override
 	public int insert(TimeFrame timeFrame) {
-		// TODO Auto-generated method stub
-		return 0;
+		// pobierz ostatni ID:
+		Integer rec_id = timeFrameListDao.getLastId();
+		int id = 0;
+
+		if (rec_id == null)
+			id = 1;
+		else
+			id = rec_id.intValue() + 1;
+
+		// aktualizacja zawartości ID:
+		timeFrame.setId(id);
+
+		return timeFrameListDao.insert(timeFrame);
 	}
 
 	/**
@@ -62,8 +71,7 @@ public class TimeFrameServiceImpl implements TimeFrameService {
 
 	@Override
 	public int update(TimeFrame timeFrame) {
-		// TODO Auto-generated method stub
-		return 0;
+		return timeFrameListDao.update(timeFrame);
 	}
 
 }

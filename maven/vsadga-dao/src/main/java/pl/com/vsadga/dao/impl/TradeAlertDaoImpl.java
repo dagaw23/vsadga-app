@@ -3,6 +3,7 @@ package pl.com.vsadga.dao.impl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import pl.com.vsadga.dao.JdbcDaoBase;
 import pl.com.vsadga.dao.TradeAlertDao;
 import pl.com.vsadga.data.alert.AlertType;
 import pl.com.vsadga.data.alert.TradeAlert;
+import pl.com.vsadga.dto.alert.TradeAlertDto;
 
 public class TradeAlertDaoImpl extends JdbcDaoBase implements TradeAlertDao {
 
@@ -48,15 +50,19 @@ public class TradeAlertDaoImpl extends JdbcDaoBase implements TradeAlertDao {
 	}
 
 	@Override
-	public List<TradeAlert> getActualTradeAlertList(Date alertTimeFrom) {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME
-				+ " where alert_time > ? order by alert_time desc";
+	public List<TradeAlertDto> getActualTradeAlertList(Date alertTimeFrom) {
+		String sql = "select ta.id, ta.alert_time, ta.alert_message, ta.alert_type, ta.bar_time, "
+				+ "ta.bar_status, cs.symbol_name, tf.time_frame_desc "
+				+ "from fxschema.trade_alert ta, fxschema.currency_symbol cs, fxschema.time_frame tf "
+				+ "where ta.symbol_id=cs.id and ta.time_frame_id=tf.id and ta.alert_time>? "
+				+ "order by ta.alert_time desc";
+		final SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm");
 
-		return getJdbcTemplate().query(sql, new RowMapper<TradeAlert>() {
+		return getJdbcTemplate().query(sql, new RowMapper<TradeAlertDto>() {
 
 			@Override
-			public TradeAlert mapRow(ResultSet rs, int rowNum) throws SQLException {
-				return rs2TradeAlert(rs);
+			public TradeAlertDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2TradeAlertDto(rs, sdf);
 			}
 
 		}, new Timestamp(alertTimeFrom.getTime()));
@@ -64,45 +70,57 @@ public class TradeAlertDaoImpl extends JdbcDaoBase implements TradeAlertDao {
 	}
 
 	@Override
-	public List<TradeAlert> getByFrame(Date alertTimeFrom, String frameId) {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME
-				+ " where time_frame_id=? and alert_time>? order by alert_time desc";
+	public List<TradeAlertDto> getByFrame(Date alertTimeFrom, String frameId) {
+		String sql = "select ta.id, ta.alert_time, ta.alert_message, ta.alert_type, ta.bar_time, "
+				+ "ta.bar_status, cs.symbol_name, tf.time_frame_desc "
+				+ "from fxschema.trade_alert ta, fxschema.currency_symbol cs, fxschema.time_frame tf "
+				+ "where ta.symbol_id=cs.id and ta.time_frame_id=tf.id and ta.time_frame_id=? and ta.alert_time>? "
+				+ "order by ta.alert_time desc";
+		final SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm");
 
-		return getJdbcTemplate().query(sql, new RowMapper<TradeAlert>() {
+		return getJdbcTemplate().query(sql, new RowMapper<TradeAlertDto>() {
 
 			@Override
-			public TradeAlert mapRow(ResultSet rs, int rowNum) throws SQLException {
-				return rs2TradeAlert(rs);
+			public TradeAlertDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2TradeAlertDto(rs, sdf);
 			}
 
 		}, Integer.valueOf(frameId), new Timestamp(alertTimeFrom.getTime()));
 	}
 
 	@Override
-	public List<TradeAlert> getByFrameAndSymbol(Date alertTimeFrom, String symbolId, String frameId) {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME
-				+ " where symbol_id=? and time_frame_id=? and alert_time>? order by alert_time desc";
-
-		return getJdbcTemplate().query(sql, new RowMapper<TradeAlert>() {
+	public List<TradeAlertDto> getByFrameAndSymbol(Date alertTimeFrom, String symbolId, String frameId) {
+		String sql = "select ta.id, ta.alert_time, ta.alert_message, ta.alert_type, ta.bar_time, "
+				+ "ta.bar_status, cs.symbol_name, tf.time_frame_desc "
+				+ "from fxschema.trade_alert ta, fxschema.currency_symbol cs, fxschema.time_frame tf "
+				+ "where ta.symbol_id=cs.id and ta.time_frame_id=tf.id "
+				+ "and ta.symbol_id=? and ta.time_frame_id=? and ta.alert_time>? " + "order by ta.alert_time desc";
+		final SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm");
+		
+		return getJdbcTemplate().query(sql, new RowMapper<TradeAlertDto>() {
 
 			@Override
-			public TradeAlert mapRow(ResultSet rs, int rowNum) throws SQLException {
-				return rs2TradeAlert(rs);
+			public TradeAlertDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2TradeAlertDto(rs, sdf);
 			}
 
 		}, Integer.valueOf(symbolId), Integer.valueOf(frameId), new Timestamp(alertTimeFrom.getTime()));
 	}
 
 	@Override
-	public List<TradeAlert> getBySymbol(Date alertTimeFrom, String symbolId) {
-		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME
-				+ " where symbol_id=? and alert_time>? order by alert_time desc";
+	public List<TradeAlertDto> getBySymbol(Date alertTimeFrom, String symbolId) {
+		String sql = "select ta.id, ta.alert_time, ta.alert_message, ta.alert_type, ta.bar_time, "
+				+ "ta.bar_status, cs.symbol_name, tf.time_frame_desc "
+				+ "from fxschema.trade_alert ta, fxschema.currency_symbol cs, fxschema.time_frame tf "
+				+ "where ta.symbol_id=cs.id and ta.time_frame_id=tf.id and ta.symbol_id=? and ta.alert_time>? "
+				+ "order by ta.alert_time desc";
+		final SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm");
 
-		return getJdbcTemplate().query(sql, new RowMapper<TradeAlert>() {
+		return getJdbcTemplate().query(sql, new RowMapper<TradeAlertDto>() {
 
 			@Override
-			public TradeAlert mapRow(ResultSet rs, int rowNum) throws SQLException {
-				return rs2TradeAlert(rs);
+			public TradeAlertDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return rs2TradeAlertDto(rs, sdf);
 			}
 
 		}, Integer.valueOf(symbolId), new Timestamp(alertTimeFrom.getTime()));
@@ -153,5 +171,24 @@ public class TradeAlertDaoImpl extends JdbcDaoBase implements TradeAlertDao {
 
 		return result;
 	}
+
+	private TradeAlertDto rs2TradeAlertDto(final ResultSet rs, final SimpleDateFormat sdf) throws SQLException {
+		TradeAlertDto result = new TradeAlertDto();
+
+		result.setAlertMessage(rs.getString("alert_message"));
+		result.setAlertTime(rs.getTimestamp("alert_time"));
+		result.setAlertType(convert(rs.getString("alert_type")));
+
+		result.setBarStatus(rs.getString("bar_status"));
+		result.setBarTime(sdf.format(new Date(rs.getTimestamp("bar_time").getTime())));
+		result.setId(rs.getInt("id"));
+
+		result.setSymbolName(rs.getString("symbol_name"));
+		result.setTimeFrameDesc(rs.getString("time_frame_desc"));
+
+		return result;
+	}
+	
+	
 
 }

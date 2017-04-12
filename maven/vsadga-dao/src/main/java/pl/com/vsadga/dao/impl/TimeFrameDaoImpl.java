@@ -25,6 +25,13 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 	}
 
 	@Override
+	public int delete(Integer id) {
+		String sql = "delete from " + TAB_NME + " where id=?";
+
+		return getJdbcTemplate().update(sql, id);
+	}
+
+	@Override
 	public List<TimeFrame> getAll() {
 		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " order by time_frame asc";
 
@@ -80,6 +87,23 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 	}
 
 	@Override
+	public TimeFrame getById(Integer id) {
+		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME + " where id=?";
+
+		return getJdbcTemplate().query(sql, new ResultSetExtractor<TimeFrame>() {
+
+			@Override
+			public TimeFrame extractData(ResultSet rs) throws SQLException, DataAccessException {
+				if (rs.next())
+					return rs2TimeFrameList(rs);
+				else
+					return null;
+			}
+
+		}, id);
+	}
+
+	@Override
 	public List<TimeFrame> getByTime(Integer fromTimeFrame, Integer toTimeFrame) {
 		String sql = "select " + ALL_COLUMNS + " from " + TAB_NME
 				+ " where time_frame>=? and time_frame<=? order by time_frame desc";
@@ -110,6 +134,22 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 		}, timeFrameDesc);
 	}
 
+	@Override
+	public int insert(TimeFrame timeFrame) {
+		String sql = "insert into " + TAB_NME + "(" + ALL_COLUMNS + ") values (?,?,?, ?,?,?)";
+
+		return getJdbcTemplate().update(sql, timeFrame.getId(), timeFrame.getTimeFrame(), timeFrame.getTimeFrameDesc(),
+				timeFrame.getIsFileFrame(), timeFrame.getIsLogicalFrame(), timeFrame.getIsActive());
+	}
+
+	@Override
+	public int update(TimeFrame timeFrame) {
+		String sql = "update " + TAB_NME + " set time_frame=?, time_frame_desc=?, is_file_frame=?, is_logical_frame=?, is_active=? where id=?";
+
+		return getJdbcTemplate().update(sql, timeFrame.getTimeFrame(), timeFrame.getTimeFrameDesc(), timeFrame.getIsFileFrame(), 
+				timeFrame.getIsLogicalFrame(), timeFrame.getIsActive(), timeFrame.getId());
+	}
+
 	private TimeFrame rs2TimeFrameList(final ResultSet rs) throws SQLException {
 		TimeFrame obj = new TimeFrame();
 
@@ -121,6 +161,23 @@ public class TimeFrameDaoImpl extends JdbcDaoBase implements TimeFrameDao {
 		obj.setTimeFrameDesc(rs.getString("time_frame_desc"));
 
 		return obj;
+	}
+
+	@Override
+	public Integer getLastId() {
+		String sql = "select max(id) from " + TAB_NME;
+
+		return getJdbcTemplate().query(sql, new ResultSetExtractor<Integer>() {
+
+			@Override
+			public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
+				if (rs.next())
+					return rs.getInt(1);
+				else
+					return null;
+			}
+
+		});
 	}
 
 }

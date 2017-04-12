@@ -5,6 +5,7 @@ import java.util.List;
 
 import pl.com.vsadga.data.alert.AlertType;
 import pl.com.vsadga.data.alert.TradeAlert;
+import pl.com.vsadga.dto.alert.TradeAlertDto;
 
 
 
@@ -14,13 +15,13 @@ public interface TradeAlertDao {
 	
 	int update(Integer id, String alertMessage, String barStatus);
 	
-	List<TradeAlert> getActualTradeAlertList(Date alertTimeFrom);
+	List<TradeAlertDto> getActualTradeAlertList(Date alertTimeFrom);
 	
 	Integer exist(Integer symbolId, Integer timeFrameId, Date barTime, AlertType alertType);
 	
-	List<TradeAlert> getByFrameAndSymbol(Date alertTimeFrom, String symbolId, String frameId);
+	List<TradeAlertDto> getByFrameAndSymbol(Date alertTimeFrom, String symbolId, String frameId);
 	
-	List<TradeAlert> getByFrame(Date alertTimeFrom, String frameId);
+	List<TradeAlertDto> getByFrame(Date alertTimeFrom, String frameId);
 	
-	List<TradeAlert> getBySymbol(Date alertTimeFrom, String symbolId);
+	List<TradeAlertDto> getBySymbol(Date alertTimeFrom, String symbolId);
 }

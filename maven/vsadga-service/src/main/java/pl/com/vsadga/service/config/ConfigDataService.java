@@ -13,6 +13,8 @@ public interface ConfigDataService {
 
 	String getParam(String paramName) throws BaseServiceException;
 	
+	int getParamWithDefaultValue(String paramName, String defaultValue);
+	
 	int update(Integer id, String paramValue) throws BaseServiceException;
 
 }

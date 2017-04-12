@@ -3,7 +3,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <html>
 <head>
-	<title>Konfiguracja pojedynczej ramki</title>
+	<title>Dodanie nowej ramki czasowej</title>
 	<style type="text/css">
 	body {
 		background-image: url('images/bg.png');
@@ -41,7 +41,7 @@
 		</td>
 		<td>
 			<table>
-			<form:form action="${pageContext.request.contextPath}/frame-edit-done.html" method="POST" modelAttribute="timeFrameRecord">
+			<form:form action="${pageContext.request.contextPath}/frame-new-add.html" method="POST" modelAttribute="timeFrameRecord">
 				<tr>
 					<td width="70"/>
 					<td align="right" width="220"/>
@@ -79,7 +79,7 @@
 				</tr>
 				<tr>
 					<td width="70"/>
-					<td align="right" width="220">Aktywność:</td>
+					<td align="right" width="220">Aktywność:</td>
 					<td width="220">
 						<form:checkbox path="isActive"/>
 					</td>
@@ -88,7 +88,7 @@
 					<td/>
 					<td/>
 					<td>
-						<input type="submit" value="Modyfikuj"/>
+						<input type="submit" value="Dodaj"/>
 					</td>
 				</tr>
 			</form:form>
