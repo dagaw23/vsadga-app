@@ -47,16 +47,12 @@ public class DataAnalyseBatch extends BaseBatch {
 		List<CurrencySymbol> symbol_list = null;
 		List<TimeFrame> tmefrm_list = null;
 		List<BarData> data_list = null;
-		Date end_date = null;
-		int bar_count = 0;
+		int bar_back_count = 0;
 
 		try {
 			// sprawdzenie, czy BATCH nie jest zatrzymany:
 			if (!isProcessBatch())
 				return;
-
-			// wpisanie konfiguracji do VolumeProcessor:
-			initConfigData();
 
 			// pobierz listę aktywnych symboli:
 			symbol_list = symbolService.getActiveSymbols();
@@ -69,18 +65,16 @@ public class DataAnalyseBatch extends BaseBatch {
 				return;
 			}
 
-			// pobierz konfigurację o dacie przesunięcia danych do przetwarzania:
-			end_date = getAnalyseEndDate();
-			// oraz liczbę barów do przetworzenia:
-			bar_count = getAnalyseBarCount();
+			// pobierz konfigurację o  liczbie barów do przetworzenia:
+			bar_back_count = getAnalyseBarCount();
 
 			for (CurrencySymbol symbol : symbol_list) {
 				for (TimeFrame tme_frame : tmefrm_list) {
 					LOGGER.info("   [PROC] Symbol [" + symbol.getSymbolName() + "] in ["
 							+ tme_frame.getTimeFrameDesc() + "].");
 
-					// pobierz listę danych z bara:
-					data_list = getBarData(end_date, bar_count, symbol, tme_frame);
+					// pobierz listę barów ze statusem 1: 
+					data_list = getBarData(bar_back_count, symbol, tme_frame, 1);
 
 					// przetwórz listę barów:
 					barDataProcessor.processBarsData(data_list, tme_frame);
@@ -101,36 +95,15 @@ public class DataAnalyseBatch extends BaseBatch {
 		return param_int;
 	}
 
-	private Date getAnalyseEndDate() throws BaseServiceException {
-		String param_value = getStringParamValue("ANALYSE_END_DATE");
-
-		if (param_value == null)
-			return null;
-
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-		sdf.setLenient(false);
-
-		try {
-			return sdf.parse(param_value);
-		} catch (ParseException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	private List<BarData> getBarData(Date endDate, int barCount, CurrencySymbol symbol, TimeFrame timeFrame)
-			throws BaseServiceException {
-		List<BarData> bar_list = null;
-
-		// czy jest podana data graniczna dla barów:
-		if (endDate == null)
-			bar_list = currencyDataService.getLastNbarData(barCount, symbol, timeFrame);
-		else
-			bar_list = currencyDataService.getLastNbarDataToDate(barCount, symbol, timeFrame, endDate);
+	private List<BarData> getBarData(int barBackCount, CurrencySymbol symbol, TimeFrame timeFrame,
+			Integer processPhase) throws BaseServiceException {
+		List<BarData> bar_list = currencyDataService.getBarDataListByPhase(symbol.getId(),
+				timeFrame.getTimeFrameDesc(), processPhase);
 
 		// wypisy kontrolne:
 		int list_size = bar_list.size();
-		String msg = "   [PROC] Liczba barow do przetworzenia: " + list_size;
+		String msg = "   [PROC] Liczba barow do przetworzenia: [" + list_size + "] ze statusem [" + processPhase
+				+ "]";
 
 		if (list_size > 0)
 			msg += " (" + DateConverter.dateToString(bar_list.get(0).getBarTime(), "yy/MM/dd HH:mm") + ","
@@ -140,13 +113,6 @@ public class DataAnalyseBatch extends BaseBatch {
 		LOGGER.info(msg);
 
 		return bar_list;
-	}
-
-	private void initConfigData() throws BaseServiceException {
-		volumeProcessor.initLevelPositions(getStringParamValue("H4_LEVELS").split(","),
-				getStringParamValue("H1_LEVELS").split(","),
-				getStringParamValue("M15_LEVELS").split(","),
-				getStringParamValue("M5_LEVELS").split(","));
 	}
 
 	private boolean isProcessBatch() throws BaseServiceException {

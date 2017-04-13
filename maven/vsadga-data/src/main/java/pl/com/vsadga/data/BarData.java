@@ -71,6 +71,18 @@ public class BarData implements Serializable {
 	private Integer processPhase;
 
 	/**
+	 * wielkość spreadu - w porównaniu z barami sąsiednimi:
+	 * <ul>
+	 * <li>VH - bardzo wysoki,
+	 * <li>Hi - wysoki,
+	 * <li>Av - średni,
+	 * <li>Lo - mały,
+	 * <li>VL - bardzo mały.
+	 * </ul>
+	 */
+	private SpreadSize spreadSize;
+
+	/**
 	 * odwołanie do symbolu, którego dotyczy bar
 	 */
 	private Integer symbolId;
@@ -96,12 +108,13 @@ public class BarData implements Serializable {
 	private Integer volumeAbsorb;
 
 	/**
-	 * wielkość wolumenu - w porównaniu ze średnim wolumenem:
+	 * wielkość wolumenu - w porównaniu z barami sąsiednimi:
 	 * <ul>
 	 * <li>VH - bardzo wysoki,
 	 * <li>Hi - wysoki,
-	 * <li>Av - średni
-	 * <li>Lo - mały.
+	 * <li>Av - średni,
+	 * <li>Lo - mały,
+	 * <li>VL - bardzo mały.
 	 * </ul>
 	 */
 	private VolumeSize volumeSize;
@@ -180,6 +193,8 @@ public class BarData implements Serializable {
 			if (other.processPhase != null)
 				return false;
 		} else if (!processPhase.equals(other.processPhase))
+			return false;
+		if (spreadSize != other.spreadSize)
 			return false;
 		if (symbolId == null) {
 			if (other.symbolId != null)
@@ -274,6 +289,13 @@ public class BarData implements Serializable {
 	}
 
 	/**
+	 * @return the spreadSize
+	 */
+	public SpreadSize getSpreadSize() {
+		return spreadSize;
+	}
+
+	/**
 	 * @return the symbolId
 	 */
 	public Integer getSymbolId() {
@@ -335,6 +357,7 @@ public class BarData implements Serializable {
 		result = prime * result + ((indicatorNr == null) ? 0 : indicatorNr.hashCode());
 		result = prime * result + ((isConfirm == null) ? 0 : isConfirm.hashCode());
 		result = prime * result + ((processPhase == null) ? 0 : processPhase.hashCode());
+		result = prime * result + ((spreadSize == null) ? 0 : spreadSize.hashCode());
 		result = prime * result + ((symbolId == null) ? 0 : symbolId.hashCode());
 		result = prime * result + ((trendIndicator == null) ? 0 : trendIndicator.hashCode());
 		result = prime * result + ((trendWeight == null) ? 0 : trendWeight.hashCode());
@@ -417,6 +440,14 @@ public class BarData implements Serializable {
 	}
 
 	/**
+	 * @param spreadSize
+	 *            the spreadSize to set
+	 */
+	public void setSpreadSize(SpreadSize spreadSize) {
+		this.spreadSize = spreadSize;
+	}
+
+	/**
 	 * @param symbolId
 	 *            the symbolId to set
 	 */
@@ -472,11 +503,11 @@ public class BarData implements Serializable {
 	@Override
 	public String toString() {
 		return "BarData [barClose=" + barClose + ", barHigh=" + barHigh + ", barLow=" + barLow + ", barTime="
-				+ barTime + ", barType=" + barType + ", barVolume=" + barVolume + ", volumeType=" + volumeType
-				+ ", id=" + id + ", imaCount=" + imaCount + ", indicatorNr=" + indicatorNr + ", isConfirm="
-				+ isConfirm + ", processPhase=" + processPhase + ", symbolId=" + symbolId + ", trendIndicator="
-				+ trendIndicator + ", trendWeight=" + trendWeight + ", volumeAbsorb=" + volumeAbsorb
-				+ ", volumeSize=" + volumeSize + "]";
+				+ barTime + ", barType=" + barType + ", barVolume=" + barVolume + ", id=" + id + ", imaCount="
+				+ imaCount + ", indicatorNr=" + indicatorNr + ", isConfirm=" + isConfirm + ", processPhase="
+				+ processPhase + ", symbolId=" + symbolId + ", trendIndicator=" + trendIndicator
+				+ ", trendWeight=" + trendWeight + ", volumeAbsorb=" + volumeAbsorb + ", volumeSize=" + volumeSize
+				+ ", spreadSize=" + spreadSize + ", volumeType=" + volumeType + "]";
 	}
 
 }

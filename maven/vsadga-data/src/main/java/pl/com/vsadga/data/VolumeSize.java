@@ -4,10 +4,12 @@ package pl.com.vsadga.data;
  * Zawiera informację o wielkości wolumenu, jaki jest w porównaniu z poprzednimi barami. 
  */
 public enum VolumeSize {
-	VH(4), // Ultra High
-	Hi(3), // High
-	AV(2), // Average
-	Lo(1), // Low
+	UH(6), // Ultra High
+	VH(5), // Very High
+	Hi(4), // High
+	Av(3), // Average
+	Lo(2), // Low
+	VL(1), // Very Low
 	N(0); // Not Defined
 	
 	/**

@@ -28,6 +28,7 @@ create table fxschema.data_m5(
 	trend_weight		integer			null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -50,6 +51,7 @@ create table fxschema.data_m15(
 	trend_weight		integer			null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -72,6 +74,7 @@ create table fxschema.data_h1(
 	trend_weight		integer			null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -94,6 +97,7 @@ create table fxschema.data_h4(
 	trend_weight		integer			null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -116,6 +120,7 @@ create table fxschema.data_d1(
 	trend_weight		integer			null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -138,6 +143,7 @@ create table fxschema.data_w1(
 	trend_weight		integer			null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -169,6 +175,7 @@ create table fxschema.arch_data_m5_1(
 	trend_weight		integer			null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -191,6 +198,7 @@ create table fxschema.arch_data_m15_1(
 	trend_weight		integer			null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)
@@ -213,6 +221,7 @@ create table fxschema.arch_data_h1_1(
 	trend_weight		integer			null,
 	volume_absorb		integer			null,
 	volume_size			varchar(2)		null,
+	spread_size			varchar(2)		null,
 	process_phase		integer			not null,
 	symbol_id			smallint		not null
 						REFERENCES fxschema.currency_symbol(id)

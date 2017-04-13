@@ -14,6 +14,16 @@ import pl.com.vsadga.service.BaseServiceException;
 
 public interface CurrencyDataService {
 	
+	/**
+	 * Pobiera listę barów dla podanego symbolu i ramki czasowej - wg podanej fazy przetworzenia bara. Pobierane bary są sortowane rosnąco wg daty barów.
+	 * 
+	 * @param symbolId ID symbolu bara
+	 * @param timeFrameDesc opis ramki czasowej bara
+	 * @param processPhase faza przetworzenia bara
+	 * @return lista barów
+	 */
+	List<BarData> getBarDataListByPhase(Integer symbolId, String timeFrameDesc, Integer processPhase) throws BaseServiceException;
+	
 	List<BarData> getPartialData(Integer symbolId, String timeFrameDesc, int limit, String dateFrom, String mode);
 
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = { BaseServiceException.class })

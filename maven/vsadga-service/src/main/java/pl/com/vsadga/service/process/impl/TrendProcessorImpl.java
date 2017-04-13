@@ -27,7 +27,7 @@ public class TrendProcessorImpl implements TrendProcessor {
 		}
 
 		// czy jest ostatni bar do wyliczenia:
-		BarData prev_bar = dataCache.getLastBarData();
+		BarData prev_bar = dataCache.getPrevBarData(1);
 		if (prev_bar == null) {
 			return new TrendData("S", 0);
 		}

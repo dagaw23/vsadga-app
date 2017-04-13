@@ -1,7 +1,7 @@
 package pl.com.vsadga.service.process;
 
 import pl.com.vsadga.data.BarData;
-import pl.com.vsadga.data.TimeFrame;
+import pl.com.vsadga.data.SpreadSize;
 import pl.com.vsadga.data.VolumeSize;
 import pl.com.vsadga.service.BaseServiceException;
 
@@ -28,7 +28,9 @@ public interface VolumeProcessor {
 	 *         czasie.
 	 * @throws BaseServiceException
 	 */
-	VolumeSize getVolumeSize(BarData actualBar, TimeFrame timeFrame) throws BaseServiceException;
+	VolumeSize getVolumeSize(BarData actualBar, String timeFrameDesc) throws BaseServiceException;
+	
+	SpreadSize getSpreadSize(BarData actualBar, String timeFrameDesc) throws BaseServiceException;
 
 	/**
 	 * Weryfikuje, jaki jest trend wolumenu - kontrolując aktualny bar z poprzednimi dwoma barami.
@@ -43,8 +45,5 @@ public interface VolumeProcessor {
 	 * @throws BaseServiceException
 	 */
 	//String getVolumeThermometer(BarData actualBar) throws BaseServiceException;
-
-	void initLevelPositions(String[] h4PositionTab, String[] h1PositionTab, String[] m15PositionTab,
-			String[] m5PositionTab) throws BaseServiceException;
 
 }

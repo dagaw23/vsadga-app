@@ -2,92 +2,36 @@ package pl.com.vsadga.dto.cache;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import pl.com.vsadga.data.BarData;
 import pl.com.vsadga.dto.BarType;
 
 public class DataCache {
-
 	/**
-	 * ilość barów wpisywanych do CACHE
-	 */
-	private int barDataCacheLength;
-
-	/**
-	 * pełna informacja - dla N ostatnich barów
+	 * pełna informacja - dla 2 ostatnich barów
 	 */
 	private Map<Integer, BarData> barDataCacheMap;
 
 	/**
-	 * aktualna pozycja w mapie z barami
+	 * lista z danymi do wyliczenia wolumenu i spreadu
 	 */
-	private int barDataCachePos;
+	private List<IndicatorData> indyDataCache;
 
 	/**
-	 * ilość danych do wyliczenia wskaźników
+	 * oczekiwany rozmiar CACHE dla wolumenu i spreadu
 	 */
-	private int indyDataLength;
+	private Integer indyDataCacheSize;
 
-	/**
-	 * mapa z danymi do wyliczenia wskaźników
-	 */
-	private Map<Integer, IndicatorData> indyDataMap;
-
-	/**
-	 * aktualna pozycja w mapie z danymi dla wskaźników
-	 */
-	private int indyDataPos;
-
-	public DataCache(int indyDataLength, int barDataCacheLength) {
+	public DataCache(int indyCacheSize) {
 		super();
-		this.barDataCacheLength = barDataCacheLength;
-		this.indyDataLength = indyDataLength;
+		this.indyDataCacheSize = indyCacheSize;
 		cleanDataCache();
-	}
-
-	public void addBarData(BarData barData) {
-		addBarDataToCache(barData);
-	}
-
-	public void addBarDataWithIndy(BarData barData, IndicatorData indyData) {
-		addBarDataToCache(barData);
-
-		addIndicatorData(indyData);
-
-	}
-
-	public void addIndicatorData(IndicatorData indyData) {
-		// przesuń aktualny wskaźnik w mapach:
-		moveIndicatorPositions();
-
-		indyDataMap.put(indyDataPos, indyData);
-	}
-
-	/**
-	 * Zwraca średnią z wolumenu i spreadu - z podanego zakresu.
-	 * 
-	 * @param size
-	 * @return
-	 */
-	public BigDecimal getVolumeSpreadAvg(int size) {
-		if (size > indyDataLength)
-			return null;
-		
-		BigDecimal temp = new BigDecimal(0);
-		int pos = indyDataPos;
-		
-		for (int i=0; i < size; i++) {
-			temp = temp.add(indyDataMap.get(pos).getBarSpreadVolume());
-			
-			if (pos == 1)
-				pos = indyDataLength;
-			else
-				pos--;
-		}
-		
-		return temp.divide(new BigDecimal(size), 5, RoundingMode.HALF_UP);
 	}
 
 	/**
@@ -95,51 +39,34 @@ public class DataCache {
 	 */
 	public void cleanDataCache() {
 		this.barDataCacheMap = new HashMap<Integer, BarData>();
-		this.indyDataMap = new HashMap<Integer, IndicatorData>();
-
-		this.barDataCachePos = 0;
-		this.indyDataPos = 0;
+		this.indyDataCache = new ArrayList<IndicatorData>();
 	}
 
-	public int getIndicatorCacheSize() {
-		return indyDataMap.size();
-	}
-
-	/**
-	 * Wylicza wolumen dla 4 ostatnich barów: 3 już przetworzonych do statusu 3 oraz aktualnego bara
-	 * przetwarzanego ze statusu 1.
-	 * 
-	 * @param actualBar
-	 *            przetwarzany bar ze statusem 1
-	 * @return 1: wolumen UP, 0: wolumen LEVEL, -1: wolumen DOWN
-	 */
-	public int compareLastVolumeData(BarData actualBar) {
-		BarData proc_bar = null;
-		int up_vol = 0;
-		int down_vol = 0;
-
-		// przetworzenie 3 barów:
-		for (int i = 2; i >= 0; i--) {
-			proc_bar = getPreviousBar(i);
-
-			if (proc_bar.getBarType() == BarType.UP_BAR)
-				up_vol += proc_bar.getBarVolume();
-			else if ((proc_bar.getBarType() == BarType.DOWN_BAR))
-				down_vol += proc_bar.getBarVolume();
+	public void fillBarDataCache(List<BarData> barDataList) {
+		// brak barów wcześniejszych: pusty CACHE
+		if (barDataList.isEmpty()) {
+			cleanBarDataCache();
+			return;
 		}
 
-		// dodanie jeszcze aktualnie przetwarzanego bara:
-		if (actualBar.getBarType() == BarType.UP_BAR)
-			up_vol += actualBar.getBarVolume();
-		else if ((actualBar.getBarType() == BarType.DOWN_BAR))
-			down_vol += actualBar.getBarVolume();
+		int i = 1;
 
-		if (up_vol > down_vol)
-			return 1;
-		else if (up_vol < down_vol)
-			return -1;
-		else
-			return 0;
+		for (BarData bar_data : barDataList)
+			barDataCacheMap.put(i++, bar_data);
+	}
+
+	public void fillIndyDataCache(List<BarData> barDataList, BarData barData) {
+		// brak barów wcześniejszych: pusty CACHE
+		if (barDataList.isEmpty() || barDataList.size() < 11) {
+			cleanIndyDataCache();
+			return;
+		}
+
+		// aktualny bar:
+		indyDataCache.add(convert(barData));
+
+		for (BarData bar_data : barDataList)
+			indyDataCache.add(convert(bar_data));
 	}
 
 	/**
@@ -152,7 +79,7 @@ public class DataCache {
 	 * @return UP, DOWN lub LEVEL bar
 	 */
 	public BarType getActualBarType(BarData barData) {
-		BarData prev_bar = getLastBarData();
+		BarData prev_bar = getPrevBarData(1);
 
 		// brak zapisanych jeszcze barów:
 		if (prev_bar == null)
@@ -167,43 +94,68 @@ public class DataCache {
 			return BarType.LEVEL_BAR;
 	}
 
+	public int getIndicatorCacheSize() {
+		return indyDataCache.size();
+	}
+
 	/**
-	 * Pobiera ostatni bar, jaki został wpisany do mapy krótkoterminowej.<br/>
-	 * Jeśli mapa jeszcze jest pusta - zwraca wartość <code>NULL</code>.
+	 * Pobiera bar, jaki został wpisany do mapy krótkoterminowej.<br/>
+	 * Jeśli mapa jeszcze jest pusta lub nie ma takiego elementu w CACHE - zwraca wartość
+	 * <code>NULL</code>.
 	 * 
-	 * @return ostatni bar, jaki został wpisany do mapy krótkoterminowej <br/>
+	 * @param key
+	 *            który element pobieramy z CACHE: 1 - pierwszy element z CACHE wg czasu, 2 - drugi
+	 *            element z CACHE wg czasu
+	 * @return żądany bar, jaki został wpisany do mapy krótkoterminowej <br/>
 	 *         lub wartość <code>NULL</code> w przypadku pustej mapy
 	 */
-	public BarData getLastBarData() {
+	public BarData getPrevBarData(int key) {
 		// jeśli mapa jest pusta - zwróć NULL:
 		if (barDataCacheMap.isEmpty())
 			return null;
 
-		return barDataCacheMap.get(barDataCachePos);
+		return barDataCacheMap.get(key);
 	}
 
-	/**
-	 * Pobiera pojedynczy bar z mapy krótkoterminowej, który jest wstecz N barów w porównaniu z
-	 * ostatnim barem.<br/>
-	 * 
-	 * 
-	 * @param prevNr
-	 *            liczba barów wstecz, jaki jest pobierany, <br/>
-	 *            np.: 0: ostatnio wpisany bar do mapy, 1: czyli 2 bary wstecz, 2: czyli 3 bary
-	 *            wstecz, itd
-	 * @return pojedynczy bar z mapy krótkoterminowej <br/>
-	 *         lub wartość <code>NULL</code> w przypadku mapy nie posiadającej odpowiednią liczbę
-	 *         elementów
-	 */
-	public BarData getPreviousBar(int prevNr) {
-		// czy mapa ma już elementy do pobrania:
-		if (barDataCacheMap.size() <= prevNr)
-			return null;
+	public TreeSet<IndicatorData> getSortedCacheBySpread() {
+		return new TreeSet<IndicatorData>(new Comparator<IndicatorData>() {
 
-		if (barDataCachePos <= prevNr)
-			return barDataCacheMap.get(barDataCacheLength + barDataCachePos - prevNr);
+			@Override
+			public int compare(IndicatorData data1, IndicatorData data2) {
+				return data1.getBarSpread().compareTo(data2.getBarSpread());
+			}
+
+		});
+	}
+
+	public TreeSet<IndicatorData> getSortedCacheByVolume() {
+		return new TreeSet<IndicatorData>(new Comparator<IndicatorData>() {
+
+			@Override
+			public int compare(IndicatorData data1, IndicatorData data2) {
+				if (data1.getBarVolume().intValue() < data2.getBarVolume().intValue())
+					return -1;
+				else if (data1.getBarVolume().intValue() > data2.getBarVolume().intValue())
+					return 1;
+				else
+					return 0;
+			}
+
+		});
+	}
+
+	public boolean isReadyBarDataCache() {
+		if (barDataCacheMap.size() < 2)
+			return false;
 		else
-			return barDataCacheMap.get(barDataCachePos - prevNr);
+			return true;
+	}
+
+	public boolean isReadyIndyDataCache() {
+		if (indyDataCache.size() < indyDataCacheSize)
+			return false;
+		else
+			return true;
 	}
 
 	public boolean isVolumeLessThen2(BarData barData, BarData lastBar, BarData prevBar) {
@@ -214,20 +166,6 @@ public class DataCache {
 			return true;
 		else
 			return false;
-	}
-
-	public boolean isReadyBarDataCache() {
-		if (barDataCacheMap.size() < barDataCacheLength)
-			return false;
-		else
-			return true;
-	}
-
-	public boolean isReadyIndyDataCache() {
-		if (indyDataMap.size() < indyDataLength)
-			return false;
-		else
-			return true;
 	}
 
 	/**
@@ -245,34 +183,20 @@ public class DataCache {
 			return true;
 	}
 
-	private void addBarDataToCache(BarData barData) {
-		// przesuń aktualny wskaźnik w mapach:
-		moveCachePositions();
-
-		// dodaj bar na aktualną pozycję:
-		barDataCacheMap.put(barDataCachePos, barData);
+	private void cleanBarDataCache() {
+		this.barDataCacheMap = new HashMap<Integer, BarData>();
 	}
 
-	/**
-	 * Sprawdza, czy poszczególne wskaźniki pozycji w mapach osiągnęły maksymalną pozycję. Jeśli tak
-	 * - przesuwa wskaźnik na początek kolekcji.
-	 */
-	private void moveCachePositions() {
-		if (barDataCachePos == barDataCacheLength)
-			barDataCachePos = 1;
-		else
-			barDataCachePos += 1;
+	private void cleanIndyDataCache() {
+		this.indyDataCache = new ArrayList<IndicatorData>();
 	}
 
-	/**
-	 * Sprawdza, czy poszczególne wskaźniki pozycji w mapach osiągnęły maksymalną pozycję. Jeśli tak
-	 * - przesuwa wskaźnik na początek kolekcji.
-	 */
-	private void moveIndicatorPositions() {
-		if (indyDataPos == indyDataLength)
-			indyDataPos = 1;
-		else
-			indyDataPos += 1;
+	// return temp.divide(new BigDecimal(size), 5, RoundingMode.HALF_UP);
+	private IndicatorData convert(BarData barData) {
+		BigDecimal bar_spr = barData.getBarHigh().subtract(barData.getBarLow());
+		bar_spr.setScale(5, RoundingMode.HALF_UP);
+
+		return new IndicatorData(barData.getBarVolume(), bar_spr, barData.getId());
 	}
 
 }

@@ -8,6 +8,33 @@ import pl.com.vsadga.data.BarData;
 
 public interface BarDataDao {
 
+	/**
+	 * Pobiera listę barów dla podanego symbolu i ramki czasowej - wg podanej fazy przetworzenia
+	 * bara. Pobierane bary są sortowane rosnąco wg daty barów.
+	 * 
+	 * @param symbolId
+	 *            ID symbolu bara
+	 * @param timeFrameDesc
+	 *            opis ramki czasowej bara
+	 * @param processPhase
+	 *            faza przetworzenia bara
+	 * @return lista barów
+	 */
+	List<BarData> getBarDataListByPhase(Integer symbolId, String timeFrameDesc, Integer processPhase);
+	
+	/**
+	 * Pobiera listę barów dla podanego symbolu i ramki czasowej - które są mniejsze od podanej daty
+	 * oraz pobiera w podanej ilości na liście. Elementy na liście są posortowane malejąco wg daty
+	 * bara.
+	 * 
+	 * @param symbolId
+	 * @param timeFrameDesc
+	 * @param limit
+	 *            ilość pobieranych barów
+	 * @param dateFrom
+	 *            pobierane bary muszą mieć datę < od podanej daty
+	 * @return
+	 */
 	List<BarData> getPartialDataNext(Integer symbolId, String timeFrameDesc, int limit, Date dateFrom);
 	
 	List<BarData> getPartialDataPrev(Integer symbolId, String timeFrameDesc, int limit, Date dateFrom);

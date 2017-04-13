@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.com.vsadga.data.BarData;
+import pl.com.vsadga.dto.BarType;
 import pl.com.vsadga.dto.IndicatorInfo;
 import pl.com.vsadga.dto.cache.DataCache;
 import pl.com.vsadga.service.BaseServiceException;
@@ -42,22 +43,21 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 			LOGGER.info("   [INDY] Usluga przetwarzania wskaznika jest wylaczona.");
 			return null;
 		}
+
+		//if (barData.getBarType() == BarType.UP_BAR) {
+			// wskaźniki dla UP barów:
+		//	return getUpBarIndy(barData);
+
+		//} else if (barData.getBarType() == BarType.DOWN_BAR) {
+			// wskaźniki dla DOWN barów:
+		//	return getDownBarIndy(barData);
+
+		//} else {
+		//	LOGGER.info("   [INDY] Bar typu [" + barData.getBarType() + "] nie jest przetwarzany.");
+		//	return null;
+		//}
 		
 		return null;
-
-		/*
-		if (barData.getBarType() == BarType.UP_BAR) {
-			// wskaźniki dla UP barów:
-			return getUpBarIndy(barData);
-
-		} else if (barData.getBarType() == BarType.DOWN_BAR) {
-			// wskaźniki dla DOWN barów:
-			return getDownBarIndy(barData);
-
-		} else {
-			LOGGER.info("   [INDY] Bar typu [" + barData.getBarType() + "] nie jest przetwarzany.");
-			return null;
-		} */
 	}
 
 	/**
@@ -339,14 +339,15 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 			return false;
 	}
 
-	/*
+	
 	private IndicatorInfo getUpBarIndy(BarData barData) {
-		SpreadSize spr_size = barData.getSpreadSize();
-		VolumeSize vol_size = barData.getVolumeSize();
-		BarData bar_last = dataCache.getPreviousBar(0);
+		dataCache.getLastBarData()
+		//SpreadSize spr_size = dataCache.getLastBarData().get
+		//VolumeSize vol_size = barData.getVolumeSize();
+		BarData bar_prev = dataCache.getPreviousBar(1);
 
 		// możliwa akcja na dwóch barach:
-		if (bar_last.getBarType() == BarType.DOWN_BAR) {
+		if (bar_prev.getBarType() == BarType.DOWN_BAR) {
 			if (isBottomReversal(barData, bar_last)) {
 				LOGGER.info("   [INDY] UP bar Bottom Reversal.");
 				return new IndicatorInfo(true, 94);
@@ -401,7 +402,6 @@ public class IndicatorProcessorImpl implements IndicatorProcessor {
 
 		return null;
 	}
-	*/
 
 	/**
 	 * Sprawdza, czy cena jest zamknięta powyżej połowy bara - włącznie z samą ceną będącą połową
