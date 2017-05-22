@@ -1,10 +1,24 @@
 package pl.com.vsadga.batch;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +35,20 @@ import pl.com.vsadga.service.process.VolumeProcessor;
 import pl.com.vsadga.service.symbol.SymbolService;
 import pl.com.vsadga.service.timeframe.TimeFrameService;
 import pl.com.vsadga.utils.DateConverter;
+import pro.xstore.api.message.command.APICommandFactory;
+import pro.xstore.api.message.command.CurrentUserDataCommand;
+import pro.xstore.api.message.error.APICommandConstructionException;
+import pro.xstore.api.message.error.APICommunicationException;
+import pro.xstore.api.message.error.APIReplyParseException;
+import pro.xstore.api.message.records.SymbolRecord;
+import pro.xstore.api.message.response.APIErrorResponse;
+import pro.xstore.api.message.response.AllSymbolsResponse;
+import pro.xstore.api.message.response.CurrentUserDataResponse;
+import pro.xstore.api.message.response.LoginResponse;
+import pro.xstore.api.message.response.SymbolResponse;
+import pro.xstore.api.sync.Credentials;
+import pro.xstore.api.sync.ServerData.ServerEnum;
+import pro.xstore.api.sync.SyncAPIConnector;
 
 @Component
 public class DataAnalyseBatch extends BaseBatch {
@@ -41,6 +69,111 @@ public class DataAnalyseBatch extends BaseBatch {
 
 	@Autowired
 	private VolumeProcessor volumeProcessor;
+	
+	public static void main(String[] args) {
+		
+		try {
+		// Create new connector
+        SyncAPIConnector connector = new SyncAPIConnector(ServerEnum.REAL);
+        
+        // Create new credentials
+        Credentials credentials = new Credentials("1037101", "");
+        
+        // Create and execute new login command
+        LoginResponse loginResponse = APICommandFactory.executeLoginCommand(
+                connector,         // APIConnector
+                credentials        // Credentials
+        );
+        
+        System.out.println("TEST");
+        
+        // Check if user logged in correctly
+        if(loginResponse.getStatus() == true) {
+            
+            // Print the message on console
+        	System.out.println("User logged in");
+            
+            // Create and execute all symbols command (which gets list of all symbols available for the user)
+            AllSymbolsResponse availableSymbols = APICommandFactory.executeAllSymbolsCommand(connector);
+            
+            // Print the message on console
+            System.out.println("Available symbols:");
+            
+            // List all available symbols on console
+            for(SymbolRecord symbol : availableSymbols.getSymbolRecords()) {
+            	System.out.println("   -> " + symbol.getSymbol() + " Ask: " + symbol.getAsk() + " Bid: " + symbol.getBid());
+            }
+            
+        } else {
+            
+            // Print the error on console
+        	System.out.println("Error: user couldn't log in!");      
+            
+        }
+        
+        // Close connection
+        connector.close();
+        System.out.println("Connection closed");
+		} catch (APICommunicationException e) {
+			e.printStackTrace();
+		} catch (APICommandConstructionException e) {
+			e.printStackTrace();
+		} catch (APIReplyParseException e) {
+			e.printStackTrace();
+		} catch (APIErrorResponse e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		//SSLSocketFactory f = (SSLSocketFactory) SSLSocketFactory.getDefault();
+		//SSLSocket socket;
+		
+//		Socket socket = null;
+//		OutputStream os = null;
+//		BufferedReader br = null;
+//		String line = null;
+//		
+//		try {
+//			SocketAddress proxy_addr = new InetSocketAddress("proxy-usr.kir.pl", 8080);
+//			Proxy proxy = new Proxy(Proxy.Type.HTTP, proxy_addr);
+//			
+//			socket = new Socket(proxy);
+//			InetSocketAddress dest = new InetSocketAddress("xapia.x-station.eu", 5113);
+//			socket.connect(dest);
+//			
+//			os = socket.getOutputStream();
+//			br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//			
+//			JSONObject cmd_args = new JSONObject();
+//			cmd_args.put("userId", "1037101");
+//			cmd_args.put("password", "");
+//			
+//			JSONObject obj = new JSONObject();
+//			obj.put("command", "login");
+//			obj.put("prettyPrint", false);
+//	        obj.put("arguments", cmd_args);
+//			
+//			os.write(obj.toJSONString().getBytes());
+//			
+//			while ((line =br.readLine()) != null) 
+//				System.out.println(line);
+//			
+//		} catch (UnknownHostException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} finally {
+//			try {
+//				socket.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+		
+	}
 
 	@Scheduled(cron = "10 * * * * SUN-FRI")
 	public void cronJob() {
@@ -75,9 +208,13 @@ public class DataAnalyseBatch extends BaseBatch {
 
 					// pobierz listę barów ze statusem 1: 
 					data_list = getBarData(bar_back_count, symbol, tme_frame, 1);
-
 					// przetwórz listę barów:
-					barDataProcessor.processBarsData(data_list, tme_frame);
+					barDataProcessor.processBarDataByPhase(data_list, tme_frame.getTimeFrameDesc());
+					
+					// pobierz listę barów ze statusem 2: 
+					data_list = getBarData(bar_back_count, symbol, tme_frame, 2);
+					// przetwórz listę barów:
+					barDataProcessor.processBarDataByPhase(data_list, tme_frame.getTimeFrameDesc());
 				}
 			}
 		} catch (BaseServiceException e) {

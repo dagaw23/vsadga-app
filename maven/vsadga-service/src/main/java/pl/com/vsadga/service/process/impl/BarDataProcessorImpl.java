@@ -26,24 +26,16 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	private BarDataDao barDataDao;
 	
 	/**
-	 * pełna informacja o 2 poprzednich barach
-	 */
-	private Map<Integer, BarData> barDataMap;
-	
-	/**
 	 * CACHE z danymi z pewnego zakresu
 	 */
 	private DataCache dataCache;
 	
-	private void cleanCache() {
-		this.barDataMap = new HashMap<Integer, BarData>();
-	}
-	
 	private void fillDataCache(BarData barData, String timeFrameDesc) {
 		// dane główne do przetwarzania barów:
-		List<BarData> bar_list = barDataDao.getPartialDataNext(barData.getSymbolId(), timeFrameDesc, 2, barData.getBarTime());
+		List<BarData> bar_list = barDataDao.getPartialDataNext(barData.getSymbolId(), timeFrameDesc, 2,
+				barData.getBarTime());
 		dataCache.fillBarDataCache(bar_list);
-		
+
 		// dane wolumenowe i spreadowe:
 		bar_list = barDataDao.getPartialDataNext(barData.getSymbolId(), timeFrameDesc, 11, barData.getBarTime());
 		dataCache.fillIndyDataCache(bar_list, barData);
@@ -61,23 +53,15 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 	private boolean isPrevBarToConfirm;
 	
 	@Override
-	public void processBarDataByPhase(List<BarData> barDataList, String timeFrameDesc, int processPhase) throws BaseServiceException {
+	public void processBarDataByPhase(List<BarData> barDataList, String timeFrameDesc) throws BaseServiceException {
 		if (barDataList == null || barDataList.isEmpty()) {
 			LOGGER.info("   [EMPTY] Lista barow [" + barDataList + "].");
 			return;
 		}
-		
-		// przetwarzane są tylko statusy 1 i 2 z barów:
-		if (processPhase < 1 || processPhase > 2) {
-			LOGGER.info("   [PHASE] Brak obslugi dla fazy [" + processPhase + "].");
-			return;
-		}
-
 		BarData bar_data = null;
 
 		// wyczyszczenie danych do analizy:
 		dataCache.cleanDataCache();
-		setPrevBarToConfirm(false);
 
 		for (int i = 0; i < barDataList.size(); i++) {
 			// pobierz bar:
@@ -147,16 +131,14 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 		IndicatorInfo ind_info = null;
 
-		// *** status BAR: 1 ***
 		if (bar_phase == 1) {
-			// pobierz dokładną informację o 2 poprzednich barach:
+			// *** status BAR: 1 ***
+			
+			// pobierz dokładną informację o 2 poprzednich barach oraz wolumenowy CACHE z 11 barów:
 			fillDataCache(barData, timeFrameDesc);
 			
 			// czy poprzedni bar czeka na potwierdzenie:
 			//checkPrevBarToConfirm(barData, timeFrame.getTimeFrameDesc());
-			
-			// dodanie do CACHE z wolumenem i spread - aktualnego bara:
-			//dataCache.addIndicatorData(getIndyData(barData));
 
 			// sprawdzenie typu przetwarzanego bara:
 			bar_typ = dataCache.getActualBarType(barData);
@@ -180,16 +162,17 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 
 			// wpisanie informacji o barze - do tabeli oraz do CACHE:
 			updateBarData(trend_data, ind_info, timeFrameDesc, barData);
-		}
-
-		// *** status BAR: 2 ***
-		if (bar_phase == 2) {
-			//LOGGER.info("   [STATS] Bar wg statusu [" + barData.getProcessPhase() + "] do POTWIERDZENIA.");
-			setPrevBarToConfirm(true);
-
+			
+		} else if (bar_phase == 2) {
+			// *** status BAR: 2 ***
+		
 			// wpisanie bara do CACHE:
 			//dataCache.addBarDataWithIndy(barData, getIndyData(barData));
 			//TODO dodać przetwarzanie statusu 2
+			
+		} else {
+			// przetwarzane są tylko statusy 1 i 2 z barów:
+			LOGGER.error("   [PHASE] Brak obslugi dla fazy [" + bar_phase + "] bara o ID=[" + barData.getId() + "].");
 		}
 	}
 
@@ -265,14 +248,6 @@ public class BarDataProcessorImpl implements BarDataProcessor {
 		}
 
 		barDataDao.updateIndicatorData(barData, process_phase, frameDesc);
-	}
-
-	/**
-	 * @param isPrevBarToConfirm
-	 *            the isPrevBarToConfirm to set
-	 */
-	private void setPrevBarToConfirm(boolean isPrevBarToConfirm) {
-		this.isPrevBarToConfirm = isPrevBarToConfirm;
 	}
 
 }

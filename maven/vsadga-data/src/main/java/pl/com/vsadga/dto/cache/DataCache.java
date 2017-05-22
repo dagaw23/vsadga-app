@@ -158,11 +158,9 @@ public class DataCache {
 			return true;
 	}
 
-	public boolean isVolumeLessThen2(BarData barData, BarData lastBar, BarData prevBar) {
-		int bar_vol = barData.getBarVolume();
-
-		if (bar_vol < lastBar.getBarVolume().intValue()
-				&& lastBar.getBarVolume().intValue() < prevBar.getBarVolume().intValue())
+	public boolean isVolumeLessThen2(BarData actualBar, BarData prevBar, BarData prevPrevBar) {
+		if (actualBar.getBarVolume().intValue() < prevBar.getBarVolume().intValue()
+				&& prevBar.getBarVolume().intValue() < prevPrevBar.getBarVolume().intValue())
 			return true;
 		else
 			return false;

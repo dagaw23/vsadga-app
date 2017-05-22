@@ -7,7 +7,7 @@ import pl.com.vsadga.service.BaseServiceException;
 
 public interface BarDataProcessor {
 
-	void processBarDataByPhase(List<BarData> barDataList, String timeFrameDesc, int processPhase) throws BaseServiceException;
+	void processBarDataByPhase(List<BarData> barDataList, String timeFrameDesc) throws BaseServiceException;
 	
 	
 }
