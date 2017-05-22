@@ -35,14 +35,17 @@ import pl.com.vsadga.service.process.VolumeProcessor;
 import pl.com.vsadga.service.symbol.SymbolService;
 import pl.com.vsadga.service.timeframe.TimeFrameService;
 import pl.com.vsadga.utils.DateConverter;
+import pro.xstore.api.message.codes.PERIOD_CODE;
 import pro.xstore.api.message.command.APICommandFactory;
 import pro.xstore.api.message.command.CurrentUserDataCommand;
 import pro.xstore.api.message.error.APICommandConstructionException;
 import pro.xstore.api.message.error.APICommunicationException;
 import pro.xstore.api.message.error.APIReplyParseException;
+import pro.xstore.api.message.records.RateInfoRecord;
 import pro.xstore.api.message.records.SymbolRecord;
 import pro.xstore.api.message.response.APIErrorResponse;
 import pro.xstore.api.message.response.AllSymbolsResponse;
+import pro.xstore.api.message.response.ChartResponse;
 import pro.xstore.api.message.response.CurrentUserDataResponse;
 import pro.xstore.api.message.response.LoginResponse;
 import pro.xstore.api.message.response.SymbolResponse;
@@ -77,7 +80,7 @@ public class DataAnalyseBatch extends BaseBatch {
         SyncAPIConnector connector = new SyncAPIConnector(ServerEnum.REAL);
         
         // Create new credentials
-        Credentials credentials = new Credentials("1037101", "");
+        Credentials credentials = new Credentials("", "");
         
         // Create and execute new login command
         LoginResponse loginResponse = APICommandFactory.executeLoginCommand(
@@ -91,19 +94,28 @@ public class DataAnalyseBatch extends BaseBatch {
         if(loginResponse.getStatus() == true) {
             
             // Print the message on console
-        	System.out.println("User logged in");
+        	System.out.println("User logged in [" + loginResponse.getStreamSessionId() + "].");
             
             // Create and execute all symbols command (which gets list of all symbols available for the user)
-            AllSymbolsResponse availableSymbols = APICommandFactory.executeAllSymbolsCommand(connector);
+            //AllSymbolsResponse availableSymbols = APICommandFactory.executeAllSymbolsCommand(connector);
             
             // Print the message on console
-            System.out.println("Available symbols:");
+            //System.out.println("Available symbols:");
             
             // List all available symbols on console
-            for(SymbolRecord symbol : availableSymbols.getSymbolRecords()) {
-            	System.out.println("   -> " + symbol.getSymbol() + " Ask: " + symbol.getAsk() + " Bid: " + symbol.getBid());
-            }
-            
+            //for(SymbolRecord symbol : availableSymbols.getSymbolRecords()) {
+            //	System.out.println("   -> " + symbol.getSymbol() + " Ask: " + symbol.getAsk() + " Bid: " + symbol.getBid());
+            //}
+        	
+        	ChartResponse resp = APICommandFactory.executeChartLastCommand(connector, "EURUSD", PERIOD_CODE.PERIOD_M5, 2L);
+        	List<RateInfoRecord> rec_list = resp.getRateInfos();
+        	
+        	for (RateInfoRecord rec : rec_list) {
+        		Date datka = new Date(rec.getCtm());
+        		
+        		System.out.println(datka);
+        	}
+        		
         } else {
             
             // Print the error on console
