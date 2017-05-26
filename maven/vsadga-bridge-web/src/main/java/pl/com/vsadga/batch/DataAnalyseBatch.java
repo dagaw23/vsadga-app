@@ -1,24 +1,7 @@
 package pl.com.vsadga.batch;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.UnknownHostException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,24 +18,6 @@ import pl.com.vsadga.service.process.VolumeProcessor;
 import pl.com.vsadga.service.symbol.SymbolService;
 import pl.com.vsadga.service.timeframe.TimeFrameService;
 import pl.com.vsadga.utils.DateConverter;
-import pro.xstore.api.message.codes.PERIOD_CODE;
-import pro.xstore.api.message.command.APICommandFactory;
-import pro.xstore.api.message.command.CurrentUserDataCommand;
-import pro.xstore.api.message.error.APICommandConstructionException;
-import pro.xstore.api.message.error.APICommunicationException;
-import pro.xstore.api.message.error.APIReplyParseException;
-import pro.xstore.api.message.records.RateInfoRecord;
-import pro.xstore.api.message.records.SymbolRecord;
-import pro.xstore.api.message.response.APIErrorResponse;
-import pro.xstore.api.message.response.AllSymbolsResponse;
-import pro.xstore.api.message.response.ChartResponse;
-import pro.xstore.api.message.response.CurrentUserDataResponse;
-import pro.xstore.api.message.response.LoginResponse;
-import pro.xstore.api.message.response.SymbolResponse;
-import pro.xstore.api.streaming.StreamingListener;
-import pro.xstore.api.sync.Credentials;
-import pro.xstore.api.sync.ServerData.ServerEnum;
-import pro.xstore.api.sync.SyncAPIConnector;
 
 @Component
 public class DataAnalyseBatch extends BaseBatch {
@@ -76,37 +41,14 @@ public class DataAnalyseBatch extends BaseBatch {
 	
 	public static void main(String[] args) {
 		
-		try {
-		// Create new connector
-        SyncAPIConnector connector = new SyncAPIConnector(ServerEnum.REAL);
-        System.out.println("Connected to the server.");
-        
-        // Create new credentials
-        Credentials credentials = new Credentials("user", "pswd");
-        
-        // Create and execute new login command
-        LoginResponse loginResponse = APICommandFactory.executeLoginCommand(
-                connector,         // APIConnector
-                credentials        // Credentials
-        );
-        System.out.println("Login response.");
-        
-        // Check if user logged in correctly
-        if(loginResponse.getStatus() == true) {
-            
-            // Print the message on console
-        	System.out.println("User logged in [" + loginResponse.getStreamSessionId() + "].");
-        	
-        	// połączenie strumieniowe:
-        	connectStreaming(connector);
         	
         	// pobranie ceny wg symbolu:
-        	connector.subscribePrice("EURUSD");
-        	connector.subscribeCandle("EURUSD");
+        	//connector.subscribePrice("EURUSD");
+        	//connector.subscribeCandle("EURUSD");
         	
         	// pobranie aktualnej ceny:
-        	SymbolResponse symbolResponse = APICommandFactory.executeSymbolCommand(connector, "EURUSD");
-        	System.out.println("Initial symbol price: [" + symbolResponse.getSymbol().getAsk() + "].");
+        	//SymbolResponse symbolResponse = APICommandFactory.executeSymbolCommand(connector, "EURUSD");
+        	//System.out.println("Initial symbol price: [" + symbolResponse.getSymbol().getAsk() + "].");
         	
             // Create and execute all symbols command (which gets list of all symbols available for the user)
             //AllSymbolsResponse availableSymbols = APICommandFactory.executeAllSymbolsCommand(connector);
@@ -126,28 +68,6 @@ public class DataAnalyseBatch extends BaseBatch {
         	//	Date datka = new Date(rec.getCtm());
         	//	System.out.println(datka);
         	//}
-        		
-        } else {
-            
-            // Print the error on console
-        	System.out.println("Error: user couldn't log in!");      
-            
-        }
-        
-        // Close connection
-        connector.close();
-        System.out.println("Connection closed");
-		} catch (APICommunicationException e) {
-			e.printStackTrace();
-		} catch (APICommandConstructionException e) {
-			e.printStackTrace();
-		} catch (APIReplyParseException e) {
-			e.printStackTrace();
-		} catch (APIErrorResponse e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		
 		//SSLSocketFactory f = (SSLSocketFactory) SSLSocketFactory.getDefault();
 		//SSLSocket socket;
@@ -198,18 +118,6 @@ public class DataAnalyseBatch extends BaseBatch {
 		
 	}
 	
-	private static void connectStreaming(final SyncAPIConnector connector) {
-		try {
-			connector.connectStream(new StreamingListener());
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (APICommunicationException e) {
-			e.printStackTrace();
-		}
-	}
-
 	@Scheduled(cron = "10 * * * * SUN-FRI")
 	public void cronJob() {
 		List<CurrencySymbol> symbol_list = null;

@@ -403,4 +403,12 @@ insert into fxschema.config_data(id, param_name, param_value)
 values (42, 'ALERT_BY_VOLUME_SIZE', 'M5:300,M15:120,H1:50,H4:15');
 insert into fxschema.config_data(id, param_name, param_value)
 values (43, 'TRADE_ALERT_DAY_BACK', '15');
+insert into fxschema.config_data(id, param_name, param_value)
+values (44, 'IS_BATCH_SUBSCRIBE', '1');
+insert into fxschema.config_data(id, param_name, param_value)
+values (45, 'DATA_SUBSCRIBE_MODE', '0');
+insert into fxschema.config_data(id, param_name, param_value)
+values (46, 'DATA_SUBSCRIBE_USER', 'Usr1103710112345');
+insert into fxschema.config_data(id, param_name, param_value)
+values (47, 'DATA_SUBSCRIBE_PASS', 'Przepracuj12301980');
 

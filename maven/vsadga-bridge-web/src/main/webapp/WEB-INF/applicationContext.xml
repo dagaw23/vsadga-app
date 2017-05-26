@@ -78,6 +78,8 @@
 	</bean>
 
 	<!-- Processors -->
+	<bean id="dataStreamProcessor" class="pl.com.vsadga.processor.impl.DataStreamProcessorImpl"/>
+	
 	<bean id="indicatorProcessor" class="pl.com.vsadga.service.process.impl.IndicatorProcessorImpl">
 		<property name="configDataService" ref="configDataService" />
 		<property name="dataCache" ref="dataCache" />

@@ -313,6 +313,8 @@ ALTER TABLE fxschema.data_h4 ADD COLUMN spread_size varchar(2) null;
 ALTER TABLE fxschema.data_d1 ADD COLUMN spread_size varchar(2) null;
 ALTER TABLE fxschema.data_w1 ADD COLUMN spread_size varchar(2) null;
 
+update fxschema.config_data set param_value='0' where param_name='IS_BATCH_REWRITE';
+
 Do usunięcia parametry: H4_LEVELS, H1_LEVELS, M15_LEVELS, M5_LEVELS, ANALYSE_END_DATE
 currencyDataService.getLastNbarDataToDate(barCount, symbol, timeFrame, endDate)
 IndicatorData

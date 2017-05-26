@@ -74,4 +74,14 @@ public class ConfigDataServiceImpl implements ConfigDataService {
 		}
 	}
 
+	@Override
+	public int update(String paramName, String paramValue) throws BaseServiceException {
+		try {
+			return configDataDao.update(paramName, paramValue);
+		} catch (Throwable th) {
+			th.printStackTrace();
+			throw new BaseServiceException("::update:: wystapil wyjatek Throwable!", th);
+		}
+	}
+
 }

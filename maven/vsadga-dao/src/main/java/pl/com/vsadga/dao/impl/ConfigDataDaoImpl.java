@@ -79,6 +79,13 @@ public class ConfigDataDaoImpl extends JdbcDaoBase implements ConfigDataDao {
 		return getJdbcTemplate().update(sql, paramValue, id);
 	}
 
+	@Override
+	public int update(String paramName, String paramValue) {
+		String sql = "update " + TAB_NME + " set param_value=? where param_name=?";
+
+		return getJdbcTemplate().update(sql, paramValue, paramName);
+	}
+
 	private ConfigData rs2ConfigData(final ResultSet rs) throws SQLException {
 		ConfigData result = new ConfigData();
 

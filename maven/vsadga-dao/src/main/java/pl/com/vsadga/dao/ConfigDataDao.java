@@ -13,4 +13,6 @@ public interface ConfigDataDao {
 	String getParam(String paramName);
 	
 	int update(Integer id, String paramValue);
+	
+	int update(String paramName, String paramValue);
 }
