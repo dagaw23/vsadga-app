@@ -49,6 +49,7 @@ import pro.xstore.api.message.response.ChartResponse;
 import pro.xstore.api.message.response.CurrentUserDataResponse;
 import pro.xstore.api.message.response.LoginResponse;
 import pro.xstore.api.message.response.SymbolResponse;
+import pro.xstore.api.streaming.StreamingListener;
 import pro.xstore.api.sync.Credentials;
 import pro.xstore.api.sync.ServerData.ServerEnum;
 import pro.xstore.api.sync.SyncAPIConnector;
@@ -78,24 +79,35 @@ public class DataAnalyseBatch extends BaseBatch {
 		try {
 		// Create new connector
         SyncAPIConnector connector = new SyncAPIConnector(ServerEnum.REAL);
+        System.out.println("Connected to the server.");
         
         // Create new credentials
-        Credentials credentials = new Credentials("", "");
+        Credentials credentials = new Credentials("user", "pswd");
         
         // Create and execute new login command
         LoginResponse loginResponse = APICommandFactory.executeLoginCommand(
                 connector,         // APIConnector
                 credentials        // Credentials
         );
-        
-        System.out.println("TEST");
+        System.out.println("Login response.");
         
         // Check if user logged in correctly
         if(loginResponse.getStatus() == true) {
             
             // Print the message on console
         	System.out.println("User logged in [" + loginResponse.getStreamSessionId() + "].");
-            
+        	
+        	// połączenie strumieniowe:
+        	connectStreaming(connector);
+        	
+        	// pobranie ceny wg symbolu:
+        	connector.subscribePrice("EURUSD");
+        	connector.subscribeCandle("EURUSD");
+        	
+        	// pobranie aktualnej ceny:
+        	SymbolResponse symbolResponse = APICommandFactory.executeSymbolCommand(connector, "EURUSD");
+        	System.out.println("Initial symbol price: [" + symbolResponse.getSymbol().getAsk() + "].");
+        	
             // Create and execute all symbols command (which gets list of all symbols available for the user)
             //AllSymbolsResponse availableSymbols = APICommandFactory.executeAllSymbolsCommand(connector);
             
@@ -107,14 +119,13 @@ public class DataAnalyseBatch extends BaseBatch {
             //	System.out.println("   -> " + symbol.getSymbol() + " Ask: " + symbol.getAsk() + " Bid: " + symbol.getBid());
             //}
         	
-        	ChartResponse resp = APICommandFactory.executeChartLastCommand(connector, "EURUSD", PERIOD_CODE.PERIOD_M5, 2L);
-        	List<RateInfoRecord> rec_list = resp.getRateInfos();
+        	//ChartResponse resp = APICommandFactory.executeChartLastCommand(connector, "EURUSD", PERIOD_CODE.PERIOD_M5, 2L);
+        	//List<RateInfoRecord> rec_list = resp.getRateInfos();
         	
-        	for (RateInfoRecord rec : rec_list) {
-        		Date datka = new Date(rec.getCtm());
-        		
-        		System.out.println(datka);
-        	}
+        	//for (RateInfoRecord rec : rec_list) {
+        	//	Date datka = new Date(rec.getCtm());
+        	//	System.out.println(datka);
+        	//}
         		
         } else {
             
@@ -185,6 +196,18 @@ public class DataAnalyseBatch extends BaseBatch {
 //			}
 //		}
 		
+	}
+	
+	private static void connectStreaming(final SyncAPIConnector connector) {
+		try {
+			connector.connectStream(new StreamingListener());
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (APICommunicationException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Scheduled(cron = "10 * * * * SUN-FRI")
