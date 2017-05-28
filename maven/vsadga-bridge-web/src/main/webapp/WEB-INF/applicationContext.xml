@@ -27,8 +27,7 @@
 	
 	<!-- Data -->
 	<bean id="dataCache" class="pl.com.vsadga.dto.cache.DataCache">
-		<constructor-arg name="indyDataLength" value="10" />
-		<constructor-arg name="barDataCacheLength" value="5" />
+		<constructor-arg name="indyCacheSize" value="10" />
 	</bean>
 
 	<!-- DAOs -->
@@ -94,7 +93,6 @@
 		<property name="dataCache" ref="dataCache" />
 	</bean>
 	<bean id="volumeProcessor" class="pl.com.vsadga.service.process.impl.VolumeProcessorImpl">
-		<property name="barDataDao" ref="barDataDao" />
 		<property name="configDataService" ref="configDataService" />
 		<property name="dataCache" ref="dataCache" />
 	</bean>
@@ -105,7 +103,6 @@
 		<property name="indicatorProcessor" ref="indicatorProcessor" />
 		<property name="trendProcessor" ref="trendProcessor" />
 		<property name="volumeProcessor" ref="volumeProcessor" />
-		<property name="volumeSpreadRatio" value="200" />
 	</bean>
 
 </beans>

@@ -15,8 +15,10 @@ import pro.xstore.api.message.command.APICommandFactory;
 import pro.xstore.api.message.error.APICommandConstructionException;
 import pro.xstore.api.message.error.APICommunicationException;
 import pro.xstore.api.message.error.APIReplyParseException;
+import pro.xstore.api.message.records.SymbolRecord;
 import pro.xstore.api.message.response.APIErrorResponse;
 import pro.xstore.api.message.response.LoginResponse;
+import pro.xstore.api.message.response.SymbolResponse;
 import pro.xstore.api.sync.Credentials;
 import pro.xstore.api.sync.ServerData.ServerEnum;
 import pro.xstore.api.sync.SyncAPIConnector;
@@ -80,7 +82,7 @@ public class DataStreamProcessorImpl implements DataStreamProcessor {
 			// zamknięcie połączenia:
 			connector.close();
 			LOGGER.info("   ::disconnect:: Connection closed.");
-			
+
 			// ustaw informację o zestawieniu połączenia:
 			configDataService.update("DATA_SUBSCRIBE_MODE", "0");
 		} catch (APICommunicationException e) {
@@ -130,8 +132,8 @@ public class DataStreamProcessorImpl implements DataStreamProcessor {
 			if (loginResponse.getStatus() == true) {
 
 				// Print the message on console
-				LOGGER.info("   ::login:: User logged in - with streamSessionId=["
-						+ loginResponse.getStreamSessionId() + "].");
+				LOGGER.info("   ::login:: User logged in - with streamSessionId=[" + loginResponse.getStreamSessionId()
+						+ "].");
 
 				// połączenie strumieniowe:
 				connector.connectStream(new DataStreamListener());
@@ -164,5 +166,33 @@ public class DataStreamProcessorImpl implements DataStreamProcessor {
 			throw new DataStreamProcessorException("::login:: wyjatek Throwable!", th);
 		}
 
+	}
+
+	@Override
+	public void subscribe(String symbol) throws DataStreamProcessorException {
+		if (connector == null) {
+			LOGGER.info("   ::subscribe:: Not connected to the server [" + connector + "].");
+			return;
+		}
+
+		// czy połączenie jest już zestawione:
+		if (connector.isStreamConnected()) {
+			LOGGER.info("   ::subscribe:: polaczenie nie jest zestawione [" + connector.isStreamConnected() + "].");
+			return;
+		}
+		
+		try {
+			// subskrybcja wg symbolu:
+			connector.subscribeCandle(symbol);
+			
+			// ustaw informację o zestawieniu połączenia:
+			configDataService.update("DATA_SUBSCRIBE_MODE", "1");
+		} catch (APICommunicationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BaseServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

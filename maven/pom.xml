@@ -9,6 +9,7 @@
   <name>Module project</name>
   
   <modules>
+	<module>vsadga-xapi</module>
   	<module>vsadga-data</module>
   	<module>vsadga-dao</module>
   	<module>vsadga-service</module>
