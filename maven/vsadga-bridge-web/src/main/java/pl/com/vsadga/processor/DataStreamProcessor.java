@@ -7,4 +7,6 @@ public interface DataStreamProcessor {
 	void disconnect() throws DataStreamProcessorException;
 	
 	void subscribe(String symbol) throws DataStreamProcessorException;
+	
+	void unsubscribe(String symbol) throws DataStreamProcessorException;
 }

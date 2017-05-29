@@ -27,10 +27,10 @@ public class DataStreamProcessorImpl implements DataStreamProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DataStreamProcessorImpl.class);
 
-	private SyncAPIConnector connector;
-
 	@Autowired
 	private ConfigDataService configDataService;
+
+	private SyncAPIConnector connector;
 
 	@Override
 	public void connect(String user, String passwd) throws DataStreamProcessorException {
@@ -91,6 +91,62 @@ public class DataStreamProcessorImpl implements DataStreamProcessor {
 		} catch (Throwable th) {
 			th.printStackTrace();
 			throw new DataStreamProcessorException("::disconnect:: wyjatek Throwable!", th);
+		}
+	}
+
+	@Override
+	public void subscribe(String symbol) throws DataStreamProcessorException {
+		if (connector == null) {
+			LOGGER.info("   ::subscribe:: Not connected to the server [" + connector + "].");
+			return;
+		}
+
+		// czy połączenie jest już zestawione:
+		if (!connector.isStreamConnected()) {
+			LOGGER.info("   ::subscribe:: polaczenie nie jest zestawione [" + connector.isStreamConnected() + "].");
+			return;
+		}
+		
+		try {
+			// subskrybcja wg symbolu:
+			connector.subscribeCandle(symbol);
+			
+			// ustaw informację o zestawieniu połączenia:
+			configDataService.update("DATA_SUBSCRIBE_MODE", "1");
+		} catch (APICommunicationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BaseServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void unsubscribe(String symbol) throws DataStreamProcessorException {
+		if (connector == null) {
+			LOGGER.info("   ::unsubscribe:: Not connected to the server [" + connector + "].");
+			return;
+		}
+
+		// czy połączenie jest już zestawione:
+		if (!connector.isStreamConnected()) {
+			LOGGER.info("   ::unsubscribe:: polaczenie nie jest zestawione [" + connector.isStreamConnected() + "].");
+			return;
+		}
+		
+		try {
+			// subskrybcja wg symbolu:
+			connector.unsubscribeCandle(symbol);
+			
+			// ustaw informację o zestawieniu połączenia:
+			configDataService.update("DATA_SUBSCRIBE_MODE", "1");
+		} catch (APICommunicationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BaseServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -166,33 +222,5 @@ public class DataStreamProcessorImpl implements DataStreamProcessor {
 			throw new DataStreamProcessorException("::login:: wyjatek Throwable!", th);
 		}
 
-	}
-
-	@Override
-	public void subscribe(String symbol) throws DataStreamProcessorException {
-		if (connector == null) {
-			LOGGER.info("   ::subscribe:: Not connected to the server [" + connector + "].");
-			return;
-		}
-
-		// czy połączenie jest już zestawione:
-		if (!connector.isStreamConnected()) {
-			LOGGER.info("   ::subscribe:: polaczenie nie jest zestawione [" + connector.isStreamConnected() + "].");
-			return;
-		}
-		
-		try {
-			// subskrybcja wg symbolu:
-			connector.subscribeCandle(symbol);
-			
-			// ustaw informację o zestawieniu połączenia:
-			configDataService.update("DATA_SUBSCRIBE_MODE", "1");
-		} catch (APICommunicationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BaseServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

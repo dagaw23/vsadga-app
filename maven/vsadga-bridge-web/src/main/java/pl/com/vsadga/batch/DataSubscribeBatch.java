@@ -73,6 +73,10 @@ public class DataSubscribeBatch extends BaseBatch {
 			// 12: subskrybcja EURUSD
 			
 			dataStreamProcessor.subscribe("EURUSD");
+		} else if (sub_mode.intValue() == 13) {
+			// 12: subskrybcja EURUSD
+			
+			dataStreamProcessor.unsubscribe("EURUSD");
 		}
 		
 		// pozostałe wartości: nic nie robimy
