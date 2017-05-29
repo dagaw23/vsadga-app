@@ -176,7 +176,7 @@ public class DataStreamProcessorImpl implements DataStreamProcessor {
 		}
 
 		// czy połączenie jest już zestawione:
-		if (connector.isStreamConnected()) {
+		if (!connector.isStreamConnected()) {
 			LOGGER.info("   ::subscribe:: polaczenie nie jest zestawione [" + connector.isStreamConnected() + "].");
 			return;
 		}
